@@ -29,7 +29,7 @@ val_lists = ['','','','','']
 for i in range(5):
     # j = on parcours toutes les identités
     for j in range(1,len(all_ids)+1):
-        # Validation is only 1/i ids
+        # Validation is only 1/i ids, we have 395 ids which lead to folds of 79 ids
         if j >= 79*i + 1 and j <= (79*(i+1)) :
             if j == 79*(i+1) :
                 val_lists[i] = val_lists[i] + str(all_ids[j-1])
