@@ -96,7 +96,7 @@ def multi_process() :
         #trainset = SYSUData(data_path, transform=transform_train)
         print(f"trainset labels : {len(trainset.train_color_label)}")
         for k in range(len(trainset.train_color_label)):
-            print(trainset.train_color_label[0])
+            print(trainset.train_color_label[k])
         print(f"trainset labels : {trainset.train_thermal_label}")
         sys.exit()
         # generate the idx of each person identity
