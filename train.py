@@ -137,7 +137,7 @@ def multi_process() :
     print(f'Data Loading Time:\t {time.time() - Timer1:.3f}')
     print(' ')
     print('==> Building model..')
-    sys.exit()
+
     ######################################### MODEL
     if args.fusion=="layer1" :
         net = Network_layer1(n_class).to(device)
@@ -192,7 +192,7 @@ def multi_process() :
             print(feat.shape)
             print(out0.shape)
             print(labels.shape)
-            sys.exit()
+
             loss_ce = criterion_id(out0, labels)
 
             loss_tri, batch_acc = criterion_tri(feat, labels)
