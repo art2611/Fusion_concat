@@ -92,9 +92,9 @@ def multi_process() :
 
     if args.dataset == 'sysu':
         # training set
-        trainset = SYSUData_clean(data_path, transform=transform_train, fold = 0)
-        #trainset = SYSUData(data_path, transform=transform_train)
-        print(f"trainset labels : {len(trainset.train_color_label)}")
+        #trainset = SYSUData_clean(data_path, transform=transform_train, fold = 0)
+        trainset = SYSUData(data_path, transform=transform_train)
+        print(f"trainset labels : {trainset.train_color_label}")
 
         print(f"trainset labels : {len(trainset.train_thermal_label)}")
         print(f"trainset images : {len(trainset.train_color_image)}")
