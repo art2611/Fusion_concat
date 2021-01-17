@@ -97,7 +97,7 @@ def multi_process() :
         print(f"trainset labels : {trainset.train_color_label}")
 
         print(f"trainset labels : {len(trainset.train_thermal_label)}")
-        print(f"trainset images : {len(trainset.train_color_image)}")
+        print(f"trainset images : {trainset.train_color_image[0]}")
         sys.exit()
         # generate the idx of each person identity
         color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
