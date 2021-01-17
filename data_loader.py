@@ -356,7 +356,7 @@ def process_gallery_sysu(data_path, method, mode='all', trial=0, relabel=False, 
         file_path = os.path.join(data_path, 'exp/test_id.txt')
     elif method == "valid":
         print("Validation set called")
-        file_path = os.path.join(data_path, 'exp/val_id.txt')
+        file_path = os.path.join(data_path, f'exp/val_id_{0}.txt')
 
     files_rgb = []
     files_ir = []
