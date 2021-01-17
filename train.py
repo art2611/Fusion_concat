@@ -94,11 +94,7 @@ def multi_process() :
         # training set
         trainset = SYSUData_clean(data_path, transform=transform_train, fold = 0)
         # trainset = SYSUData(data_path, transform=transform_train)
-        print(f"trainset labels : {trainset.train_color_label}")
 
-        print(f"trainset labels : {len(trainset.train_thermal_label)}")
-        print(f"trainset images : {trainset.train_color_image[0]}")
-        sys.exit()
         # generate the idx of each person identity
         color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
 
@@ -141,7 +137,7 @@ def multi_process() :
     print(f'Data Loading Time:\t {time.time() - Timer1:.3f}')
     print(' ')
     print('==> Building model..')
-
+    sys.exit()
     ######################################### MODEL
     if args.fusion=="layer1" :
         net = Network_layer1(n_class).to(device)
