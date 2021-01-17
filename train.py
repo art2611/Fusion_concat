@@ -176,7 +176,8 @@ def multi_process() :
         end = time.time()
 
         for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
-            labels = torch.cat((label1, label2), 0)
+            # labels = torch.cat((label1, label2), 0)
+            labels = label1
 
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
