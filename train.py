@@ -284,7 +284,8 @@ def multi_process() :
         # training
         train(epoch)
 
-        if epoch > 0 and epoch % 2 == 0  :
+        # if epoch > 0 and epoch % 2 == 0  :
+        if epoch == 1 :
             print(f'Test Epoch: {epoch}')
 
             # testing
