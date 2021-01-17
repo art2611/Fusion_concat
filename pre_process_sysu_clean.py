@@ -9,7 +9,7 @@ data_path = '../Datasets/SYSU/'
 file_path_train = os.path.join(data_path, 'exp/train_id.txt')
 file_path_valid = os.path.join(data_path, 'exp/val_id.txt')
 
-###GET VALID AND TRAIN initial IDS
+###GET VALID AND TRAIN initial IDS in one list
 with open(file_path_train, 'r') as file:
     ids = file.read().splitlines()
     ids = [int(y) for y in ids[0].split(',')]
@@ -25,17 +25,22 @@ with open(file_path_valid, 'r') as file:
 training_lists=[[],[],[],[],[]]
 val_lists = ['','','','','']
 
+# i = 5 : Nombre de folds
 for i in range(5):
+    # j = on parcours toutes les identités
     for j in range(1,len(all_ids)+1):
+        # Validation is only 1/i ids
         if j >= 79*i + 1 and j <= (79*(i+1)) :
             if j == 79*(i+1) :
                 val_lists[i] = val_lists[i] + str(all_ids[j-1])
             else :
                 val_lists[i] = val_lists[i] + str(all_ids[j-1]) + ','
+        # Training is always what is not in the previous interval ( i-1 / i ids)
         else :
             training_lists[i].append("%04d" % all_ids[j-1])
 
 
+# We create txt files for with the validation ids in it
 for k in range(5) :
     f = open(data_path + f"exp/val_id_{k}.txt", "w+")
     f.write(val_lists[k])
