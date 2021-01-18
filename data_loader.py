@@ -543,10 +543,15 @@ def process_BOTH_sysu(data_path, method, fold=0):
     files_gallery_visible = []
     files_query_thermal = []
     files_gallery_thermal = []
+    minimum = 0
+    temp_query_visible = []
+    temp_query_thermal = []
     for id in sorted(ids):
         #Instead of select 1 img per cam, we want the same amount of img for both modalities
         # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with a pair number
         for i in range(2):
+            temp_query_visible = []
+            temp_query_thermal = []
             random_rgb_cam = random.choice(rgb_cameras)
             img_dir = os.path.join(data_path, random_rgb_cam, id)
             if os.path.isdir(img_dir):
@@ -555,9 +560,10 @@ def process_BOTH_sysu(data_path, method, fold=0):
                 files_gallery_visible.append(rand)
                 for w in new_files:
                     if w != rand:
-                        files_query_visible.append(w)
+                        temp_query_visible.append(w)
             else :
                 print("FUCK1")
+                print(f"not existing dir : {img_dir}")
 
             random_ir_cam = random.choice(ir_cameras)
             img_dir = os.path.join(data_path, random_ir_cam, id)
@@ -567,9 +573,12 @@ def process_BOTH_sysu(data_path, method, fold=0):
                 files_gallery_thermal.append(rand)
                 for w in new_files:
                     if w != rand:
-                        files_query_thermal.append(w)
+                        temp_query_thermal.append(w)
             else :
                 print("FUCK2")
+            for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
+                files_query_visible.append(temp_query_visible[k])
+                files_query_thermal.append(temp_query_thermal[k])
 
     query_img = []
     query_id = []

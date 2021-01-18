@@ -10,6 +10,8 @@ a.extend(b)
 print(a)
 if 4 in [1,2]:
     print("true")
+for k in range(0) :
+    print("COUCOU")
 
 
 sys.exit()
