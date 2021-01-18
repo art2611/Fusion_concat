@@ -358,7 +358,7 @@ def multi_process() :
                 all_mAP_pool = all_mAP_pool + mAP_pool
                 all_mINP_pool = all_mINP_pool + mINP_pool
 
-            print('Test Trial: {}'.format(trial))
+            print(f'Test fold: {test_fold}')
             print('FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                     cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
             print('POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
