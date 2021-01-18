@@ -400,24 +400,24 @@ def process_gallery_sysu(data_path, method, mode='all', trial=0, relabel=False, 
         files = files_ir
     elif reid=="TtoV" :
         files = files_rgb
-    for img_path in files:
-        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-        gall_img.append(img_path)
-        gall_id.append(pid)
-        gall_cam.append(camid)
+    if reid in ["VtoT", "TtoV"]:
+        for img_path in files:
+            camid, pid = int(img_path[-15]), int(img_path[-13:-9])
+            gall_img.append(img_path)
+            gall_id.append(pid)
+            gall_cam.append(camid)
     # Ajout pour la fusion avec utilisation des deux images :
     if reid == "BtoB" :
         # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
         for k in range(min(len(files_rgb), len(files_ir))):
-            gall_img.append([files_rgb[k], files_ir[k]])
-            #Il faudrait vérifier que les deux ids sont les mêmes ici je pense
-            pid = int(files_rgb[k][-13:-9])
-            print(f" pid 1 : {pid}")
-            pid = int(files_ir[k][-13:-9])
-            print(f" pid 2 : {pid}")
-            gall_id.append(pid)
-            # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
-            gall_cam.append(1)
+            if int(files_rgb[k][-13:-9]) == int(files_ir[k][-13:-9]) :
+                pid = int(files_rgb[k][-13:-9])
+                gall_img.append([files_rgb[k], files_ir[k]])
+                print(f" pid : {pid}")
+
+                gall_id.append(pid)
+                # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
+                gall_cam.append(1)
 
     return gall_img, np.array(gall_id), np.array(gall_cam)
 
