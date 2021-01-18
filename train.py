@@ -28,7 +28,7 @@ def multi_process() :
 
 
     parser = argparse.ArgumentParser(description='PyTorch Cross-Modality Training')
-    parser.add_argument('--fusion', default='layer1', help='layer to fuse')
+    parser.add_argument('--prout', default='layer1', help='layer to fuse')
     parser.add_argument('--prout', default='layer1', help='layer to fuse')
 
     parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu')
