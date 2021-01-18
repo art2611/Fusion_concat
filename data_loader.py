@@ -363,11 +363,14 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
                 query_cam.append(1)
             elif pid_rgb < pid_ir :
                 print("pid_rgb < pid_ir")
+                print(f"supress img IR : {files_ir[w]}")
                 w += 1
             elif pid_rgb > pid_ir :
                 print("pid_rgb > pid_ir")
+                print(f"supress img : {files_rgb[x]}")
                 x +=1
 
+            print("w, x")
 
     #print(query_img)
     return query_img, np.array(query_id), np.array(query_cam)
