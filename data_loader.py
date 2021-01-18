@@ -551,6 +551,8 @@ def process_BOTH_sysu(data_path, method, fold=0):
         # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with a pair number
 
         files_ir, files_rgb = image_list(id, data_path)
+        print(files_ir)
+        sys.exit()
         if files_ir != 0 and files_rgb != 0 :
             print("One of file is not 0 ")
             temp_gallery_visible = []
