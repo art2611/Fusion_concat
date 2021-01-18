@@ -577,7 +577,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
             temp_gallery_visible = [rand_rgb[0], rand_rgb[1]]
             for w in files_rgb:
                 if w not in rand_rgb:
-                    temp_query_thermal.append(w)
+                    temp_query_visible.append(w)
 
             #Get the same number of images for each modality => the minimal available images per id of each modality
             for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
