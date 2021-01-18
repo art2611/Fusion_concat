@@ -597,8 +597,8 @@ def process_BOTH_sysu(data_path, method, fold=0):
     print(len(files_query_thermal))
     print(len(files_gallery_thermal))
     for k in range(3):
-        print(f"visible  : {files_query_visible}")
-        print(f"thermal : {files_query_thermal}")
+        print(f"visible  : {files_query_visible[k]}")
+        print(f"thermal : {files_query_thermal[k]}")
     for img_path in files_query_visible:
         camid, pid = int(img_path[-15]), int(img_path[-13:-9])
         query_img.append([img_path,img_path])
