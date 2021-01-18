@@ -337,6 +337,22 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         query_img.append(img_path)
         query_id.append(pid)
         query_cam.append(camid)
+
+    # Ajout pour la fusion avec utilisation des deux images :
+
+    if reid == "BtoB" :
+        # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
+        for k in range(min(len(files_rgb), len(files_ir))):
+            query_img.append([files_rgb[k], files_ir[k]])
+            #Il faudrait vérifier que les deux ids sont les mêmes ici je pense
+            pid = int(files_rgb[k][-13:-9])
+            print(f" pid 1 : {pid}")
+            pid = int(files_ir[k][-13:-9])
+            print(f" pid 2 : {pid}")
+            query_id.append(pid)
+            # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
+            query_cam.append(1)
+
     #print(query_img)
     return query_img, np.array(query_id), np.array(query_cam)
 
@@ -354,7 +370,7 @@ def process_gallery_sysu(data_path, method, mode='all', trial=0, relabel=False, 
     if method == "test":
         print("Test set called")
         file_path = os.path.join(data_path, 'exp/test_id.txt')
-    elif method == "valid":
+    elif method == "valid" :
         print("Validation set called")
         file_path = os.path.join(data_path, f'exp/val_id_{0}.txt')
 
@@ -390,6 +406,19 @@ def process_gallery_sysu(data_path, method, mode='all', trial=0, relabel=False, 
         gall_img.append(img_path)
         gall_id.append(pid)
         gall_cam.append(camid)
+    # Ajout pour la fusion avec utilisation des deux images :
+    if reid == "BtoB" :
+        # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
+        for k in range(min(len(files_rgb), len(files_ir))):
+            gall_img.append([files_rgb[k], files_ir[k]])
+            #Il faudrait vérifier que les deux ids sont les mêmes ici je pense
+            pid = int(files_rgb[k][-13:-9])
+            print(f" pid 1 : {pid}")
+            pid = int(files_ir[k][-13:-9])
+            print(f" pid 2 : {pid}")
+            gall_id.append(pid)
+            # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
+            gall_cam.append(1)
 
     return gall_img, np.array(gall_id), np.array(gall_cam)
 
