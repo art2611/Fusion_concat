@@ -552,7 +552,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
 
         files_ir, files_rgb = image_list(id, data_path)
         if files_ir != 0 and files_rgb != 0 :
-
+            print("One of file is not 0 ")
             temp_gallery_visible = []
             temp_gallery_thermal = []
             temp_query_visible = []
