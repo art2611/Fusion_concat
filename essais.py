@@ -5,22 +5,10 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
-a = [1,2,3]
-b = [2,3]
-a.extend(b)
-print(a)
-if 4 in [1,2]:
+
+files_ir = 0
+
+files_ir = [1,2]
+
+if files_ir == 0 :
     print("true")
-for k in range(0) :
-    print("COUCOU")
-
-print(random.choice([1,3,12]))
-
-sys.exit()
-a = [[2,0], [4,6],[0,1]]
-a = np.array(a)
-print(a)
-
-dist = pdist(a, metric='euclidean')
-print(dist)
-print(a.max(1))
