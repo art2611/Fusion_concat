@@ -369,9 +369,7 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
                 print("pid_rgb < pid_ir")
                 print(f"supress img : {files_rgb[x]}")
                 x +=1
-
-            print("w, x")
-
+            print(" ")
     #print(query_img)
     return query_img, np.array(query_id), np.array(query_cam)
 
