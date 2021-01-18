@@ -6,9 +6,17 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
 
-files_ir = 0
+a = torch.randint(10, (2, 2))
+b =  torch.randint(10, (2, 2))
+print(a)
+print(b)
+print(torch.cat((a,b), 1))
 
-files_ir = [1,2]
+sys.exit()
+a = [[2,0], [4,6],[0,1]]
+a = np.array(a)
+print(a)
 
-if files_ir == 0 :
-    print("true")
+dist = pdist(a, metric='euclidean')
+print(dist)
+print(a.max(1))
