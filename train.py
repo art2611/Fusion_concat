@@ -30,6 +30,92 @@ parser.add_argument('--split', default='paper_based', help='How to split data')
 args = parser.parse_args()
 
 # from test import extract_gall_feat, extract_query_feat
+
+def extract_gall_feat(gall_loader, ngall, net):
+    net.eval()
+    print('Extracting Gallery Feature...')
+    start = time.time()
+    ptr = 0
+    if args.reid == "VtoT" or args.reid == "TtoT" :
+        test_mode = 2
+    if args.reid == "TtoV" or args.reid == "VtoV":
+        test_mode = 1
+    if args.reid == "BtoB" :
+        test_mode = 0
+        gall_feat_pool = np.zeros((ngall, 4096))
+        gall_feat_fc = np.zeros((ngall, 4096))
+        with torch.no_grad():
+            for batch_idx, (input1, input2, label) in enumerate(gall_loader):
+                batch_num = input1.size(0)
+                input1 = Variable(input1.cuda())
+                input2 = Variable(input2.cuda())
+                feat_pool, feat_fc = net(input1, input2, modal=test_mode)
+                gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+                gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+                ptr = ptr + batch_num
+        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+    else :
+        gall_feat_pool = np.zeros((ngall, 2048))
+        gall_feat_fc = np.zeros((ngall, 2048))
+        print(f"Gallery test on mode {test_mode} supposed to be 1 if visible or 2 if thermal")
+        with torch.no_grad():
+            for batch_idx, (input, label) in enumerate(gall_loader):
+                batch_num = input.size(0)
+                input = Variable(input.cuda())
+                feat_pool, feat_fc = net(input, input, modal=test_mode)
+                gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+                gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+                ptr = ptr + batch_num
+        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+    return gall_feat_pool, gall_feat_fc
+
+def extract_query_feat(query_loader, nquery, net):
+    net.eval()
+    print('Extracting Query Feature...')
+    start = time.time()
+    ptr = 0
+
+    if args.reid == "VtoT" or args.reid == "VtoV":
+        test_mode = 1
+    if args.reid == "TtoV" or args.reid== "TtoT" :
+        test_mode = 2
+    if args.reid == "BtoB" :
+        test_mode = 0
+        query_feat_pool = np.zeros((nquery, 4096))
+        query_feat_fc = np.zeros((nquery, 4096))
+        print(f"Query test on mode {test_mode} supposed to be 1 if visible or 2 if thermal" )
+        with torch.no_grad():
+            for batch_idx, (input1, input2, label) in enumerate(query_loader):
+                batch_num = input1.size(0)
+                print(f"batch num : {batch_num}")
+                print(input1.size(0))
+                print(input2.size(0))
+                print(label)
+                print(batch_idx)
+                input1 = Variable(input1.cuda())
+                input2 = Variable(input2.cuda())
+                feat_pool, feat_fc = net(input1, input2, modal=test_mode)
+                print(feat_pool.shape)
+                print(feat_fc.shape)
+                query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+                query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+                ptr = ptr + batch_num
+        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+    else :
+        query_feat_pool = np.zeros((nquery, 2048))
+        query_feat_fc = np.zeros((nquery, 2048))
+        print(f"Query test on mode {test_mode} supposed to be 1 if visible or 2 if thermal" )
+        with torch.no_grad():
+            for batch_idx, (input, label) in enumerate(query_loader):
+                batch_num = input.size(0)
+                input = Variable(input.cuda())
+                feat_pool, feat_fc = net(input, input, modal=test_mode)
+                query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+                query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+                ptr = ptr + batch_num
+        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+    return query_feat_pool, query_feat_fc
+
 def multi_process() :
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
