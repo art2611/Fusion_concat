@@ -122,15 +122,13 @@ def multi_process() :
         # Gallery of thermal images - Queryset = Gallery of visible query
         gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
         queryset = TestData(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
-        # Test data loader
-        gall_loader = torch.utils.data.DataLoader(gallset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
-        query_loader = torch.utils.data.DataLoader(queryset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
     elif args.reid == "BtoB" :
         gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
         queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
-        # Test data loader
-        gall_loader = torch.utils.data.DataLoader(gallset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
-        query_loader = torch.utils.data.DataLoader(queryset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
+
+    # Test data loader
+    gall_loader = torch.utils.data.DataLoader(gallset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
+    query_loader = torch.utils.data.DataLoader(queryset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
 
     n_class = len(np.unique(trainset.train_color_label))
     n_query = len(query_label)

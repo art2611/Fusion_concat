@@ -279,6 +279,10 @@ def multi_process() :
             query_img, query_label, query_cam, gall_img, gall_label, gall_cam =\
                 process_test_single_sysu(data_path, "test", trial=0, mode='all', relabel=False, reid=args.reid)
             nquery = len(query_label)
+        elif args.reid == "BtoB" :
+            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+                process_BOTH_sysu(data_path, "test", fold=0)
+            nquery = len(query_label)
 
 
         ngall = len(gall_label)
@@ -293,7 +297,7 @@ def multi_process() :
 
 
 
-        for trial in range(10):
+        for trial in range(1):
 
             if args.reid == "VtoT" or args.reid == "TtoV":
                 gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all",  trial=trial, reid=args.reid)
@@ -312,6 +316,19 @@ def multi_process() :
                 trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
                 trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
                 gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader,ngall = ngall, net = net)
+
+            elif args.reid == "BtoB" :
+                query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+                    process_BOTH_sysu(data_path, "test", fold=0)
+                gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+                queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+
+                gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
+                                                          num_workers=workers)
+                query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
+                                                           num_workers=workers)
+                query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
+                gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net)
 
             # pool5 feature
             distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
@@ -337,11 +354,9 @@ def multi_process() :
                 all_mINP_pool = all_mINP_pool + mINP_pool
 
             print('Test Trial: {}'.format(trial))
-            print(
-                'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+            print('FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                     cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
-            print(
-                'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+            print('POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                     cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
     cmc = all_cmc / 10
