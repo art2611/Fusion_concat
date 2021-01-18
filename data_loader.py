@@ -344,14 +344,10 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         w = 0
         x = 0
         true = 0
-        # for k in range(min(len(files_rgb), len(files_ir))):
-        for k in range(200):
-            print(files_rgb[x])
-            print(files_ir[w])
+        for k in range(min(len(files_rgb), len(files_ir))):
             pid_rgb = int(files_rgb[x][-13:-9])
             pid_ir = int(files_ir[w][-13:-9])
-            print(pid_rgb)
-            print(pid_ir)
+
             if pid_rgb == pid_ir :
                 w+=1
                 x+=1
@@ -362,12 +358,12 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
                 # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
                 query_cam.append(1)
             elif pid_rgb > pid_ir :
-                print("pid_rgb > pid_ir ")
-                print(f"supress img IR : {files_ir[w]}")
+                #"pid_rgb > pid_ir "
+                #supress img IR : {files_ir[w]}
                 w += 1
             elif pid_rgb < pid_ir :
-                print("pid_rgb < pid_ir")
-                print(f"supress img : {files_rgb[x]}")
+                # pid_rgb < pid_ir
+                # supress img : {files_rgb[x]}
                 x +=1
             print(" ")
     #print(query_img)
