@@ -521,7 +521,7 @@ def process_test_single_sysu(data_path, method, trial=0, mode='all', relabel=Fal
     return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
 
 def process_BOTH_sysu(data_path, method, fold=0):
-    random.seed(0)
+    # random.seed(0)
 
     rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
     ir_cameras = ['cam3', 'cam6']
