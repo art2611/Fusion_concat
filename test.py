@@ -40,7 +40,6 @@ parser.add_argument('--fusion', default='layer1', help='Layer to fuse data')
 parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu]')
 parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
 parser.add_argument('--trained', default='VtoT', help='Model trained based on VtoT validation')
-parser.add_argument('--fold', default='0', help='Fold number, from 0 to 4')
 parser.add_argument('--split', default='paper_based', help='How to split data')
 args = parser.parse_args()
 
