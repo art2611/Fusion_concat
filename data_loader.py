@@ -551,9 +551,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
         # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with a pair number
 
         files_ir, files_rgb = image_list(id, data_path)
-        print(files_ir)
         if files_ir != 0 and files_rgb != 0 :
-            print("One of file is not 0 ")
             temp_gallery_visible = []
             temp_gallery_thermal = []
             temp_query_visible = []
@@ -587,8 +585,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
             for k in range(min(len(temp_gallery_visible), len(temp_gallery_thermal))) :
                 files_gallery_visible.append(temp_gallery_visible[k])
                 files_gallery_thermal.append(temp_query_visible[k])
-        else :
-            print("One of files is 0 ")
+
     query_img = []
     query_id = []
     query_cam = []
