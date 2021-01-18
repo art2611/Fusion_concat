@@ -554,6 +554,8 @@ def process_BOTH_sysu(data_path, method, fold=0):
             temp_gallery_thermal = []
             temp_query_visible = []
             temp_query_thermal = []
+
+            # Get Visible query and gallery images
             random_rgb_cam = random.choice(rgb_cameras)
             img_dir = os.path.join(data_path, random_rgb_cam, id)
             if os.path.isdir(img_dir):
@@ -564,10 +566,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
                 for w in new_files:
                     if w != rand:
                         temp_query_visible.append(w)
-            else :
-                print("FUCK1")
-                print(f"not existing dir : {img_dir}")
-
+            # Get thermal query and gallery images
             random_ir_cam = random.choice(ir_cameras)
             img_dir = os.path.join(data_path, random_ir_cam, id)
             if os.path.isdir(img_dir):
@@ -577,14 +576,15 @@ def process_BOTH_sysu(data_path, method, fold=0):
                 for w in new_files:
                     if w != rand:
                         temp_query_thermal.append(w)
-            else :
-                print("FUCK2")
+
+            #Get the same number of images for each modality => the minimal available images per id of each modality
             for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
                 files_query_visible.append(temp_query_visible[k])
                 files_query_thermal.append(temp_query_thermal[k])
             for k in range(min(len(temp_gallery_visible), len(temp_gallery_thermal))) :
                 files_gallery_visible.append(temp_gallery_visible[k])
                 files_gallery_thermal.append(temp_query_visible[k])
+
     query_img = []
     query_id = []
     query_cam = []
@@ -615,7 +615,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
     for img_path in files_gallery_thermal :
         query_img[counter][1] = img_path
         counter += 1
-
+    print(query_img)
     return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
 
 class TestData(data.Dataset):
