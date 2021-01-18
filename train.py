@@ -29,7 +29,7 @@ parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
 parser.add_argument('--split', default='paper_based', help='How to split data')
 args = parser.parse_args()
 
-from test import extract_gall_feat, extract_query_feat
+# from test import extract_gall_feat, extract_query_feat
 def multi_process() :
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
