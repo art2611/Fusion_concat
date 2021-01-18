@@ -348,8 +348,8 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         for k in range(200):
             print(files_rgb[k])
             print(files_ir[k])
-            pid_rgb = int(files_rgb[k][-13:-9])
-            pid_ir = int(files_ir[k][-13:-9])
+            pid_rgb = int(files_rgb[x][-13:-9])
+            pid_ir = int(files_ir[w][-13:-9])
             print(pid_rgb)
             print(pid_ir)
             if pid_rgb == pid_ir :
