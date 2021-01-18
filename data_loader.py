@@ -557,6 +557,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
 
             # Get Visible query and gallery images
             random_rgb_cam = random.choice(rgb_cameras)
+            print(f"random_cam : {random_rgb_cam}")
             img_dir = os.path.join(data_path, random_rgb_cam, id)
             if os.path.isdir(img_dir):
                 new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
