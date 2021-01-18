@@ -31,6 +31,7 @@ def multi_process() :
     parser.add_argument('--fusion', default='layer1', help='layer to fuse')
     parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu')
     parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
+    parser.add_argument('--fold', default='0', help='Fold number, from 0 to 4')
     parser.add_argument('--split', default='paper_based', help='How to split data')
     args = parser.parse_args()
     split_list = ["paper_based", "experience_based"]
@@ -83,7 +84,7 @@ def multi_process() :
 
     if args.dataset == 'sysu':
         data_path = '../Datasets/SYSU/'
-        suffix = f'SYSU_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
+        suffix = f'SYSU_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
     elif args.dataset == 'regdb':
         data_path = '../Datasets/RegDB/'
         suffix = f'RegDB_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
@@ -92,7 +93,7 @@ def multi_process() :
 
     if args.dataset == 'sysu':
         # training set
-        trainset = SYSUData_clean(data_path, transform=transform_train, fold = 0)
+        trainset = SYSUData_clean(data_path, transform=transform_train, fold = args.fold)
         # trainset = SYSUData(data_path, transform=transform_train)
 
         # generate the idx of each person identity
@@ -104,7 +105,7 @@ def multi_process() :
             gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
         else :
             query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                process_BOTH_sysu(data_path, "valid", fold = 0)
+                process_BOTH_sysu(data_path, "valid", fold = args.fold)
 
     elif args.dataset == 'regdb':
         trainset = RegDBData_clean(data_path, trial = 1, transform=transform_train, fold = 0)

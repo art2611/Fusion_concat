@@ -40,6 +40,7 @@ parser.add_argument('--fusion', default='layer1', help='Layer to fuse data')
 parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu]')
 parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
 parser.add_argument('--trained', default='VtoT', help='Model trained based on VtoT validation')
+parser.add_argument('--fold', default='0', help='Fold number, from 0 to 4')
 parser.add_argument('--split', default='paper_based', help='How to split data')
 args = parser.parse_args()
 
@@ -64,12 +65,10 @@ writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.rei
 if args.dataset == 'sysu':
     nclass = 316
     data_path = '../Datasets/SYSU/'
-    suffix = f'SYSU_{args.trained}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
 elif args.dataset == 'regdb':
     nclass = 206
     data_path = '../Datasets/RegDB/'
-    suffix = f'RegDB_{args.trained}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
-    print(f'model_to_load : {suffix}')
+
 
 def extract_gall_feat(gall_loader, ngall, net):
     net.eval()
@@ -164,6 +163,7 @@ def multi_process() :
         for trial in range(10):
             test_trial = trial +1
             #model_path = checkpoint_path +  args.resume
+            suffix = f'RegDB_{args.trained}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
             model_path = checkpoint_path + suffix + '_best.t'
             # model_path = checkpoint_path + 'regdb_awg_p4_n8_lr_0.1_seed_0_trial_{}_best.t'.format(test_trial)
             if os.path.isfile(model_path):
@@ -250,22 +250,26 @@ def multi_process() :
 
     if args.dataset == 'sysu':
 
-        print('==> Resuming from checkpoint..')
-        model_path = checkpoint_path + suffix + '_best.t'
-        # model_path = checkpoint_path + 'regdb_awg_p4_n8_lr_0.1_seed_0_trial_{}_best.t'.format(test_trial)
-        if os.path.isfile(model_path):
-            print('==> loading checkpoint')
-            checkpoint = torch.load(model_path)
-            if args.fusion == "layer1":
-                net = Network_layer1(class_num=nclass).to(device)
-            elif args.fusion == "layer3":
-                net = Network_layer3(class_num=nclass).to(device)
-            elif args.fusion == "layer5":
-                net = Network_layer5(class_num=nclass).to(device)
-            net.load_state_dict(checkpoint['net'])
-        else :
-            sys.exit("Saved model not loaded, care")
+        net = []
+        for k in range(5):
+            suffix = f'SYSU_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            print('==> Resuming from checkpoint..')
+            model_path = checkpoint_path + suffix + '_best.t'
 
+            if os.path.isfile(model_path):
+                print('==> loading checkpoint')
+                checkpoint = torch.load(model_path)
+                if args.fusion == "layer1":
+                    net.append(Network_layer1(class_num=nclass).to(device))
+                elif args.fusion == "layer3":
+                    net.append(Network_layer3(class_num=nclass).to(device))
+                elif args.fusion == "layer5":
+                    net.append(Network_layer5(class_num=nclass).to(device))
+                net[k].load_state_dict(checkpoint['net'])
+            else :
+                sys.exit(f"Fold {k} doesn't exist, not loaded")
+
+        loaded_folds = len(net)
         # testing set
         if args.reid == "VtoT" or args.reid== "TtoV":
             query_img, query_label, query_cam = process_query_sysu(data_path, "test", mode="all", trial=0, reid=args.reid)
@@ -297,7 +301,7 @@ def multi_process() :
 
 
 
-        for trial in range(1):
+        for test_fold in range(loaded_folds):
 
             if args.reid == "VtoT" or args.reid == "TtoV":
                 gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all",  trial=trial, reid=args.reid)
@@ -327,8 +331,8 @@ def multi_process() :
                                                           num_workers=workers)
                 query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
                                                            num_workers=workers)
-                query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
-                gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net)
+                query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold])
+                gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold])
 
             # pool5 feature
             distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
@@ -359,13 +363,15 @@ def multi_process() :
             print('POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                     cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-    cmc = all_cmc / 10
-    mAP = all_mAP / 10
-    mINP = all_mINP / 10
+    # Means
 
-    cmc_pool = all_cmc_pool / 10
-    mAP_pool = all_mAP_pool / 10
-    mINP_pool = all_mINP_pool / 10
+    cmc = all_cmc / loaded_folds
+    mAP = all_mAP / loaded_folds
+    mINP = all_mINP / loaded_folds
+
+    cmc_pool = all_cmc_pool / loaded_folds
+    mAP_pool = all_mAP_pool / loaded_folds
+    mINP_pool = all_mINP_pool / loaded_folds
     print('All Average:')
     print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
             cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
