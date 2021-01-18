@@ -357,13 +357,14 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
                 x+=1
                 true += 1
                 print(true)
-                query_img.append([files_rgb[w], files_ir[x]])
+                query_img.append([files_rgb[x], files_ir[w]])
                 query_id.append(pid_rgb)
                 # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
                 query_cam.append(1)
             elif pid_rgb < pid_ir :
                 w += 1
             elif pid_rgb > pid_ir :
+                print("TRUE")
                 x +=1
 
 
