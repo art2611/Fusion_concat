@@ -62,7 +62,7 @@ writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.rei
 
 
 if args.dataset == 'sysu':
-    nclass = 296
+    nclass = 316
     data_path = '../Datasets/SYSU/'
     suffix = f'SYSU_{args.trained}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
 elif args.dataset == 'regdb':
