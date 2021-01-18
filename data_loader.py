@@ -344,10 +344,11 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         for k in range(min(len(files_rgb), len(files_ir))):
 
             pid = int(files_rgb[k][-13:-9])
+            print(f" pid 1: {pid}")
             query_img.append([files_rgb[k], files_ir[k]])
             #Il faudrait vérifier que les deux ids sont les mêmes ici je pense
-            pid = int(files_rgb[k][-13:-9])
-            print(f" pid : {pid}")
+            pid = int(files_ir[k][-13:-9])
+            print(f" pid 2: {pid}")
             query_id.append(pid)
             # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
             query_cam.append(1)
