@@ -547,36 +547,37 @@ def process_BOTH_sysu(data_path, method, fold=0):
     temp_query_visible = []
     temp_query_thermal = []
     for id in sorted(ids):
-        #Instead of select 1 img per cam, we want the same amount of img for both modalities
+        #Instead of selecting 1 img per cam, we want the same amount of img for both modalities
         # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with a pair number
-        for i in range(2):
+
+        files_ir, files_rgb = image_list(id, data_path)
+        if files_ir != 0 and files_rgb != 0 :
+
             temp_gallery_visible = []
             temp_gallery_thermal = []
             temp_query_visible = []
             temp_query_thermal = []
 
-            # Get Visible query and gallery images
-            random_rgb_cam = random.choice(rgb_cameras)
-            print(f"random_cam : {random_rgb_cam}")
-            img_dir = os.path.join(data_path, random_rgb_cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                rand = random.choice(new_files)
-                temp_gallery_visible.append(rand)
+            #Selection of two
+            rand_ir = [random.choice(files_ir)]
+            rand_ir2 = random.choice(files_ir)
+            while rand_ir2 in rand_ir:
+                rand_ir2 = random.choice(files_ir)
+            rand_ir.append(rand_ir2)
+            temp_gallery_thermal = [rand_ir[0], rand_ir[1]]
+            for w in files_ir:
+                if w not in rand_ir:
+                    temp_query_thermal.append(w)
 
-                for w in new_files:
-                    if w != rand:
-                        temp_query_visible.append(w)
-            # Get thermal query and gallery images
-            random_ir_cam = random.choice(ir_cameras)
-            img_dir = os.path.join(data_path, random_ir_cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                rand = random.choice(new_files)
-                temp_gallery_thermal.append(rand)
-                for w in new_files:
-                    if w != rand:
-                        temp_query_thermal.append(w)
+            rand_rgb = [random.choice(files_rgb)]
+            rand_rgb2 = random.choice(files_rgb)
+            while rand_rgb2 in rand_rgb:
+                rand_rgb2 = random.choice(files_rgb)
+            rand_rgb.append(rand_rgb2)
+            temp_gallery_visible = [rand_rgb[0], rand_rgb[1]]
+            for w in files_rgb:
+                if w not in rand_rgb:
+                    temp_query_thermal.append(w)
 
             #Get the same number of images for each modality => the minimal available images per id of each modality
             for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
@@ -585,7 +586,8 @@ def process_BOTH_sysu(data_path, method, fold=0):
             for k in range(min(len(temp_gallery_visible), len(temp_gallery_thermal))) :
                 files_gallery_visible.append(temp_gallery_visible[k])
                 files_gallery_thermal.append(temp_query_visible[k])
-
+        else :
+            print("One of files is 0 ")
     query_img = []
     query_id = []
     query_cam = []
@@ -621,6 +623,26 @@ def process_BOTH_sysu(data_path, method, fold=0):
         counter += 1
     # print(query_img)
     return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
+
+def image_list(id, data_path) :
+    files_ir = 0
+    for k in [3,6]:
+        img_dir = os.path.join(data_path, f'cam{k}', id)
+        if files_ir == 0:
+            files_ir = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+        else:
+            files_ir.extend(sorted([img_dir + '/' + i for i in os.listdir(img_dir)]))
+
+    files_rgb = 0
+    for k in [1,2,4,5]:
+        img_dir = os.path.join(data_path, f'cam{k}', id)
+        if os.path.isdir(img_dir) :
+            if files_ir == 0:
+                files_ir = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+            else:
+                files_ir.extend(sorted([img_dir + '/' + i for i in os.listdir(img_dir)]))
+
+    return(files_ir, files_rgb)
 
 class TestData(data.Dataset):
     def __init__(self, test_img_file, test_label, transform=None, img_size = (144,288)):
