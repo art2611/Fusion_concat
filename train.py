@@ -16,7 +16,7 @@ from model_layer5 import Network_layer5
 from model_layer3 import Network_layer3
 from model_layer1 import Network_layer1
 from multiprocessing import freeze_support
-from test import extract_gall_feat, extract_query_feat
+# from test import extract_gall_feat, extract_query_feat
 from evaluation import *
 import argparse
 from datetime import date
