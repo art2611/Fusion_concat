@@ -5,6 +5,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 
+if 4 in [1,2]:
+    print("true")
 
 
 sys.exit()

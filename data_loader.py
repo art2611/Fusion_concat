@@ -332,15 +332,14 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         files = files_rgb
     elif reid=="TtoV" :
         files = files_ir
-    for img_path in files:
-        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-        query_img.append(img_path)
-        query_id.append(pid)
-        query_cam.append(camid)
-
+    if reid in ["VtoT", "TtoV"]:
+        for img_path in files:
+            camid, pid = int(img_path[-15]), int(img_path[-13:-9])
+            query_img.append(img_path)
+            query_id.append(pid)
+            query_cam.append(camid)
     # Ajout pour la fusion avec utilisation des deux images :
-
-    if reid == "BtoB" :
+    if reid == "BtoB":
         # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
         for k in range(min(len(files_rgb), len(files_ir))):
             query_img.append([files_rgb[k], files_ir[k]])
