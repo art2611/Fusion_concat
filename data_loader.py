@@ -341,20 +341,26 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
     # Ajout pour la fusion avec utilisation des deux images :
     if reid == "BtoB":
         # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
-        # for k in range(min(len(files_rgb), len(files_ir))):
-        for k in range(30):
-            pid1 = int(files_rgb[k][-13:-9])
-            print(f" pid 1: {pid1}")
-            pid2 = int(files_ir[k][-13:-9])
-            print(f" pid 2: {pid2}")
-            if pid1 == pid2 :
-                print("TRUE")
-            query_img.append([files_rgb[k], files_ir[k]])
-            #Il faudrait vérifier que les deux ids sont les mêmes ici je pense
+        w = 0
+        x = 0
+        true = 0
+        for k in range(min(len(files_rgb), len(files_ir))):
+            pid_rgb = int(files_rgb[k][-13:-9])
+            pid_ir = int(files_ir[k][-13:-9])
+            if pid_rgb == pid_ir :
+                w+=1
+                x+=1
+                true += 1
+                print(true)
+                query_img.append([files_rgb[w], files_ir[x]])
+                query_id.append(pid_rgb)
+                # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
+                query_cam.append(1)
+            elif pid_rgb < pid_ir :
+                w += 1
+            elif pid_rgb > pid_ir :
+                x +=1
 
-            query_id.append(pid1)
-            # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
-            query_cam.append(1)
 
     #print(query_img)
     return query_img, np.array(query_id), np.array(query_cam)
