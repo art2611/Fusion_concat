@@ -21,20 +21,19 @@ from evaluation import *
 import argparse
 from datetime import date
 
-
+parser = argparse.ArgumentParser(description='PyTorch Cross-Modality Training')
+parser.add_argument('--fusion', default='layer1', help='layer to fuse')
+parser.add_argument('--fold', default='0', help='Fold number, from 0 to 4')
+parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu')
+parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
+parser.add_argument('--split', default='paper_based', help='How to split data')
+args = parser.parse_args()
 
 def multi_process() :
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
-    parser = argparse.ArgumentParser(description='PyTorch Cross-Modality Training')
-    parser.add_argument('--prout', default='layer1', help='layer to fuse')
-    parser.add_argument('--prout', default='layer1', help='layer to fuse')
 
-    parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu')
-    parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
-    parser.add_argument('--split', default='paper_based', help='How to split data')
-    args = parser.parse_args()
     split_list = ["paper_based", "experience_based"]
     if args.split not in split_list:
         sys.exit(f"--split should be in {split_list}")
