@@ -4,7 +4,10 @@ import sys
 import matplotlib
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
-
+a = [1,2,3]
+b = [2,3]
+a.extend(b)
+print(a)
 if 4 in [1,2]:
     print("true")
 

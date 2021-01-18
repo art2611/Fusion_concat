@@ -520,6 +520,90 @@ def process_test_single_sysu(data_path, method, trial=0, mode='all', relabel=Fal
 
     return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
 
+def process_BOTH_sysu(data_path, method, fold=0):
+    random.seed(0)
+
+    rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
+    ir_cameras = ['cam3', 'cam6']
+
+    if method == "test":
+        print("Test set called")
+        file_path = os.path.join(data_path, 'exp/test_id.txt')
+    elif method == "valid":
+        print("Validation set called")
+        file_path = os.path.join(data_path, f'exp/val_id_{fold}.txt')
+
+
+    with open(file_path, 'r') as file:
+        ids = file.read().splitlines()
+        ids = [int(y) for y in ids[0].split(',')]
+        ids = ["%04d" % x for x in ids]
+
+    files_query_visible = []
+    files_gallery_visible = []
+    files_query_thermal = []
+    files_gallery_thermal = []
+    for id in sorted(ids):
+        #Instead of select 1 img per cam, we want the same amount of img for both modalities
+        # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with a pair number
+        for i in range(2):
+            random_rgb_cam = random.choice(rgb_cameras)
+            img_dir = os.path.join(data_path, random_rgb_cam, id)
+            if os.path.isdir(img_dir):
+                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+                rand = random.choice(new_files)
+                files_gallery_visible.append(rand)
+                for w in new_files:
+                    if w != rand:
+                        files_query_visible.append(w)
+            else :
+                print("FUCK1")
+
+            random_ir_cam = random.choice(ir_cameras)
+            img_dir = os.path.join(data_path, random_ir_cam, id)
+            if os.path.isdir(img_dir):
+                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+                rand = random.choice(new_files)
+                files_gallery_thermal.append(rand)
+                for w in new_files:
+                    if w != rand:
+                        files_query_thermal.append(w)
+            else :
+                print("FUCK2")
+
+    query_img = []
+    query_id = []
+    query_cam = []
+    gall_img = []
+    gall_id = []
+    gall_cam = []
+
+    print(len(files_query_visible))
+    print(len(files_gallery_visible))
+    print(len(files_query_thermal))
+    print(len(files_gallery_thermal))
+    counter = 0
+    for img_path in files_query_visible:
+        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
+        query_img.append([img_path,img_path])
+        query_id.append(pid)
+        query_cam.append(1)
+    for img_path in files_query_thermal :
+        query_img[counter][1] = img_path
+        counter += 1
+
+    for img_path in files_gallery_visible :
+        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
+        gall_img.append([img_path,img_path])
+        gall_id.append(pid)
+        gall_cam.append(4)
+    counter = 0
+    for img_path in files_gallery_thermal :
+        query_img[counter][1] = img_path
+        counter += 1
+
+    return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
+
 class TestData(data.Dataset):
     def __init__(self, test_img_file, test_label, transform=None, img_size = (144,288)):
 

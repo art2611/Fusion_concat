@@ -98,9 +98,13 @@ def multi_process() :
         # generate the idx of each person identity
         color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
 
-        # testing set
-        query_img, query_label, query_cam = process_query_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
-        gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
+        if args.reid != "BtoB" :
+            # testing set
+            query_img, query_label, query_cam = process_query_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
+            gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
+        else :
+            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+                process_BOTH_sysu(data_path, "valid", fold = 0)
 
     elif args.dataset == 'regdb':
         trainset = RegDBData_clean(data_path, trial = 1, transform=transform_train, fold = 0)
