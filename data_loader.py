@@ -344,11 +344,14 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         w = 0
         x = 0
         true = 0
-        for k in range(min(len(files_rgb), len(files_ir))):
+        # for k in range(min(len(files_rgb), len(files_ir))):
+        for k in range(50):
             print(files_rgb[k])
             print(files_ir[k])
             pid_rgb = int(files_rgb[k][-13:-9])
             pid_ir = int(files_ir[k][-13:-9])
+            print(pid_rgb)
+            print(pid_ir)
             if pid_rgb == pid_ir :
                 w+=1
                 x+=1
