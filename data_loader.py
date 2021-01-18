@@ -345,7 +345,7 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         x = 0
         true = 0
         # for k in range(min(len(files_rgb), len(files_ir))):
-        for k in range(50):
+        for k in range(200):
             print(files_rgb[k])
             print(files_ir[k])
             pid_rgb = int(files_rgb[k][-13:-9])
