@@ -266,7 +266,7 @@ def multi_process() :
                     net.append(Network_layer5(class_num=nclass).to(device))
                 net[k].load_state_dict(checkpoint['net'])
             else :
-                sys.exit(f"Fold {k} doesn't exist, not loaded")
+                print(f"Fold {k} doesn't exist, not loaded")
 
         loaded_folds = len(net)
         # testing set
