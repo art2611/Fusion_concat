@@ -87,7 +87,6 @@ def extract_gall_feat(gall_loader, ngall, net):
         with torch.no_grad():
             for batch_idx, (input1, input2, label) in enumerate(gall_loader):
                 batch_num = input1.size(0)
-
                 input1 = Variable(input1.cuda())
                 input2 = Variable(input2.cuda())
                 feat_pool, feat_fc = net(input1, input2, modal=test_mode)
@@ -301,7 +300,7 @@ def multi_process() :
 
                 trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
                 trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-                gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader,ngall = ngall, net = net)
+                gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader, ngall = ngall, net = net)
             elif args.reid == "VtoV" or args.reid =="TtoT":
                 query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
                     process_test_single_sysu(data_path, "test", trial=trial, mode='all', relabel=False, reid=args.reid)
