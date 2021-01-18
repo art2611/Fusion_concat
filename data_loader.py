@@ -362,9 +362,10 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
                 # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
                 query_cam.append(1)
             elif pid_rgb < pid_ir :
+                print("pid_rgb < pid_ir")
                 w += 1
             elif pid_rgb > pid_ir :
-                print("TRUE")
+                print("pid_rgb > pid_ir")
                 x +=1
 
 
