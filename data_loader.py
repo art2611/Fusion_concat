@@ -342,13 +342,15 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
     if reid == "BtoB":
         # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
         for k in range(min(len(files_rgb), len(files_ir))):
-
-            pid = int(files_rgb[k][-13:-9])
-            print(f" pid 1: {pid}")
+            pid1 = int(files_rgb[k][-13:-9])
+            print(f" pid 1: {pid1}")
+            pid2 = int(files_ir[k][-13:-9])
+            print(f" pid 2: {pid2}")
+            if pid1 == pid2 :
+                print("TRUE")
             query_img.append([files_rgb[k], files_ir[k]])
             #Il faudrait vérifier que les deux ids sont les mêmes ici je pense
-            pid = int(files_ir[k][-13:-9])
-            print(f" pid 2: {pid}")
+
             query_id.append(pid)
             # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
             query_cam.append(1)
