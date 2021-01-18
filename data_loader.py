@@ -550,6 +550,8 @@ def process_BOTH_sysu(data_path, method, fold=0):
         #Instead of select 1 img per cam, we want the same amount of img for both modalities
         # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with a pair number
         for i in range(2):
+            temp_gallery_visible = []
+            temp_gallery_thermal = []
             temp_query_visible = []
             temp_query_thermal = []
             random_rgb_cam = random.choice(rgb_cameras)
@@ -557,7 +559,8 @@ def process_BOTH_sysu(data_path, method, fold=0):
             if os.path.isdir(img_dir):
                 new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
                 rand = random.choice(new_files)
-                files_gallery_visible.append(rand)
+                temp_gallery_visible.append(rand)
+
                 for w in new_files:
                     if w != rand:
                         temp_query_visible.append(w)
@@ -570,7 +573,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
             if os.path.isdir(img_dir):
                 new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
                 rand = random.choice(new_files)
-                files_gallery_thermal.append(rand)
+                temp_gallery_thermal.append(rand)
                 for w in new_files:
                     if w != rand:
                         temp_query_thermal.append(w)
@@ -579,7 +582,9 @@ def process_BOTH_sysu(data_path, method, fold=0):
             for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
                 files_query_visible.append(temp_query_visible[k])
                 files_query_thermal.append(temp_query_thermal[k])
-
+            for k in range(min(len(temp_gallery_visible), len(temp_gallery_thermal))) :
+                files_gallery_visible.append(temp_gallery_visible[k])
+                files_gallery_thermal.append(temp_query_visible[k])
     query_img = []
     query_id = []
     query_cam = []
