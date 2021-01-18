@@ -81,6 +81,7 @@ def extract_gall_feat(gall_loader, ngall, net):
     if args.reid == "TtoV" or args.reid == "VtoV":
         test_mode = 1
     if args.reid == "BtoB" :
+        pool_dim = 4096
         test_mode = 0
         gall_feat_pool = np.zeros((ngall, pool_dim))
         gall_feat_fc = np.zeros((ngall, pool_dim))
@@ -121,6 +122,7 @@ def extract_query_feat(query_loader, nquery, net):
     if args.reid == "TtoV" or args.reid== "TtoT" :
         test_mode = 2
     if args.reid == "BtoB" :
+        pool_dim = 4096
         test_mode = 0
         query_feat_pool = np.zeros((nquery, pool_dim))
         query_feat_fc = np.zeros((nquery, pool_dim))
