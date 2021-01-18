@@ -628,10 +628,11 @@ def image_list(id, data_path) :
     files_ir = 0
     for k in [3,6]:
         img_dir = os.path.join(data_path, f'cam{k}', id)
-        if files_ir == 0:
-            files_ir = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-        else:
-            files_ir.extend(sorted([img_dir + '/' + i for i in os.listdir(img_dir)]))
+        if os.path.isdir(img_dir):
+            if files_ir == 0:
+                files_ir = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+            else:
+                files_ir.extend(sorted([img_dir + '/' + i for i in os.listdir(img_dir)]))
 
     files_rgb = 0
     for k in [1,2,4,5]:
