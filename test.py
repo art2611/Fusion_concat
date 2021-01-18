@@ -265,6 +265,8 @@ def multi_process() :
                 elif args.fusion == "layer5":
                     net.append(Network_layer5(class_num=nclass).to(device))
                 net[k].load_state_dict(checkpoint['net'])
+                print(f"Fold {k} loaded")
+
             else :
                 print(f"Fold {k} doesn't exist, not loaded")
 
