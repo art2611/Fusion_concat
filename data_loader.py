@@ -524,20 +524,21 @@ class TestData(data.Dataset):
         return len(self.test_image)
 
 class TestData_both(data.Dataset):
-    def __init__(self, test_img_file1,test_img_file2, test_label, transform=None, img_size = (144,288)):
+    def __init__(self, test_img_file, test_label, transform=None, img_size = (144,288)):
 
         test_image1 = []
         test_image2 = []
-        for i in range(len(test_img_file1)):
-            img = Image.open(test_img_file1[i])
-            img = img.resize((img_size[0], img_size[1]), Image.ANTIALIAS)
-            pix_array = np.array(img)
-            test_image1.append(pix_array)
-        for i in range(len(test_img_file2)):
-            img = Image.open(test_img_file2[i])
-            img = img.resize((img_size[0], img_size[1]), Image.ANTIALIAS)
-            pix_array = np.array(img)
-            test_image2.append(pix_array)
+
+        for i in range(len(test_img_file)):
+            img1 = Image.open(test_img_file[i][0])
+            img2 = Image.open(test_img_file[i][1])
+            img1 = img1.resize((img_size[0], img_size[1]), Image.ANTIALIAS)
+            img2 = img2.resize((img_size[0], img_size[1]), Image.ANTIALIAS)
+            pix_array1 = np.array(img1)
+            pix_array2 = np.array(img2)
+            test_image1.append(pix_array1)
+            test_image2.append(pix_array2)
+
         test_image1 = np.array(test_image1)
         test_image2 = np.array(test_image2)
 

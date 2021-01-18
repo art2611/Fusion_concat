@@ -5,12 +5,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 
-x = torch.randn(2, 3)
-print(x)
-cat = torch.cat((x,x), 1)
-print(cat)
-print(cat.shape)
-print(x.shape)
 
 
 sys.exit()
