@@ -618,7 +618,7 @@ def process_BOTH_sysu(data_path, method, fold=0):
     for img_path in files_gallery_thermal :
         query_img[counter][1] = img_path
         counter += 1
-    print(query_img)
+    # print(query_img)
     return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
 
 class TestData(data.Dataset):
