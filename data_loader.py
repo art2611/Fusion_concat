@@ -556,7 +556,6 @@ def process_BOTH_sysu(data_path, method, fold=0):
             temp_gallery_thermal = []
             temp_query_visible = []
             temp_query_thermal = []
-
             #Selection of two
             rand_ir = [random.choice(files_ir)]
             rand_ir2 = random.choice(files_ir)

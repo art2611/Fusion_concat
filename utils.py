@@ -27,8 +27,8 @@ class IdentitySampler(Sampler):
                 else:
                     index1 = np.hstack((index1, sample_color))
                     index2 = np.hstack((index2, sample_thermal))
-        print(f"index1 : {index1}")
-        print(f"index2 : {index2}")
+        # print(f"index1 : {index1}")
+        # print(f"index2 : {index2}")
         self.index1 = index1
         self.index2 = index2
         self.N = N

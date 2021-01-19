@@ -17,6 +17,7 @@ from model_layer2 import Network_layer2
 from model_layer3 import Network_layer3
 from model_layer4 import Network_layer4
 from model_layer5 import Network_layer5
+from model_unimodal import Network_unimodal
 from model_early import Network_early
 from multiprocessing import freeze_support
 # from test import extract_gall_feat, extract_query_feat
@@ -38,37 +39,30 @@ def extract_gall_feat(gall_loader, ngall, net):
     print('Extracting Gallery Feature...')
     start = time.time()
     ptr = 0
-    if args.reid == "VtoT" or args.reid == "TtoT" :
-        test_mode = 2
-    if args.reid == "TtoV" or args.reid == "VtoV":
-        test_mode = 1
-    if args.reid == "BtoB" :
-        test_mode = 0
-        gall_feat_pool = np.zeros((ngall, 2048))
-        gall_feat_fc = np.zeros((ngall, 2048))
-        with torch.no_grad():
-            for batch_idx, (input1, input2, label) in enumerate(gall_loader):
-                batch_num = input1.size(0)
-                input1 = Variable(input1.cuda())
-                input2 = Variable(input2.cuda())
-                feat_pool, feat_fc = net(input1, input2, modal=test_mode)
-                gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
-        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
-    else :
-        gall_feat_pool = np.zeros((ngall, 2048))
-        gall_feat_fc = np.zeros((ngall, 2048))
-        print(f"Gallery test on mode {test_mode} supposed to be 1 if visible or 2 if thermal")
-        with torch.no_grad():
-            for batch_idx, (input, label) in enumerate(gall_loader):
-                batch_num = input.size(0)
-                input = Variable(input.cuda())
-                feat_pool, feat_fc = net(input, input, modal=test_mode)
-                gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
-        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+
+    gall_feat_pool = np.zeros((ngall, 2048))
+    gall_feat_fc = np.zeros((ngall, 2048))
+
+    with torch.no_grad():
+        for batch_idx, (input1, input2, label) in enumerate(gall_loader):
+            batch_num = input1.size(0)
+            input1 = Variable(input1.cuda())
+            input2 = Variable(input2.cuda())
+            if args.fusion=="unimodal" or args.reid == "BtoB":
+                #Test mode 0 by default if BtoB
+                feat_pool, feat_fc = net(input1, input1)
+            elif args.reid == "VtoT" or args.reid == "TtoT":
+                test_mode = 2
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+            elif args.reid == "TtoV" or args.reid == "VtoV":
+                test_mode = 1
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+
+            gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+            gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+            ptr = ptr + batch_num
+    print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+
     return gall_feat_pool, gall_feat_fc
 
 def extract_query_feat(query_loader, nquery, net):
@@ -77,45 +71,35 @@ def extract_query_feat(query_loader, nquery, net):
     start = time.time()
     ptr = 0
 
-    if args.reid == "VtoT" or args.reid == "VtoV":
-        test_mode = 1
-    if args.reid == "TtoV" or args.reid== "TtoT" :
-        test_mode = 2
-    if args.reid == "BtoB" :
-        test_mode = 0
-        query_feat_pool = np.zeros((nquery, 2048))
-        query_feat_fc = np.zeros((nquery, 2048))
-        print(f"Query test on mode {test_mode} supposed to be 1 if visible or 2 if thermal" )
-        with torch.no_grad():
-            for batch_idx, (input1, input2, label) in enumerate(query_loader):
-                batch_num = input1.size(0)
-                # print(f"batch num : {batch_num}")
-                # print(input1.size(0))
-                # print(input2.size(0))
-                # print(label)
-                # print(batch_idx)
-                input1 = Variable(input1.cuda())
-                input2 = Variable(input2.cuda())
-                feat_pool, feat_fc = net(input1, input2, modal=test_mode)
-                # print(feat_pool.shape)
-                # print(feat_fc.shape)
-                query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
+    query_feat_pool = np.zeros((nquery, 2048))
+    query_feat_fc = np.zeros((nquery, 2048))
+
+    with torch.no_grad():
+        for batch_idx, (input1, input2, label) in enumerate(query_loader):
+            batch_num = input1.size(0)
+            # print(f"batch num : {batch_num}")
+            # print(input1.size(0))
+            # print(input2.size(0))
+            # print(label)
+            # print(batch_idx)
+            input1 = Variable(input1.cuda())
+            input2 = Variable(input2.cuda())
+            if args.fusion=="unimodal" or args.reid == "BtoB":
+                #Test mode 0 by default if BtoB
+                feat_pool, feat_fc = net(input1, input1)
+            elif args.reid == "VtoT" or args.reid == "TtoT":
+                test_mode = 2
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+            elif args.reid == "TtoV" or args.reid == "VtoV":
+                test_mode = 1
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+            # print(feat_pool.shape)
+            # print(feat_fc.shape)
+            query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+            query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+            ptr = ptr + batch_num
         print('Extracting Time:\t {:.3f}'.format(time.time() - start))
-    else :
-        query_feat_pool = np.zeros((nquery, 2048))
-        query_feat_fc = np.zeros((nquery, 2048))
-        print(f"Query test on mode {test_mode} supposed to be 1 if visible or 2 if thermal" )
-        with torch.no_grad():
-            for batch_idx, (input, label) in enumerate(query_loader):
-                batch_num = input.size(0)
-                input = Variable(input.cuda())
-                feat_pool, feat_fc = net(input, input, modal=test_mode)
-                query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
-        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+
     return query_feat_pool, query_feat_fc
 
 def multi_process() :
@@ -132,7 +116,7 @@ def multi_process() :
     writer = SummaryWriter(f"runs/{args.reid}_{args.fusion}_Fusion_train_{args.dataset}_day{d1}_{time.time()}")
 
     ### assure good fusion args
-    fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
+    fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', "unimodal"]
     if args.fusion not in fusion_list :
         sys.exit(f'--fusion should be in {fusion_list}')
 
@@ -185,14 +169,13 @@ def multi_process() :
 
         # generate the idx of each person identity
         color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
-
-        if args.reid != "BtoB" :
-            # testing set
-            query_img, query_label, query_cam = process_query_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
-            gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
-        else :
+        # Validation set
+        if args.reid == "BtoB" or args.fusion == "unimodal":
             query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
                 process_BOTH_sysu(data_path, "valid", fold = args.fold)
+        else :
+            query_img, query_label, query_cam = process_query_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
+            gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
 
     elif args.dataset == 'regdb':
         trainset = RegDBData_clean(data_path, trial = 1, transform=transform_train, fold = 0)
@@ -204,15 +187,14 @@ def multi_process() :
         query_img, query_label, gall_img, gall_label = process_test_regdb(data_path, trial=1, modal=args.reid, split=args.split)
 
 
-    ######################################### TEST SET
-
-    if args.reid != "BtoB" :
-        # Gallery of thermal images - Queryset = Gallery of visible query
-        gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-        queryset = TestData(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
-    elif args.reid == "BtoB" :
+    ######################################### VALID SET
+    # Gallery and query set
+    if args.reid == "BtoB" or args.fusion == "unimodal":
         gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
         queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
+    else :
+        gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+        queryset = TestData(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
 
     # Test data loader
     gall_loader = torch.utils.data.DataLoader(gallset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
@@ -249,6 +231,9 @@ def multi_process() :
         net = Network_layer4(n_class).to(device)
     elif args.fusion == "layer5" :
         net = Network_layer5(n_class).to(device)
+    elif args.fusion == "unimodal" :
+        net = Network_unimodal(n_class).to(device)
+
 
     ######################################### TRAINING
     print('==> Start Training...')
@@ -335,7 +320,7 @@ def multi_process() :
         writer.add_scalar('total_loss', train_loss.avg, epoch)
         writer.add_scalar('Accuracy training', 100. * correct / total, epoch)
 
-    def test(epoch):
+    def valid(epoch):
 
         end = time.time()
         #Get all normalized distance
@@ -349,7 +334,7 @@ def multi_process() :
 
         # evaluation
         if args.dataset == 'regdb':
-            cmc, mAP, mINP      = eval_regdb(-distmat_pool, query_label, gall_label)
+            cmc, mAP, mINP = eval_regdb(-distmat_pool, query_label, gall_label)
             cmc_att, mAP_att, mINP_att  = eval_regdb(-distmat_fc, query_label, gall_label)
 
         elif args.dataset == 'sysu':
@@ -393,7 +378,7 @@ def multi_process() :
             print(f'Test Epoch: {epoch}')
 
             # testing
-            cmc, mAP, mINP, cmc_att, mAP_att, mINP_att = test(epoch)
+            cmc, mAP, mINP, cmc_att, mAP_att, mINP_att = valid(epoch)
             # save model
             if cmc_att[0] > best_acc:  # not the real best for sysu-mm01
                 best_acc = cmc_att[0]
@@ -425,13 +410,7 @@ def multi_process() :
                     cmc_att[0], cmc_att[4], cmc_att[9], cmc_att[19], mAP_att, mINP_att))
             print('Best Epoch [{}]'.format(best_epoch))
 
-    if args.fusion == "layer1" :
-        print(f' Training time for layer 1 fusion : {time.time() - training_time}')
-    if args.fusion == "layer3" :
-        print(f' Training time for layer 3 fusion : {time.time() - training_time}')
-    if args.fusion == "layer5":
-        print(f' Training time for layer 5 fusion : {time.time() - training_time}')
-    print(time.time() - training_time)
+    print(f' Training time for {args.fusion} fusion : {time.time() - training_time}')
 
 if __name__ == '__main__':
     freeze_support()
