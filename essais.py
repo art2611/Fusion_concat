@@ -9,8 +9,13 @@ import random
 a = torch.randint(10, (2, 2))
 b =  torch.randint(10, (2, 2))
 print(a)
-print(b)
-print(torch.cat((a,b), 1))
+print(b.shape)
+
+x = torch.cat((a,b), -1)
+print(x)
+print(x.shape)
+
+
 
 sys.exit()
 a = [[2,0], [4,6],[0,1]]
