@@ -80,8 +80,12 @@ def extract_gall_feat(gall_loader, ngall, net):
         test_mode = 1
     if args.reid == "BtoB" :
         test_mode = 0
-        gall_feat_pool = np.zeros((ngall, 4096))
-        gall_feat_fc = np.zeros((ngall, 4096))
+        if args.fusion=="layer5" :
+            gall_feat_pool = np.zeros((ngall, 4096))
+            gall_feat_fc = np.zeros((ngall, 4096))
+        else :
+            gall_feat_pool = np.zeros((ngall, 2048))
+            gall_feat_fc = np.zeros((ngall, 2048))
         with torch.no_grad():
             for batch_idx, (input1, input2, label) in enumerate(gall_loader):
                 batch_num = input1.size(0)
@@ -120,8 +124,12 @@ def extract_query_feat(query_loader, nquery, net):
         test_mode = 2
     if args.reid == "BtoB" :
         test_mode = 0
-        query_feat_pool = np.zeros((nquery, 4096))
-        query_feat_fc = np.zeros((nquery, 4096))
+        if args.fusion=="layer5" :
+            query_feat_pool = np.zeros((nquery, 4096))
+            query_feat_fc = np.zeros((nquery, 4096))
+        else :
+            query_feat_pool = np.zeros((nquery, 2048))
+            query_feat_fc = np.zeros((nquery, 2048))
         print(f"Query test on mode {test_mode} supposed to be 1 if visible or 2 if thermal" )
         with torch.no_grad():
             for batch_idx, (input1, input2, label) in enumerate(query_loader):
