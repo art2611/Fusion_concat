@@ -87,7 +87,8 @@ def extract_gall_feat(gall_loader, ngall, net):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
             if args.fusion=="unimodal" or args.reid == "BtoB":
-                #Test mode 0 by default if BtoB
+                if args.reid == "TtoT":
+                    input1 = input2
                 feat_pool, feat_fc = net(input1, input1)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
@@ -115,14 +116,12 @@ def extract_query_feat(query_loader, nquery, net):
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(query_loader):
             batch_num = input1.size(0)
-            # print(f"batch num : {batch_num}")
-            # print(input1.size(0))
-            # print(input2.size(0))
-            # print(label)
-            # print(batch_idx)
+
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
             if args.fusion=="unimodal" or args.reid == "BtoB":
+                if args.reid== "TtoT" :
+                    input1 = input2
                 #Test mode 0 by default if BtoB
                 feat_pool, feat_fc = net(input1, input1)
             elif args.reid == "VtoT" or args.reid == "TtoT":

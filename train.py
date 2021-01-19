@@ -49,6 +49,8 @@ def extract_gall_feat(gall_loader, ngall, net):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
             if args.fusion=="unimodal" or args.reid == "BtoB":
+                if args.reid== "TtoT" :
+                    input1 = input2
                 #Test mode 0 by default if BtoB
                 feat_pool, feat_fc = net(input1, input1)
             elif args.reid == "VtoT" or args.reid == "TtoT":
@@ -85,7 +87,8 @@ def extract_query_feat(query_loader, nquery, net):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
             if args.fusion=="unimodal" or args.reid == "BtoB":
-                #Test mode 0 by default if BtoB
+                if args.reid == "TtoT":
+                    input1 = input2
                 feat_pool, feat_fc = net(input1, input1)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
@@ -273,7 +276,8 @@ def multi_process() :
             labels = Variable(labels.cuda())
 
             data_time.update(time.time() - end)
-
+            if args.reid == "TtoT":
+                input1 = input2
             feat, out0, = net(input1, input2)
             # print(feat)
             # print(out0)
