@@ -12,9 +12,12 @@ import numpy as np
 from utils import IdentitySampler, AverageMeter, adjust_learning_rate
 from loss import BatchHardTripLoss
 from tensorboardX import SummaryWriter
-from model_layer5 import Network_layer5
-from model_layer3 import Network_layer3
 from model_layer1 import Network_layer1
+from model_layer2 import Network_layer2
+from model_layer3 import Network_layer3
+from model_layer4 import Network_layer4
+from model_layer5 import Network_layer5
+from model_early import Network_early
 from multiprocessing import freeze_support
 # from test import extract_gall_feat, extract_query_feat
 from evaluation import *
@@ -118,8 +121,6 @@ def extract_query_feat(query_loader, nquery, net):
 def multi_process() :
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-
-
     split_list = ["paper_based", "experience_based"]
     if args.split not in split_list:
         sys.exit(f"--split should be in {split_list}")
@@ -131,7 +132,7 @@ def multi_process() :
     writer = SummaryWriter(f"runs/{args.reid}_{args.fusion}_Fusion_train_{args.dataset}_day{d1}_{time.time()}")
 
     ### assure good fusion args
-    fusion_list=['layer1', 'layer3', 'layer5']
+    fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5']
     if args.fusion not in fusion_list :
         sys.exit(f'--fusion should be in {fusion_list}')
 
@@ -235,7 +236,10 @@ def multi_process() :
     print('==> Building model..')
 
     ######################################### MODEL
-    if args.fusion=="layer1" :
+
+    if args.fusion == "early" :
+        net = Network_early(n_class).to(device)
+    elif args.fusion=="layer1" :
         net = Network_layer1(n_class).to(device)
     elif args.fusion == "layer3" :
         net = Network_layer3(n_class).to(device)
