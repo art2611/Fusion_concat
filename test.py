@@ -126,16 +126,16 @@ def extract_query_feat(query_loader, nquery, net):
         with torch.no_grad():
             for batch_idx, (input1, input2, label) in enumerate(query_loader):
                 batch_num = input1.size(0)
-                print(f"batch num : {batch_num}")
-                print(input1.size(0))
-                print(input2.size(0))
-                print(label)
-                print(batch_idx)
+                # print(f"batch num : {batch_num}")
+                # print(input1.size(0))
+                # print(input2.size(0))
+                # print(label)
+                # print(batch_idx)
                 input1 = Variable(input1.cuda())
                 input2 = Variable(input2.cuda())
                 feat_pool, feat_fc = net(input1, input2, modal=test_mode)
-                print(feat_pool.shape)
-                print(feat_fc.shape)
+                # print(feat_pool.shape)
+                # print(feat_fc.shape)
                 query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
                 query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
                 ptr = ptr + batch_num
