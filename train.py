@@ -366,7 +366,7 @@ def multi_process() :
     best_acc = 0
     # for epoch in range(start_epoch, 81 - start_epoch):
     training_time = time.time()
-    for epoch in range(81):
+    for epoch in range(41):
 
         print('==> Preparing Data Loader...')
         # identity sampler - Give iteratively index from a randomized list of color index and thermal index
