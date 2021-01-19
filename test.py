@@ -255,6 +255,9 @@ def multi_process() :
                     net.append(Network_layer4(class_num=nclass).to(device))
                 elif args.fusion == "layer5":
                     net.append(Network_layer5(class_num=nclass).to(device))
+                elif args.fusion == "unimodal":
+                    net.append(Network_unimodal(class_num=nclass).to(device))
+
                 net[k].load_state_dict(checkpoint['net'])
                 print(f"Fold {k} loaded")
             else :
