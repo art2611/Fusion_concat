@@ -6,9 +6,13 @@ from torch.autograd import Variable
 import time
 from data_loader import *
 import numpy as np
-from model_layer5 import Network_layer5
-from model_layer3 import Network_layer3
 from model_layer1 import Network_layer1
+from model_layer2 import Network_layer2
+from model_layer3 import Network_layer3
+from model_layer4 import Network_layer4
+from model_layer5 import Network_layer5
+from model_unimodal import Network_unimodal
+from model_early import Network_early
 from evaluation import eval_regdb, eval_sysu
 from torchvision import transforms
 import torch.utils.data
@@ -239,15 +243,20 @@ def multi_process() :
             if os.path.isfile(model_path):
                 print('==> loading checkpoint')
                 checkpoint = torch.load(model_path)
-                if args.fusion == "layer1":
+                if args.fusion == "early":
+                    net.append(Network_early(class_num=nclass).to(device))
+                elif args.fusion == "layer1":
                     net.append(Network_layer1(class_num=nclass).to(device))
+                elif args.fusion == "layer2":
+                    net.append(Network_layer2(class_num=nclass).to(device))
                 elif args.fusion == "layer3":
                     net.append(Network_layer3(class_num=nclass).to(device))
+                elif args.fusion == "layer4":
+                    net.append(Network_layer4(class_num=nclass).to(device))
                 elif args.fusion == "layer5":
                     net.append(Network_layer5(class_num=nclass).to(device))
                 net[k].load_state_dict(checkpoint['net'])
                 print(f"Fold {k} loaded")
-
             else :
                 print(f"Fold {k} doesn't exist, not loaded")
 
