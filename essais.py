@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
 
-a = torch.randint(10, (2, 2))
-b =  torch.randint(10, (2, 2))
+a = torch.randint(10, (2, 2,2,2))
+b =  torch.randint(10, (2, 2,2,2))
 print(a)
-print(b.shape)
+print(b)
 
 x = torch.cat((a,b), -1)
 print(x)
