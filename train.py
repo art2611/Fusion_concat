@@ -241,8 +241,12 @@ def multi_process() :
         net = Network_early(n_class).to(device)
     elif args.fusion=="layer1" :
         net = Network_layer1(n_class).to(device)
+    elif args.fusion == "layer2":
+        net = Network_layer2(n_class).to(device)
     elif args.fusion == "layer3" :
         net = Network_layer3(n_class).to(device)
+    elif args.fusion=="layer4" :
+        net = Network_layer4(n_class).to(device)
     elif args.fusion == "layer5" :
         net = Network_layer5(n_class).to(device)
 
