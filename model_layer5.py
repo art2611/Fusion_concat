@@ -83,8 +83,8 @@ class Network_layer5(nn.Module):
         self.visible_module = visible_module(arch=arch)
         #self.shared_resnet = shared_resnet(arch=arch)
 
-        # pool_dim = 2048
-        pool_dim = 4096
+        pool_dim = 2048
+        # pool_dim = 4096
 
         # self.bottleneck.apply(weights_init_kaiming)
         # self.classifier.apply(weights_init_classifier)
