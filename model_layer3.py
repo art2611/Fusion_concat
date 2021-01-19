@@ -97,7 +97,9 @@ class Network_layer3(nn.Module):
             # x = torch.cat((x1, x2), 0)      # Early : torch.Size([64, 64, 72, 36])  Middle : ([64, 512, 36, 18])  End : torch.Size([64, 2048, 9, 5])
             x = torch.cat((x1, x2), -1)      # Early : torch.Size([64, 64, 72, 36])  Middle : ([64, 512, 36, 18])  End : torch.Size([64, 2048, 9, 5])
             # print(x1.shape)
-            # print(x.shape)
+            print(x.shape)
+            x = torch.cat((x1, x2), 0)      # Early : torch.Size([64, 64, 72, 36])  Middle : ([64, 512, 36, 18])  End : torch.Size([64, 2048, 9, 5])
+            print(x.shape)
         elif modal == 1:
             x = self.visible_module(x1)
         elif modal == 2:
