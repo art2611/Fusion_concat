@@ -301,7 +301,6 @@ def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, re
         print("Test set called")
         file_path = os.path.join(data_path, 'exp/test_id.txt')
     elif method == "valid":
-        print("Validation set called")
         file_path = os.path.join(data_path, f'exp/val_id_{0}.txt')
         # file_path = os.path.join(data_path, 'exp/val_id.txt')
 
@@ -530,7 +529,6 @@ def process_BOTH_sysu(data_path, method, fold=0):
         print("Test set called")
         file_path = os.path.join(data_path, 'exp/test_id.txt')
     elif method == "valid":
-        print("Validation set called")
         file_path = os.path.join(data_path, f'exp/val_id_{fold}.txt')
 
 
