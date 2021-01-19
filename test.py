@@ -68,45 +68,36 @@ elif args.dataset == 'regdb':
     nclass = 206
     data_path = '../Datasets/RegDB/'
 
-
 def extract_gall_feat(gall_loader, ngall, net):
     net.eval()
     print('Extracting Gallery Feature...')
     start = time.time()
     ptr = 0
-    if args.reid == "VtoT" or args.reid == "TtoT" :
-        test_mode = 2
-    if args.reid == "TtoV" or args.reid == "VtoV":
-        test_mode = 1
-    if args.reid == "BtoB" :
-        test_mode = 0
-        gall_feat_pool = np.zeros((ngall, 2048))
-        gall_feat_fc = np.zeros((ngall, 2048))
-        with torch.no_grad():
-            for batch_idx, (input1, input2, label) in enumerate(gall_loader):
-                batch_num = input1.size(0)
-                input1 = Variable(input1.cuda())
-                input2 = Variable(input2.cuda())
-                feat_pool, feat_fc = net(input1, input2, modal=test_mode)
-                gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
-        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
-    else :
-        gall_feat_pool = np.zeros((ngall, pool_dim))
-        gall_feat_fc = np.zeros((ngall, pool_dim))
-        print(f"Gallery test on mode {test_mode} supposed to be 1 if visible or 2 if thermal")
-        with torch.no_grad():
-            for batch_idx, (input, label) in enumerate(gall_loader):
-                batch_num = input.size(0)
-                input = Variable(input.cuda())
-                feat_pool, feat_fc = net(input, input, modal=test_mode)
-                gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
-        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
-    return gall_feat_pool, gall_feat_fc
 
+    gall_feat_pool = np.zeros((ngall, 2048))
+    gall_feat_fc = np.zeros((ngall, 2048))
+
+    with torch.no_grad():
+        for batch_idx, (input1, input2, label) in enumerate(gall_loader):
+            batch_num = input1.size(0)
+            input1 = Variable(input1.cuda())
+            input2 = Variable(input2.cuda())
+            if args.fusion=="unimodal" or args.reid == "BtoB":
+                #Test mode 0 by default if BtoB
+                feat_pool, feat_fc = net(input1, input1)
+            elif args.reid == "VtoT" or args.reid == "TtoT":
+                test_mode = 2
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+            elif args.reid == "TtoV" or args.reid == "VtoV":
+                test_mode = 1
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+
+            gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+            gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+            ptr = ptr + batch_num
+    print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+
+    return gall_feat_pool, gall_feat_fc
 
 def extract_query_feat(query_loader, nquery, net):
     net.eval()
@@ -114,45 +105,35 @@ def extract_query_feat(query_loader, nquery, net):
     start = time.time()
     ptr = 0
 
-    if args.reid == "VtoT" or args.reid == "VtoV":
-        test_mode = 1
-    if args.reid == "TtoV" or args.reid== "TtoT" :
-        test_mode = 2
-    if args.reid == "BtoB" :
-        test_mode = 0
-        query_feat_pool = np.zeros((nquery, 2048))
-        query_feat_fc = np.zeros((nquery, 2048))
-        print(f"Query test on mode {test_mode} supposed to be 1 if visible or 2 if thermal" )
-        with torch.no_grad():
-            for batch_idx, (input1, input2, label) in enumerate(query_loader):
-                batch_num = input1.size(0)
-                # print(f"batch num : {batch_num}")
-                # print(input1.size(0))
-                # print(input2.size(0))
-                # print(label)
-                # print(batch_idx)
-                input1 = Variable(input1.cuda())
-                input2 = Variable(input2.cuda())
-                feat_pool, feat_fc = net(input1, input2, modal=test_mode)
-                # print(feat_pool.shape)
-                # print(feat_fc.shape)
-                query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
+    query_feat_pool = np.zeros((nquery, 2048))
+    query_feat_fc = np.zeros((nquery, 2048))
+
+    with torch.no_grad():
+        for batch_idx, (input1, input2, label) in enumerate(query_loader):
+            batch_num = input1.size(0)
+            # print(f"batch num : {batch_num}")
+            # print(input1.size(0))
+            # print(input2.size(0))
+            # print(label)
+            # print(batch_idx)
+            input1 = Variable(input1.cuda())
+            input2 = Variable(input2.cuda())
+            if args.fusion=="unimodal" or args.reid == "BtoB":
+                #Test mode 0 by default if BtoB
+                feat_pool, feat_fc = net(input1, input1)
+            elif args.reid == "VtoT" or args.reid == "TtoT":
+                test_mode = 2
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+            elif args.reid == "TtoV" or args.reid == "VtoV":
+                test_mode = 1
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+            # print(feat_pool.shape)
+            # print(feat_fc.shape)
+            query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
+            query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+            ptr = ptr + batch_num
         print('Extracting Time:\t {:.3f}'.format(time.time() - start))
-    else :
-        query_feat_pool = np.zeros((nquery, pool_dim))
-        query_feat_fc = np.zeros((nquery, pool_dim))
-        print(f"Query test on mode {test_mode} supposed to be 1 if visible or 2 if thermal" )
-        with torch.no_grad():
-            for batch_idx, (input, label) in enumerate(query_loader):
-                batch_num = input.size(0)
-                input = Variable(input.cuda())
-                feat_pool, feat_fc = net(input, input, modal=test_mode)
-                query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
-                query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-                ptr = ptr + batch_num
-        print('Extracting Time:\t {:.3f}'.format(time.time() - start))
+
     return query_feat_pool, query_feat_fc
 
 def multi_process() :
