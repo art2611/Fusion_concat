@@ -160,7 +160,7 @@ def multi_process() :
 
     elif args.dataset == 'regdb':
         data_path = '../Datasets/RegDB/'
-        suffix = f'RegDB_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
+        suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
         trainset = RegDBData_clean(data_path, transform=transform_train, fold = args.fold)
 
     # Get ids positions

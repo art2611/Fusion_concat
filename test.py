@@ -155,50 +155,52 @@ def multi_process() :
 
     end = time.time()
     if args.dataset == "regdb":
-        for trial in range(10):
-            test_trial = trial +1
-            #model_path = checkpoint_path +  args.resume
-            suffix = f'RegDB_{args.trained}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
+        net = []
+        for k in range(5):
+            suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+
+            print('==> Resuming from checkpoint..')
             model_path = checkpoint_path + suffix + '_best.t'
-            # model_path = checkpoint_path + 'regdb_awg_p4_n8_lr_0.1_seed_0_trial_{}_best.t'.format(test_trial)
+            print(f"model path : {model_path}")
+
             if os.path.isfile(model_path):
-                print(f'==> loading {args.fusion} fuse checkpoint')
+                print('==> loading checkpoint')
+
                 checkpoint = torch.load(model_path)
-                if args.fusion == "layer1":
-                    net = Network_layer1(class_num=nclass).to(device)
-                elif args.fusion == "layer3":
-                    net = Network_layer3(class_num=nclass).to(device)
-                elif args.fusion == "layer5":
-                    net = Network_layer5(class_num=nclass).to(device)
-                net.load_state_dict(checkpoint['net'])
-            else :
-                sys.exit("Saved model not loaded, care")
+                Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
+                            "layer2": Network_layer2(nclass).to(device),
+                            "layer3": Network_layer3(nclass).to(device), \
+                            "layer4": Network_layer4(nclass).to(device),
+                            "layer5": Network_layer5(nclass).to(device), \
+                            "unimodal": Network_unimodal(nclass).to(device)}
+                net.append(Networks[args.fusion])
+
+                net[k].load_state_dict(checkpoint['net'])
+                print(f"Fold {k} loaded")
+            else:
+                print(f"Fold {k} doesn't exist")
+                print(f"==> Model ({model_path}) can't be loaded")
+
+        loaded_folds = len(net)
+
+        for test_fold in range(loaded_folds):
 
             #Prepare query and gallery
-            if args.reid == "BtoB" or args.fusion=="unimodal":
-                query_img, query_img_t, query_label, gall_img, gall_img_t, gall_label = process_test_regdb(data_path, trial=test_trial, modal=args.reid, split=args.split)
-                gallset = TestData_both(gall_img, gall_img_t, gall_label, transform=transform_test, img_size=(img_w, img_h))
-                gall_loader = torch.utils.data.DataLoader(gallset, batch_size=int(test_batch_size/2), shuffle=False,
-                                                          num_workers=workers, drop_last=False)
-                nquery = len(query_label)
-                ngall = len(gall_label)
 
-                queryset = TestData_both(query_img, query_img_t, query_label, transform=transform_test, img_size=(img_w, img_h))
-                query_loader = torch.utils.data.DataLoader(queryset, batch_size=int(test_batch_size/2), shuffle=False,
-                                                           num_workers=4, drop_last=False)
+            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+                process_BOTH(data_path, "test", args.dataset, args.fold)
 
-            else :
-                query_img, query_label, gall_img, gall_label = process_test_regdb(data_path, trial=test_trial, modal=args.reid, split=args.split)
-                gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-                gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
-                                                          num_workers=workers)
+            # Gallery and query set
+            gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+            queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
 
-                nquery = len(query_label)
-                ngall = len(gall_label)
-
-                queryset = TestData(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
-                query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
-                                                           num_workers=4)
+            # Validation data loader
+            gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
+                                                      num_workers=workers)
+            query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
+                                                       num_workers=workers)
+            nquery = len(query_label)
+            ngall = len(gall_label)
 
             print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
 
@@ -208,19 +210,13 @@ def multi_process() :
 
             # pool5 feature
             distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
-            # if args.reid == "BtoB" :
-            #     print(f"Before : {query_label}")
-            #     query_label = np.concatenate((query_label, query_label), axis=0)
-            #     print(f"after : {query_label}")
-            #     gall_label = np.concatenate((gall_label, gall_label), axis=0)
             cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool,query_label , gall_label)
 
             # fc feature
             distmat = np.matmul( query_feat_fc, np.transpose(gall_feat_fc))
             cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
 
-
-            if trial == 0:
+            if test_fold == 0:
                 all_cmc = cmc
                 all_mAP = mAP
                 all_mINP = mINP
@@ -235,13 +231,13 @@ def multi_process() :
                 all_mAP_pool = all_mAP_pool + mAP_pool
                 all_mINP_pool = all_mINP_pool + mINP_pool
 
-            print('Test Trial: {}'.format(trial))
-            print(
-                'FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                    cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
-            print(
-                'POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                    cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+        print(f'Test fold: {test_fold}')
+        print(
+            'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+                cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
+        print(
+            'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+                cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
     if args.dataset == 'sysu':
 
