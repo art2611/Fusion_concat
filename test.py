@@ -89,6 +89,12 @@ def extract_gall_feat(gall_loader, ngall, net):
             input2 = Variable(input2.cuda())
 
             if args.reid == "BtoB":
+                if args.reid == "unimodal" and args.reid=="TtoT":
+                    input1 = input2
+                if args.reid == "unimodal" and args.reid=="VtOV":
+                    input1 = input1
+                # Test mode 0 by default if BtoB and we need to use both inputs
+                feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
                 test_mode=0
                 feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
@@ -122,6 +128,11 @@ def extract_query_feat(query_loader, nquery, net):
             input2 = Variable(input2.cuda())
 
             if args.reid == "BtoB":
+                if args.reid == "unimodal" and args.reid=="TtoT":
+                    input1 = input2
+                if args.reid == "unimodal" and args.reid=="VtOV":
+                    input1 = input1
+                # Test mode 0 by default if BtoB and we need to use both inputs
                 test_mode=0
                 feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
