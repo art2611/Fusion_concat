@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import os
+import sys
 
 data_path = '../Datasets/RegDB/'
 
@@ -22,12 +23,15 @@ with open(file_path_train_thermal) as f:
     file_image_thermal = [data_path + '/' + s.split(' ')[0] for s in data_file_list]
     file_label = [int(s.split(' ')[1]) for s in data_file_list]
 
+# Remove the last 10 images and labels (We want to have 205 ids instead of 206 cause 205%5=41 and we want 5 folds)
 for k in range(10) :
     file_image_visible.pop()
     file_image_thermal.pop()
     file_label.pop()
 
 all_ids = file_label
+
+sys.exit()
 
 #PREPARE 5 FOLDS ids
 training_lists=[[],[],[],[],[]]

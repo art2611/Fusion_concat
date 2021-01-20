@@ -100,7 +100,7 @@ class RegDBData_clean(data.Dataset):
     def __len__(self):
         return len(self.train_color_label)
 
-class SYSUData_clean(data.Dataset):
+class SYSUData(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         data_dir = '../Datasets/SYSU/'
         # Load training images (path) and labels
@@ -109,35 +109,6 @@ class SYSUData_clean(data.Dataset):
 
         train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
         self.train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
-
-        # BGR to RGB
-        self.train_color_image = train_color_image
-        self.train_thermal_image = train_thermal_image
-        self.transform = transform
-        self.cIndex = colorIndex
-        self.tIndex = thermalIndex
-
-    def __getitem__(self, index):
-        img1, target1 = self.train_color_image[self.cIndex[index]], self.train_color_label[self.cIndex[index]]
-        img2, target2 = self.train_thermal_image[self.tIndex[index]], self.train_thermal_label[self.tIndex[index]]
-
-        img1 = self.transform(img1)
-        img2 = self.transform(img2)
-
-        return img1, img2, target1, target2
-
-    def __len__(self):
-        return len(self.train_color_label)
-
-class SYSUData(data.Dataset):
-    def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None):
-        data_dir = '../Datasets/SYSU/'
-        # Load training images (path) and labels
-        train_color_image = np.load(data_dir + 'train_rgb_resized_img.npy')
-        self.train_color_label = np.load(data_dir + 'train_rgb_resized_label.npy')
-
-        train_thermal_image = np.load(data_dir + 'train_ir_resized_img.npy')
-        self.train_thermal_label = np.load(data_dir + 'train_ir_resized_label.npy')
 
         # BGR to RGB
         self.train_color_image = train_color_image
@@ -286,239 +257,6 @@ def process_test_regdb(img_dir, modal='visible', trial = 1, split="paper_based")
         return (first_image_slice_query, np.array(first_label_slice_query), sec_image_slice_gallery,
                 np.array(sec_label_slice_gallery))
 
-
-def process_query_sysu(data_path, method, trial=0, mode='all', relabel=False, reid="VtoT"):
-    random.seed(trial)
-    print("query")
-    if mode == 'all':
-        rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
-        ir_cameras = ['cam3', 'cam6']
-    elif mode == 'indoor':
-        rgb_cameras = ['cam1', 'cam2']
-        ir_cameras = ['cam3', 'cam6']
-
-    if method == "test":
-        print("Test set called")
-        file_path = os.path.join(data_path, 'exp/test_id.txt')
-    elif method == "valid":
-        file_path = os.path.join(data_path, f'exp/val_id_{0}.txt')
-        # file_path = os.path.join(data_path, 'exp/val_id.txt')
-
-    files_rgb = []
-    files_ir = []
-
-    with open(file_path, 'r') as file:
-        ids = file.read().splitlines()
-        ids = [int(y) for y in ids[0].split(',')]
-        ids = ["%04d" % x for x in ids]
-
-    for id in sorted(ids):
-        for cam in rgb_cameras:
-            img_dir = os.path.join(data_path, cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                files_rgb.extend(new_files)
-        for cam in ir_cameras:
-            img_dir = os.path.join(data_path, cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                files_ir.extend(new_files)
-
-    query_img = []
-    query_id = []
-    query_cam = []
-    if reid=="VtoT" :
-        files = files_rgb
-    elif reid=="TtoV" :
-        files = files_ir
-    if reid in ["VtoT", "TtoV"]:
-        for img_path in files:
-            camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-            query_img.append(img_path)
-            query_id.append(pid)
-            query_cam.append(camid)
-    # Ajout pour la fusion avec utilisation des deux images :
-    if reid == "BtoB":
-        # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
-        w = 0
-        x = 0
-        for k in range(min(len(files_rgb), len(files_ir))):
-            pid_rgb = int(files_rgb[x][-13:-9])
-            pid_ir = int(files_ir[w][-13:-9])
-
-            if pid_rgb == pid_ir :
-                w+=1
-                x+=1
-                query_img.append([files_rgb[x], files_ir[w]])
-                query_id.append(pid_rgb)
-                # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
-                query_cam.append(1)
-            elif pid_rgb > pid_ir :
-                #"pid_rgb > pid_ir "
-                #supress img IR : {files_ir[w]}
-                w += 1
-            elif pid_rgb < pid_ir :
-                # pid_rgb < pid_ir
-                # supress img : {files_rgb[x]}
-                x +=1
-    #print(query_img)
-    return query_img, np.array(query_id), np.array(query_cam)
-
-
-def process_gallery_sysu(data_path, method, mode='all', trial=0, relabel=False, reid="VtoT"):
-    random.seed(trial)
-
-    if mode == 'all':
-        rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
-        ir_cameras = ['cam3', 'cam6']
-    elif mode == 'indoor':
-        rgb_cameras = ['cam1', 'cam2']
-        ir_cameras = ['cam3', 'cam6']
-
-    if method == "test":
-        print("Test set called")
-        file_path = os.path.join(data_path, 'exp/test_id.txt')
-    elif method == "valid" :
-        print("Validation set called")
-        file_path = os.path.join(data_path, f'exp/val_id_{0}.txt')
-
-    files_rgb = []
-    files_ir = []
-    with open(file_path, 'r') as file:
-        ids = file.read().splitlines()
-        ids = [int(y) for y in ids[0].split(',')]
-        ids = ["%04d" % x for x in ids]
-
-    for id in sorted(ids):
-        for cam in rgb_cameras:
-            img_dir = os.path.join(data_path, cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                files_rgb.append(random.choice(new_files))
-            # else :
-            #     print(f'this dir does not exist : {img_dir}')
-        for cam in ir_cameras:
-            img_dir = os.path.join(data_path, cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                files_ir.append(random.choice(new_files))
-    gall_img = []
-    gall_id = []
-    gall_cam = []
-    if reid=="VtoT" :
-        files = files_ir
-    elif reid=="TtoV" :
-        files = files_rgb
-    if reid in ["VtoT", "TtoV"]:
-        for img_path in files:
-            camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-            gall_img.append(img_path)
-            gall_id.append(pid)
-            gall_cam.append(camid)
-    # Ajout pour la fusion avec utilisation des deux images :
-    if reid == "BtoB":
-        # On doit faire attention que l'on n'ai pas un nombre moins grands d'images d'une des modalités
-        w = 0
-        x = 0
-        for k in range(min(len(files_rgb), len(files_ir))):
-            pid_rgb = int(files_rgb[x][-13:-9])
-            pid_ir = int(files_ir[w][-13:-9])
-            if pid_rgb == pid_ir :
-                w+=1
-                x+=1
-                gall_img.append([files_rgb[x], files_ir[w]])
-                gall_id.append(pid_rgb)
-                # La cam on doit juste la choisir différente de la cam gallery pour que les calculs de distances soient ok
-                gall_cam.append(4)
-            elif pid_rgb > pid_ir :
-                #"pid_rgb > pid_ir "
-                #supress img IR : {files_ir[w]}
-                w += 1
-            elif pid_rgb < pid_ir :
-                # pid_rgb < pid_ir
-                # supress img : {files_rgb[x]}
-                x +=1
-    return gall_img, np.array(gall_id), np.array(gall_cam)
-
-def process_test_single_sysu(data_path, method, trial=0, mode='all', relabel=False, reid="VtoT"):
-    random.seed(trial)
-    print("query")
-    if mode == 'all':
-        rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
-        ir_cameras = ['cam3', 'cam6']
-    elif mode == 'indoor':
-        rgb_cameras = ['cam1', 'cam2']
-        ir_cameras = ['cam3', 'cam6']
-
-    if method == "test":
-        print("Test set called")
-        file_path = os.path.join(data_path, 'exp/test_id.txt')
-    elif method == "valid":
-        print("Validation set called")
-        file_path = os.path.join(data_path, 'exp/val_id.txt')
-
-    files_rgb = []
-    files_ir = []
-
-    with open(file_path, 'r') as file:
-        ids = file.read().splitlines()
-        ids = [int(y) for y in ids[0].split(',')]
-        ids = ["%04d" % x for x in ids]
-
-
-    files_query_visible = []
-    files_gallery_visible = []
-    files_query_thermal = []
-    files_gallery_thermal = []
-    for id in sorted(ids):
-        #Selection of 1 img for gallery per cam and per id, the rest as query
-        for cam in rgb_cameras:
-            img_dir = os.path.join(data_path, cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                rand = random.choice(new_files)
-                files_gallery_visible.append(rand)
-                for w in new_files:
-                    if w != rand:
-                        files_query_visible.append(w)
-
-        for cam in ir_cameras:
-            img_dir = os.path.join(data_path, cam, id)
-            if os.path.isdir(img_dir):
-                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-                rand = random.choice(new_files)
-                files_gallery_thermal.append(rand)
-                for w in new_files:
-                    if w != rand:
-                        files_query_thermal.append(w)
-    query_img = []
-    query_id = []
-    query_cam = []
-    gall_img = []
-    gall_id = []
-    gall_cam = []
-
-    if reid == "VtoV":
-        files_query = files_query_visible
-        files_gallery = files_gallery_visible
-    elif reid == "TtoT":
-        files_query = files_query_thermal
-        files_gallery = files_gallery_thermal
-
-    for img_path in files_query:
-        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-        query_img.append(img_path)
-        query_id.append(pid)
-        query_cam.append(camid)
-
-    for img_path in files_gallery :
-        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-        gall_img.append(img_path)
-        gall_id.append(pid)
-        gall_cam.append(camid)
-
-    return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
-
 def process_BOTH_sysu(data_path, method, fold=0):
     # random.seed(0)
 
@@ -554,23 +292,25 @@ def process_BOTH_sysu(data_path, method, fold=0):
             temp_gallery_thermal = []
             temp_query_visible = []
             temp_query_thermal = []
-            #Selection of two
+            #Selection of two IR images
             rand_ir = [random.choice(files_ir)]
             rand_ir2 = random.choice(files_ir)
             while rand_ir2 in rand_ir:
                 rand_ir2 = random.choice(files_ir)
             rand_ir.append(rand_ir2)
             temp_gallery_thermal = [rand_ir[0], rand_ir[1]]
+            #Get all the other IR img in a temporary list
             for w in files_ir:
                 if w not in rand_ir:
                     temp_query_thermal.append(w)
-
+            #Selection of two RGB images
             rand_rgb = [random.choice(files_rgb)]
             rand_rgb2 = random.choice(files_rgb)
             while rand_rgb2 in rand_rgb:
                 rand_rgb2 = random.choice(files_rgb)
             rand_rgb.append(rand_rgb2)
             temp_gallery_visible = [rand_rgb[0], rand_rgb[1]]
+            # Get all the other RGB img in a temporary list
             for w in files_rgb:
                 if w not in rand_rgb:
                     temp_query_visible.append(w)
@@ -597,6 +337,8 @@ def process_BOTH_sysu(data_path, method, fold=0):
     # for k in range(10):
     #     print(f"visible  : {files_gallery_visible[k]}")
     #     print(f"thermal : {files_gallery_thermal[k]}")
+
+    #Finally get the img, the corresponding ids. The cam doesn't matter.
     for img_path in files_query_visible:
         camid, pid = int(img_path[-15]), int(img_path[-13:-9])
         query_img.append([img_path,img_path])

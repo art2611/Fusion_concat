@@ -35,10 +35,9 @@ for i in range(5):
                 val_lists[i] = val_lists[i] + str(all_ids[j-1])
             else :
                 val_lists[i] = val_lists[i] + str(all_ids[j-1]) + ','
-        # Training is always what is not in the previous interval ( i-1 / i ids)
+        # Training is always what is not in the previous interval ( 4/5 des ids ici)
         else :
             training_lists[i].append("%04d" % all_ids[j-1])
-
 
 # We create txt files with the validation ids in it, it is enough for validation
 for k in range(5) :

@@ -87,10 +87,10 @@ def extract_gall_feat(gall_loader, ngall, net):
             batch_num = input1.size(0)
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
-            if args.fusion=="unimodal" or args.reid == "BtoB":
-                if args.reid == "TtoT":
-                    input1 = input2
-                feat_pool, feat_fc = net(input1, input2, fuse = args.fuse)
+
+            if args.reid == "BtoB":
+                test_mode=0
+                feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
                 feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
@@ -120,17 +120,17 @@ def extract_query_feat(query_loader, nquery, net):
 
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
-            if args.fusion=="unimodal" or args.reid == "BtoB":
-                if args.reid== "TtoT" :
-                    input1 = input2
-                #Test mode 0 by default if BtoB
-                feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
+
+            if args.reid == "BtoB":
+                test_mode=0
+                feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
                 feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
             elif args.reid == "TtoV" or args.reid == "VtoV":
                 test_mode = 1
                 feat_pool, feat_fc = net(input1, input1, modal=test_mode, fuse = args.fuse)
+
             # print(feat_pool.shape)
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
@@ -244,42 +244,37 @@ def multi_process() :
 
             if os.path.isfile(model_path):
                 print('==> loading checkpoint')
+
                 checkpoint = torch.load(model_path)
-                if args.fusion == "early":
-                    net.append(Network_early(class_num=nclass).to(device))
-                elif args.fusion == "layer1":
-                    net.append(Network_layer1(class_num=nclass).to(device))
-                elif args.fusion == "layer2":
-                    net.append(Network_layer2(class_num=nclass).to(device))
-                elif args.fusion == "layer3":
-                    net.append(Network_layer3(class_num=nclass).to(device))
-                elif args.fusion == "layer4":
-                    net.append(Network_layer4(class_num=nclass).to(device))
-                elif args.fusion == "layer5":
-                    net.append(Network_layer5(class_num=nclass).to(device))
-                elif args.fusion == "unimodal":
-                    net.append(Network_unimodal(class_num=nclass).to(device))
+                Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
+                            "layer2": Network_layer2(nclass).to(device), "layer3": Network_layer3(nclass).to(device), \
+                            "layer4": Network_layer4(nclass).to(device), "layer5": Network_layer5(nclass).to(device), \
+                            "unimodal": Network_unimodal(nclass).to(device)}
+                net.append(Networks[args.fusion])
 
                 net[k].load_state_dict(checkpoint['net'])
                 print(f"Fold {k} loaded")
             else :
-                print(f"Fold {k} doesn't exist, not loaded")
+                print(f"Fold {k} doesn't exist")
+                print(f"==> Model ({model_path}) can't be loaded")
 
         loaded_folds = len(net)
-        # testing set
-        if args.reid == "VtoT" or args.reid== "TtoV":
-            query_img, query_label, query_cam = process_query_sysu(data_path, "test", mode="all", trial=0, reid=args.reid)
-            gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all", trial=0, reid=args.reid)
 
-            queryset = TestData(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
-            query_loader = data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-            nquery = len(query_label)
-            query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
-        elif args.reid =="VtoV" or args.reid == "TtoT" :
-            query_img, query_label, query_cam, gall_img, gall_label, gall_cam =\
-                process_test_single_sysu(data_path, "test", trial=0, mode='all', relabel=False, reid=args.reid)
-            nquery = len(query_label)
-        elif args.reid == "BtoB" :
+        # testing set
+        # if args.reid == "VtoT" or args.reid== "TtoV":
+        #     query_img, query_label, query_cam = process_query_sysu(data_path, "test", mode="all", trial=0, reid=args.reid)
+        #     gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all", trial=0, reid=args.reid)
+        #
+        #     queryset = TestData(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+        #     query_loader = data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False, num_workers=4)
+        #     nquery = len(query_label)
+        #     query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
+        # elif args.reid =="VtoV" or args.reid == "TtoT" :
+        #     query_img, query_label, query_cam, gall_img, gall_label, gall_cam =\
+        #         process_test_single_sysu(data_path, "test", trial=0, mode='all', relabel=False, reid=args.reid)
+        #     nquery = len(query_label)
+
+        if args.reid == "BtoB" :
             query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
                 process_BOTH_sysu(data_path, "test", fold=0)
             nquery = len(query_label)
@@ -295,31 +290,29 @@ def multi_process() :
         print("  ------------------------------")
         print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
 
-
-
         for test_fold in range(loaded_folds):
 
-            if args.reid == "VtoT" or args.reid == "TtoV":
-                gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all",  trial=trial, reid=args.reid)
+            # Could be used again if we try VtoT or TtoV with a BtoB trained model
+            # if args.reid == "VtoT" or args.reid == "TtoV":
+            #     gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all",  trial=trial, reid=args.reid)
+            #     trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+            #     trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
+            #     gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader, ngall = ngall, net = net)
+            #
+            # elif args.reid == "VtoV" or args.reid =="TtoT":
+            #     query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+            #         process_test_single_sysu(data_path, "test", trial=trial, mode='all', relabel=False, reid=args.reid)
+            #     queryset = TestData(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+            #     query_loader = data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False, num_workers=4)
+            #     query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
+            #
+            #     trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+            #     trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
+            #     gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader,ngall = ngall, net = net)
 
-                trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-                trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-                gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader, ngall = ngall, net = net)
-            elif args.reid == "VtoV" or args.reid =="TtoT":
-                query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                    process_test_single_sysu(data_path, "test", trial=trial, mode='all', relabel=False, reid=args.reid)
+            if args.reid == "BtoB" :
+                query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_BOTH_sysu(data_path, "test", fold=0)
 
-                queryset = TestData(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
-                query_loader = data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-                query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
-
-                trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-                trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-                gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader,ngall = ngall, net = net)
-
-            elif args.reid == "BtoB" :
-                query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                    process_BOTH_sysu(data_path, "test", fold=0)
                 gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
                 queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
 
@@ -360,7 +353,6 @@ def multi_process() :
                     cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
     # Means
-
     cmc = all_cmc / loaded_folds
     mAP = all_mAP / loaded_folds
     mINP = all_mINP / loaded_folds

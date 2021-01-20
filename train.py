@@ -31,7 +31,6 @@ parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--fold', default='0', help='Fold number, from 0 to 4')
 parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu')
 parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
-parser.add_argument('--split', default='paper_based', help='How to split data')
 args = parser.parse_args()
 
 
@@ -49,17 +48,15 @@ def extract_gall_feat(gall_loader, ngall, net):
             batch_num = input1.size(0)
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
-            if args.fusion=="unimodal" or args.reid == "BtoB":
-                if args.reid== "TtoT" :
-                    input1 = input2
-                #Test mode 0 by default if BtoB
-                feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
-            elif args.reid == "VtoT" or args.reid == "TtoT":
-                test_mode = 2
-                feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
-            elif args.reid == "TtoV" or args.reid == "VtoV":
-                test_mode = 1
-                feat_pool, feat_fc = net(input1, input1, modal=test_mode, fuse = args.fuse )
+
+            # For a unimodal training :
+            if args.reid== "TtoT" :
+                input1 = input2
+            elif args.reid=="VtoV":
+                input1 = input1
+
+            #Test mode 0 by default if BtoB and we need to use both inputs
+            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
@@ -87,16 +84,14 @@ def extract_query_feat(query_loader, nquery, net):
             # print(batch_idx)
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
-            if args.fusion=="unimodal" or args.reid == "BtoB":
-                if args.reid == "TtoT":
-                    input1 = input2
-                feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
-            elif args.reid == "VtoT" or args.reid == "TtoT":
-                test_mode = 2
-                feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
-            elif args.reid == "TtoV" or args.reid == "VtoV":
-                test_mode = 1
-                feat_pool, feat_fc = net(input1, input1, modal=test_mode, fuse = args.fuse)
+            # For a unimodal training :
+            if args.reid == "TtoT":
+                input1 = input2
+            elif args.reid == "VtoV":
+                input1 = input1
+
+            # Test mode 0 by default if BtoB and we need to use both inputs
+            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
             # print(feat_pool.shape)
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
@@ -109,10 +104,6 @@ def extract_query_feat(query_loader, nquery, net):
 def multi_process() :
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-    split_list = ["paper_based", "experience_based"]
-    if args.split not in split_list:
-        sys.exit(f"--split should be in {split_list}")
-
     ### Tensorboard init
     today = date.today()
     # dd/mm/YY
@@ -120,7 +111,7 @@ def multi_process() :
     writer = SummaryWriter(f"runs/{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
     ### assure good fusion args
-    fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', "unimodal"]
+    fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'unimodal']
     if args.fusion not in fusion_list :
         sys.exit(f'--fusion should be in {fusion_list}')
 
@@ -157,53 +148,48 @@ def multi_process() :
 
     Timer1 = time.time()
 
+
+
+    ######################################### TRAIN SET &&
+
     if args.dataset == 'sysu':
         data_path = '../Datasets/SYSU/'
         suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+        # training set
+        trainset = SYSUData(data_path, transform=transform_train, fold = args.fold)
+
+        # Generate the idx of each person identity
+        color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
+
+        # Validation set
+        query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+                process_BOTH_sysu(data_path, "valid", fold = args.fold)
+
+
     elif args.dataset == 'regdb':
         data_path = '../Datasets/RegDB/'
         suffix = f'RegDB_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
-
-    ######################################### TRAIN SET
-
-    if args.dataset == 'sysu':
-        # training set
-        trainset = SYSUData_clean(data_path, transform=transform_train, fold = args.fold)
-        # trainset = SYSUData(data_path, transform=transform_train)
-
-        # generate the idx of each person identity
-        color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
-        # Validation set
-        if args.reid == "BtoB" or args.fusion == "unimodal":
-            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                process_BOTH_sysu(data_path, "valid", fold = args.fold)
-        else :
-            query_img, query_label, query_cam = process_query_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
-            gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "valid", mode="all", trial=0, reid=args.reid)
-
-    elif args.dataset == 'regdb':
         trainset = RegDBData_clean(data_path, trial = 1, transform=transform_train, fold = 0)
         # trainset = RegDBData(data_path, trial = 1, transform=transform_train)
         # print(trainset.train_thermal_label)
         # print(trainset.train_color_label)
         color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
         print(len(color_pos))
-        query_img, query_label, gall_img, gall_label = process_test_regdb(data_path, trial=1, modal=args.reid, split=args.split)
+        query_img, query_label, gall_img, gall_label = process_test_regdb(data_path, trial=1, modal=args.reid, split="paper_based")
 
 
     ######################################### VALID SET
+
     # Gallery and query set
-    if args.reid == "BtoB" or args.fusion == "unimodal":
-        gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-        queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
-    else :
-        gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-        queryset = TestData(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
+    gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+    queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
+
 
     # Test data loader
     gall_loader = torch.utils.data.DataLoader(gallset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
     query_loader = torch.utils.data.DataLoader(queryset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
 
+    # Init variables
     n_class = len(np.unique(trainset.train_color_label))
     n_query = len(query_label)
     n_gall = len(gall_label)
@@ -223,35 +209,14 @@ def multi_process() :
 
     ######################################### MODEL
 
-    if args.fusion == "early" :
-        net = Network_early(n_class).to(device)
-    elif args.fusion=="layer1" :
-        net = Network_layer1(n_class).to(device)
-    elif args.fusion == "layer2":
-        net = Network_layer2(n_class).to(device)
-    elif args.fusion == "layer3" :
-        net = Network_layer3(n_class).to(device)
-    elif args.fusion=="layer4" :
-        net = Network_layer4(n_class).to(device)
-    elif args.fusion == "layer5" :
-        net = Network_layer5(n_class).to(device)
-    elif args.fusion == "unimodal" :
-        net = Network_unimodal(n_class).to(device)
+    Networks = {"early":Network_early(n_class).to(device),"layer1":Network_layer1(n_class).to(device), \
+                "layer2":Network_layer2(n_class).to(device), "layer3":Network_layer3(n_class).to(device), \
+                "layer4":Network_layer4(n_class).to(device), "layer5":Network_layer5(n_class).to(device), \
+                "unimodal":Network_unimodal(n_class).to(device)}
+    net = Networks[args.fusion]
 
+    ######################################### TRAIN AND VALIDATION FUNCTIONS
 
-    ######################################### TRAINING
-    print('==> Start Training...')
-    #Train function
-    ignored_params = list(map(id, net.bottleneck.parameters())) \
-                     + list(map(id, net.fc.parameters()))
-
-    base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
-
-    optimizer = optim.SGD([
-        {'params': base_params, 'lr': 0.1 * lr},
-        {'params': net.bottleneck.parameters(), 'lr': lr},
-        {'params': net.fc.parameters(), 'lr': lr}],
-        weight_decay=5e-4, momentum=0.9, nesterov=True)
 
     def train(epoch):
 
@@ -280,13 +245,6 @@ def multi_process() :
             if args.reid == "TtoT":
                 input1 = input2
             feat, out0, = net(input1, input2, fuse = args.fuse)
-            # print(feat)
-            # print(out0)
-            # # print(feat)
-            # print("FLAAAAAG")
-            # print(feat.shape)
-            # print(out0.shape)
-            # print(labels.shape)
 
             loss_ce = criterion_id(out0, labels)
 
@@ -351,21 +309,34 @@ def multi_process() :
 
         return cmc, mAP, mINP, cmc_att, mAP_att, mINP_att
 
-    # Training part
-    # start_epoch = 0
+    ######################################### TRAINING
+
+    print('==> Start Training...')
+    #Train function
+    ignored_params = list(map(id, net.bottleneck.parameters())) \
+                     + list(map(id, net.fc.parameters()))
+
+    base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
+
+    optimizer = optim.SGD([
+        {'params': base_params, 'lr': 0.1 * lr},
+        {'params': net.bottleneck.parameters(), 'lr': lr},
+        {'params': net.fc.parameters(), 'lr': lr}],
+        weight_decay=5e-4, momentum=0.9, nesterov=True)
+
     loader_batch = batch_num_identities * num_of_same_id_in_batch
-    # define loss function
+    # Loss functions
     criterion_id = nn.CrossEntropyLoss().to(device)
     criterion_tri = BatchHardTripLoss(batch_size=loader_batch, margin= 0.3).to(device)
+
     best_acc = 0
-    # for epoch in range(start_epoch, 81 - start_epoch):
     training_time = time.time()
     for epoch in range(41):
 
         print('==> Preparing Data Loader...')
         # identity sampler - Give iteratively index from a randomized list of color index and thermal index
-        sampler = IdentitySampler(trainset.train_color_label, \
-                                  trainset.train_thermal_label, color_pos, thermal_pos, num_of_same_id_in_batch, batch_num_identities,
+        sampler = IdentitySampler(trainset.train_color_label, trainset.train_thermal_label, \
+                                  color_pos, thermal_pos, num_of_same_id_in_batch, batch_num_identities,
                                   epoch)
 
         trainset.cIndex = sampler.index1  # color index
