@@ -57,9 +57,12 @@ class Network_early(nn.Module):
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
-    def forward(self, x1, x2, modal=0):
+    def forward(self, x1, x2, modal=0, fuse="sum"):
         if modal == 0:
-            x = torch.cat((x1, x2), -1) # Direct concat of images
+            if fuse == "cat":
+                x = torch.cat((x1, x2), -1)
+            elif fuse == "sum":
+                x = x1.add(x2)
         elif modal == 1:
             x = x1 #Visible
         elif modal == 2:

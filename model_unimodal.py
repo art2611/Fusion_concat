@@ -37,7 +37,7 @@ class Network_unimodal(nn.Module):
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
-    def forward(self, x, x1):
+    def forward(self, x, x1, fuse="sum"):
         x = self.unimodal.conv1(x)
         x = self.unimodal.bn1(x)
         x = self.unimodal.relu(x)

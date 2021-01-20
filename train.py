@@ -53,13 +53,13 @@ def extract_gall_feat(gall_loader, ngall, net):
                 if args.reid== "TtoT" :
                     input1 = input2
                 #Test mode 0 by default if BtoB
-                feat_pool, feat_fc = net(input1, input1)
+                feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
-                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
             elif args.reid == "TtoV" or args.reid == "VtoV":
                 test_mode = 1
-                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode, fuse = args.fuse )
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
@@ -90,13 +90,13 @@ def extract_query_feat(query_loader, nquery, net):
             if args.fusion=="unimodal" or args.reid == "BtoB":
                 if args.reid == "TtoT":
                     input1 = input2
-                feat_pool, feat_fc = net(input1, input1)
+                feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
-                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
             elif args.reid == "TtoV" or args.reid == "VtoV":
                 test_mode = 1
-                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode, fuse = args.fuse)
             # print(feat_pool.shape)
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
@@ -273,15 +273,13 @@ def multi_process() :
             labels = label1
 
             input1 = Variable(input1.cuda())
-
             input2 = Variable(input2.cuda())
-            print(input2.shape)
             labels = Variable(labels.cuda())
 
             data_time.update(time.time() - end)
             if args.reid == "TtoT":
                 input1 = input2
-            feat, out0, = net(input1, input2)
+            feat, out0, = net(input1, input2, fuse = args.fuse)
             # print(feat)
             # print(out0)
             # # print(feat)

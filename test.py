@@ -41,6 +41,7 @@ checkpoint_path = '../save_model/'
 #
 parser = argparse.ArgumentParser(description='PyTorch Cross-Modality Training')
 parser.add_argument('--fusion', default='layer1', help='Layer to fuse data')
+parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu]')
 parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
 parser.add_argument('--trained', default='VtoT', help='Model trained based on VtoT validation')
@@ -89,13 +90,13 @@ def extract_gall_feat(gall_loader, ngall, net):
             if args.fusion=="unimodal" or args.reid == "BtoB":
                 if args.reid == "TtoT":
                     input1 = input2
-                feat_pool, feat_fc = net(input1, input1)
+                feat_pool, feat_fc = net(input1, input2, fuse = args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
-                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
             elif args.reid == "TtoV" or args.reid == "VtoV":
                 test_mode = 1
-                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode, fuse = args.fuse)
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
@@ -123,13 +124,13 @@ def extract_query_feat(query_loader, nquery, net):
                 if args.reid== "TtoT" :
                     input1 = input2
                 #Test mode 0 by default if BtoB
-                feat_pool, feat_fc = net(input1, input1)
+                feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
-                feat_pool, feat_fc = net(input2, input2, modal=test_mode)
+                feat_pool, feat_fc = net(input2, input2, modal=test_mode, fuse = args.fuse)
             elif args.reid == "TtoV" or args.reid == "VtoV":
                 test_mode = 1
-                feat_pool, feat_fc = net(input1, input1, modal=test_mode)
+                feat_pool, feat_fc = net(input1, input1, modal=test_mode, fuse = args.fuse)
             # print(feat_pool.shape)
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
