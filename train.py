@@ -237,7 +237,7 @@ def multi_process() :
                 input1 = input2
             feat, out0, = net(input1, input2, fuse = args.fuse)
             print(labels.type)
-            print(len(input1))
+            print(out0)
             loss_ce = criterion_id(out0, labels)
             sys.exit()
             loss_tri, batch_acc = criterion_tri(feat, labels)
