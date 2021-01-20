@@ -117,7 +117,7 @@ def multi_process() :
     today = date.today()
     # dd/mm/YY
     d1 = today.strftime("%d")
-    writer = SummaryWriter(f"runs/{args.reid}_{args.fusion}_Fusion_train_{args.dataset}_day{d1}_{time.time()}")
+    writer = SummaryWriter(f"runs/{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
     ### assure good fusion args
     fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', "unimodal"]
