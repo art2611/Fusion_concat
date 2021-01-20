@@ -63,7 +63,7 @@ today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d/%m/%Y")
 
-writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}-test_{args.dataset}_day{d1}_{time.time()}")
+writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
 
 
 if args.dataset == 'sysu':
