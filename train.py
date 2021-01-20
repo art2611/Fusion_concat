@@ -27,6 +27,7 @@ from datetime import date
 
 parser = argparse.ArgumentParser(description='PyTorch Cross-Modality Training')
 parser.add_argument('--fusion', default='layer1', help='layer to fuse')
+parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--fold', default='0', help='Fold number, from 0 to 4')
 parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu')
 parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
