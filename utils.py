@@ -17,12 +17,11 @@ class IdentitySampler(Sampler):
         for j in range(int(N / (batchSize * num_pos)) + 1):
             batch_idx = np.random.choice(uni_label, batchSize, replace=False)
             print(f"batch idx {batch_idx}")
+            # On a retiré 41 identités (1 fold), on doit donc recaler batch idx
+            if dataset == "regdb":
+                batch_idx = [w - 41 for w in batch_idx]
+                print(f"BBAAAAAATCH : {batch_idx}")
             for i in range(batchSize):
-                # On a retiré 41 identités (1 fold), on doit donc recaler batch idx
-                if dataset == "regdb" :
-                    batch_idx = [w -41 for w in batch_idx]
-                    print(f"BBAAAAAATCH : {batch_idx}")
-                # print(batch_idx[i]-41)
                 # ON choisit des images de la même identité pour les deux modalités, aléatoirement.
                 sample_color = np.random.choice(color_pos[batch_idx[i]], num_pos)
                 sample_thermal = np.random.choice(thermal_pos[batch_idx[i]], num_pos)
