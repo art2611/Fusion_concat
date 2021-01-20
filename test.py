@@ -175,7 +175,7 @@ def multi_process() :
                 sys.exit("Saved model not loaded, care")
 
             #Prepare query and gallery
-            if args.reid == "BtoB" :
+            if args.reid == "BtoB" or args.fusion=="unimodal":
                 query_img, query_img_t, query_label, gall_img, gall_img_t, gall_label = process_test_regdb(data_path, trial=test_trial, modal=args.reid, split=args.split)
                 gallset = TestData_both(gall_img, gall_img_t, gall_label, transform=transform_test, img_size=(img_w, img_h))
                 gall_loader = torch.utils.data.DataLoader(gallset, batch_size=int(test_batch_size/2), shuffle=False,
@@ -208,11 +208,11 @@ def multi_process() :
 
             # pool5 feature
             distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
-            if args.reid == "BtoB" :
-                print(f"Before : {query_label}")
-                query_label = np.concatenate((query_label, query_label), axis=0)
-                print(f"after : {query_label}")
-                gall_label = np.concatenate((gall_label, gall_label), axis=0)
+            # if args.reid == "BtoB" :
+            #     print(f"Before : {query_label}")
+            #     query_label = np.concatenate((query_label, query_label), axis=0)
+            #     print(f"after : {query_label}")
+            #     gall_label = np.concatenate((gall_label, gall_label), axis=0)
             cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool,query_label , gall_label)
 
             # fc feature

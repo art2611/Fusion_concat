@@ -5,7 +5,7 @@ read -e -p "Enter the reid type (BtoB) : " REID
 echo $REID
 read -e -p "Enter the dataset name (sysu/regdb) :" DATASET
 echo $DATASET
-read -e -p "Enter the the fuse type (sum/cat) :" FUSE
+read -e -p "Enter the the fuse type (sum/cat/none) :" FUSE
 echo FUSE
 
 python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=0;
