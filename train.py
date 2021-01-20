@@ -236,6 +236,7 @@ def multi_process() :
             if args.reid == "TtoT":
                 input1 = input2
             feat, out0, = net(input1, input2, fuse = args.fuse)
+            print(labels)
             sys.exit()
             loss_ce = criterion_id(out0, labels)
 
