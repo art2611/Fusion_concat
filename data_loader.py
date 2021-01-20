@@ -158,10 +158,11 @@ def GenIdx(train_color_label, train_thermal_label):
 
 def process_BOTH(img_dir, mode, dataset, fold=0):
     if dataset=="sysu":
-        img_query, label_query, img_gallery, label_gallery = process_BOTH_sysu(img_dir, mode, fold)
+        img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam= process_BOTH_sysu(img_dir, mode, fold)
     elif dataset == "regdb" :
+        query_cam, gall_cam = None, None
         img_query, label_query, img_gallery, label_gallery = process_BOTH_regdb(img_dir, mode, fold)
-    return (img_query, label_query, img_gallery, label_gallery)
+    return (img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam)
 
 def process_BOTH_regdb(img_dir, mode, fold):
 
