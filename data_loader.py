@@ -63,7 +63,7 @@ class RegDBData(data.Dataset):
         return len(self.train_color_label)
 
 class RegDBData_clean(data.Dataset):
-    def __init__(self, data_dir, trial, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
+    def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         # Load training images (path) and labels
         data_dir = '../Datasets/RegDB/'
         #Load color and thermal images + labels
@@ -71,6 +71,7 @@ class RegDBData_clean(data.Dataset):
         train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
         train_color_label = np.load(data_dir + f'train_label_{fold}.npy')
         train_color_label = train_color_label.tolist()
+        #same labels for both images
         train_thermal_label = train_color_label
 
         # Init color images / labels
@@ -155,11 +156,21 @@ def GenIdx(train_color_label, train_thermal_label):
 
     return color_pos, thermal_pos
 
+def process_BOTH(img_dir, mode, dataset, fold=0):
+    if dataset=="sysu":
+        img_query, label_query, img_gallery, label_gallery = process_BOTH_sysu(img_dir, mode, dataset, fold)
+    elif dataset == "regdb" :
+        img_query, label_query, img_gallery, label_gallery = process_BOTH_regdb(img_dir, mode, dataset, fold)
+    return (img_query, label_query, img_gallery, label_gallery)
 
-def process_test_regdb(img_dir, modal='visible', trial = 1, split="paper_based"):
+def process_BOTH_regdb(img_dir, mode, fold):
 
-    input_visible_data_path = img_dir + f'idx/test_visible_{trial}.txt'
-    input_thermal_data_path = img_dir + f'idx/test_thermal_{trial}.txt'
+    if mode == "test" :
+        input_visible_data_path = img_dir + f'idx/test_visible_{1}.txt'
+        input_thermal_data_path = img_dir + f'idx/test_thermal_{1}.txt'
+    if mode == "valid" :
+        input_visible_data_path = img_dir + f"idx/val_id_RGB_{fold}.txt"
+        input_thermal_data_path = img_dir + f"idx/val_id_IR_{fold}.txt"
 
     with open(input_visible_data_path) as f:
         data_file_list = open(input_visible_data_path, 'rt').read().splitlines()
@@ -173,91 +184,35 @@ def process_test_regdb(img_dir, modal='visible', trial = 1, split="paper_based")
         file_image_thermal = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
         file_label_thermal = [int(s.split(' ')[1]) for s in data_file_list]
 
-    #If required, return half of the dataset in two slice
-    if modal == "VtoV" :
-        file_image = file_image_visible
-        file_label = file_label_visible
-    if modal == "TtoT" :
-        file_image = file_image_thermal
-        file_label = file_label_thermal
-    if modal == "TtoT" or modal == "VtoV" :
-        first_image_slice_query = []
-        first_label_slice_query = []
-        sec_image_slice_gallery = []
-        sec_label_slice_gallery = []
-        #On regarde pour chaque id
-        for k in range(len(np.unique(file_label))):
-            appeared=[]
-            # On choisit cinq personnes en query aléatoirement, le reste est placé dans la gallery (5 images)
-            for i in range(5):
-                rand = random.choice(file_image[k*10:k*10+9])
-                while rand in appeared:
-                    rand = random.choice(file_image[k*10:k*10+9])
-                appeared.append(rand)
-                first_image_slice_query.append(rand)
-                first_label_slice_query.append(file_label[k*10])
-            #On regarde la liste d'images de l'id k, on récupère les images n'étant pas dans query (5 images)
-            for i in file_image[k*10:k*10+10] :
-                if i not in appeared :
-                    sec_image_slice_gallery.append(i)
-                    sec_label_slice_gallery.append(file_label[k*10])
-        return(first_image_slice_query, np.array(first_label_slice_query), sec_image_slice_gallery, np.array(sec_label_slice_gallery))
+    img_query = []
+    label_query = []
+    img_gallery = []
+    label_gallery = []
 
-    if split == "paper_based":
-        if modal == "VtoT" :
-            return (file_image_visible, np.array(file_label_visible), file_image_thermal,
-                np.array(file_label_thermal))
-        elif modal == "TtoV":
-            return(file_image_thermal, np.array(file_label_thermal), file_image_visible, np.array(file_label_visible))
+    # On regarde pour chaque id
+    for k in range(len(np.unique(file_label_visible))):
+        appeared = []
 
-    elif split=="experience_based" :
-        first_image_slice_query = []
-        first_label_slice_query = []
-        sec_image_slice_gallery = []
-        sec_label_slice_gallery = []
-        first_image_slice_query_2 = []
-        sec_image_slice_gallery_2 = []
-        # On regarde pour chaque id
-        for k in range(len(np.unique(file_label_visible))):
-            appeared = []
-            # On choisit cinq personnes en query aléatoirement, le reste est placé dans la gallery (5 images)
-            for i in range(5):
+        for i in range(2):
+            rand = randrange(10)
+            while rand in appeared:
                 rand = randrange(10)
-                while rand in appeared:
-                    rand = randrange(10)
-                appeared.append(rand)
-                if modal == "VtoT" :
-                    first_image_slice_query.append(file_image_visible[k * 10 + rand])
-                    first_label_slice_query.append(file_label_visible[k * 10])
-                elif modal == "TtoV" :
-                    first_image_slice_query.append(file_image_thermal[k * 10 + rand])
-                    first_label_slice_query.append(file_label_thermal[k * 10])
-                elif modal == "BtoB" :
-                    first_image_slice_query.append(file_image_visible[k * 10 + rand])
-                    first_image_slice_query_2.append(file_image_thermal[k * 10 + rand])
-                    first_label_slice_query.append(file_label_visible[k * 10])
+            appeared.append(rand)
+            # On récupère des images appairées
+            img_gallery.append([file_image_visible[k * 10 + rand], file_image_thermal[k * 10 + rand]])
+            # On récupère les labels associés (Les mêmes dans file_label_visible/thermal)
+            label_gallery.append(file_label_visible[k * 10 + rand[i]])
 
-            # On regarde la liste d'images de l'id k, on récupère les images n'étant pas dans query (5 images)
-            for i in [w for w in range(10)]:
-                if i not in appeared:
-                    if modal == "VtoT":
-                        sec_image_slice_gallery.append(file_image_visible[k * 10 + i])
-                        sec_label_slice_gallery.append(file_label_visible[k * 10])
-                    elif modal == "TtoV":
-                        sec_image_slice_gallery.append(file_image_thermal[k * 10 + i])
-                        sec_label_slice_gallery.append(file_label_thermal[k * 10])
-                    elif modal =="BtoB" :
-                        sec_image_slice_gallery.append(file_image_visible[k * 10 + i])
-                        sec_image_slice_gallery_2.append(file_image_thermal[k * 10 + i])
-                        sec_label_slice_gallery.append(file_label_visible[k * 10])
+        for i in range(10):
+            if i not in appeared :
+                #On récupère les images appairées restantes
+                img_query.append([file_image_visible[k * 10 + i], file_image_thermal[k * 10 + i]])
 
-        if modal == "BtoB" :
-            return (first_image_slice_query, first_image_slice_query_2, np.array(first_label_slice_query), \
-                    sec_image_slice_gallery, sec_image_slice_gallery_2, np.array(sec_label_slice_gallery))
-        return (first_image_slice_query, np.array(first_label_slice_query), sec_image_slice_gallery,
-                np.array(sec_label_slice_gallery))
+                label_query.append(file_label_visible[k*10 + i])
 
-def process_BOTH_sysu(data_path, method, fold=0):
+    return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
+
+def process_BOTH_sysu(data_path, method, fold):
     # random.seed(0)
 
     rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']

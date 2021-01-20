@@ -158,34 +158,25 @@ def multi_process() :
         # training set
         trainset = SYSUData(data_path, transform=transform_train, fold = args.fold)
 
-        # Generate the idx of each person identity
-        color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
-
-        # Validation set
-        query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                process_BOTH_sysu(data_path, "valid", fold = args.fold)
-
-
     elif args.dataset == 'regdb':
         data_path = '../Datasets/RegDB/'
         suffix = f'RegDB_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}'
-        trainset = RegDBData_clean(data_path, trial = 1, transform=transform_train, fold = 0)
-        # trainset = RegDBData(data_path, trial = 1, transform=transform_train)
-        # print(trainset.train_thermal_label)
-        # print(trainset.train_color_label)
-        color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
-        print(len(color_pos))
-        query_img, query_label, gall_img, gall_label = process_test_regdb(data_path, trial=1, modal=args.reid, split="paper_based")
+        trainset = RegDBData_clean(data_path, transform=transform_train, fold = args.fold)
+
+    # Get ids positions
+    color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
 
 
     ######################################### VALID SET
+    # Validation imgs and labels
+    query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+            process_BOTH(data_path, "valid", args.dataset, args.fold)
 
     # Gallery and query set
     gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
     queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=( img_w, img_h))
 
-
-    # Test data loader
+    # Validation data loader
     gall_loader = torch.utils.data.DataLoader(gallset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
     query_loader = torch.utils.data.DataLoader(queryset, batch_size= test_batch_size, shuffle=False, num_workers= workers)
 
