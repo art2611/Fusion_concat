@@ -57,16 +57,19 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
+#Tests avec un lr diminuant moins
 def adjust_learning_rate(optimizer, epoch, lr):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     if epoch < 10:
         lr = lr * (epoch + 1) / 10
-    elif epoch >= 10 and epoch < 20:
+    elif epoch >= 10 and epoch < 50:
         lr = lr
-    elif epoch >= 20 and epoch < 50:
-        lr = lr * 0.1
-    elif epoch >= 50:
-        lr = lr * 0.01
+    # elif epoch >= 10 and epoch < 20:
+    #     lr = lr
+    # elif epoch >= 20 and epoch < 50:
+    #     lr = lr * 0.1
+    # elif epoch >= 50:
+    #     lr = lr * 0.01
 
     optimizer.param_groups[0]['lr'] = 0.1 * lr
     for i in range(len(optimizer.param_groups) - 1):
