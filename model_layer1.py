@@ -95,6 +95,7 @@ class Network_layer1(nn.Module):
             if fuse=="cat" :
                 x = torch.cat((x1, x2), -1)      # Early : torch.Size([64, 64, 72, 36])  Middle : ([64, 512, 36, 18])  End : torch.Size([64, 2048, 9, 5])
             elif fuse=="sum":
+                print("SUM")
                 x = x1.add(x2)
         elif modal == 1:
             x = self.visible_module(x1)
