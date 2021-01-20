@@ -236,7 +236,8 @@ def multi_process() :
 
         net = []
         for k in range(5):
-            suffix = f'SYSU_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+
             print('==> Resuming from checkpoint..')
             model_path = checkpoint_path + suffix + '_best.t'
             print(f"model path : {model_path}")
