@@ -236,8 +236,6 @@ def multi_process() :
             if args.reid == "TtoT":
                 input1 = input2
             feat, out0, = net(input1, input2, fuse = args.fuse)
-            print(labels)
-            print(out0)
             loss_ce = criterion_id(out0, labels)
             loss_tri, batch_acc = criterion_tri(feat, labels)
             correct += (batch_acc / 2)
