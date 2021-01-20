@@ -3,7 +3,6 @@ import numpy as np
 
 
 """Cross-Modality ReID"""
-
 def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
     num_q, num_g = distmat.shape
     if num_g < max_rank:
