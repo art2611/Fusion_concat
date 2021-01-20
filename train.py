@@ -328,7 +328,7 @@ def multi_process() :
         # identity sampler - Give iteratively index from a randomized list of color index and thermal index
         sampler = IdentitySampler(trainset.train_color_label, trainset.train_thermal_label, \
                                   color_pos, thermal_pos, num_of_same_id_in_batch, batch_num_identities,
-                                  epoch)
+                                  args.dataset, epoch)
 
         trainset.cIndex = sampler.index1  # color index
         trainset.tIndex = sampler.index2  # thermal index

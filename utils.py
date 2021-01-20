@@ -8,7 +8,7 @@ class IdentitySampler(Sampler):
             color_pos, thermal_pos: positions of each identity
             batchSize: batch size
     """
-    def __init__(self, train_color_label, train_thermal_label, color_pos, thermal_pos, num_pos, batchSize, epoch):
+    def __init__(self, train_color_label, train_thermal_label, color_pos, thermal_pos, num_pos, batchSize, dataset, epoch):
         uni_label = np.unique(train_color_label)
         print(uni_label)
         print(color_pos)
@@ -18,6 +18,9 @@ class IdentitySampler(Sampler):
             batch_idx = np.random.choice(uni_label, batchSize, replace=False)
             print(f"batch idx {batch_idx}")
             for i in range(batchSize):
+                # On a retiré 41 identités (1 fold), on doit donc recaler batch idx
+                if dataset == "regdb" :
+                    batch_idx = [i -41 for i in batch_idx]
                 # print(batch_idx[i]-41)
                 # ON choisit des images de la même identité pour les deux modalités, aléatoirement.
                 sample_color = np.random.choice(color_pos[batch_idx[i]], num_pos)

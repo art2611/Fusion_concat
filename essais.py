@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
 
+a = [2,3]
+print(a + 2)
+sys.exit()
 x = np.array([1, 3, 4, 6])
 y = np.array([2, 3, 5, 1])
 y2 = np.sin(x)
