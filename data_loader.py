@@ -201,7 +201,7 @@ def process_BOTH_regdb(img_dir, mode, fold):
             # On récupère des images appairées
             img_gallery.append([file_image_visible[k * 10 + rand], file_image_thermal[k * 10 + rand]])
             # On récupère les labels associés (Les mêmes dans file_label_visible/thermal)
-            label_gallery.append(file_label_visible[k * 10 + rand[i]])
+            label_gallery.append(file_label_visible[k * 10 + rand])
 
         for i in range(10):
             if i not in appeared :
