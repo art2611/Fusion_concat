@@ -273,6 +273,7 @@ def multi_process() :
             labels = label1
 
             input1 = Variable(input1.cuda())
+            print(input1.shape)
             input2 = Variable(input2.cuda())
             labels = Variable(labels.cuda())
 
