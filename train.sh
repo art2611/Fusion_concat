@@ -1,5 +1,4 @@
 #!/bin/sh
-activ
 read -e -p "Enter the fusion type (early/layerX/unimodal) : " FUSION
 echo $FUSION
 read -e -p "Enter the reid type (BtoB) : " REID
