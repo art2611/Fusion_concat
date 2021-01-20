@@ -10,8 +10,8 @@ a = torch.randint(10, (2, 2,2,2))
 b =  torch.randint(10, (2, 2,2,2))
 print(a)
 print(b)
-
-x = torch.cat((a,b), -1)
+x = a.add(b)
+# x = torch.cat((a,b), -1)
 print(x)
 print(x.shape)
 

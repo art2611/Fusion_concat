@@ -238,6 +238,7 @@ def multi_process() :
             suffix = f'SYSU_{args.reid}_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             print('==> Resuming from checkpoint..')
             model_path = checkpoint_path + suffix + '_best.t'
+            print(f"model path : {model_path}")
 
             if os.path.isfile(model_path):
                 print('==> loading checkpoint')
