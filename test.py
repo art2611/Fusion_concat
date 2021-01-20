@@ -285,7 +285,7 @@ def multi_process() :
         #         process_test_single_sysu(data_path, "test", trial=0, mode='all', relabel=False, reid=args.reid)
         #     nquery = len(query_label)
 
-        if args.reid == "BtoB" :
+        if args.reid == "BtoB" or args.fusion== "unimodal":
             query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
                 process_BOTH_sysu(data_path, "test", fold=0)
             nquery = len(query_label)
@@ -321,7 +321,7 @@ def multi_process() :
             #     trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
             #     gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader,ngall = ngall, net = net)
 
-            if args.reid == "BtoB" :
+            if args.reid == "BtoB" or args.fusion=="unimodal" :
                 query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_BOTH_sysu(data_path, "test", fold=0)
 
                 gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
