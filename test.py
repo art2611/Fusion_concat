@@ -188,7 +188,7 @@ def multi_process() :
             #Prepare query and gallery
 
             query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                process_BOTH(data_path, "test", args.dataset, args.fold)
+                process_BOTH(data_path, "test", args.dataset, test_fold)
 
             # Gallery and query set
             gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
