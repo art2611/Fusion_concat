@@ -70,7 +70,7 @@ if args.dataset == 'sysu':
     nclass = 316
     data_path = '../Datasets/SYSU/'
 elif args.dataset == 'regdb':
-    nclass = 206
+    nclass = 164
     data_path = '../Datasets/RegDB/'
 
 def extract_gall_feat(gall_loader, ngall, net):
