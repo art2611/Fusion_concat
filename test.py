@@ -157,7 +157,7 @@ def multi_process() :
     if args.dataset == "regdb":
         net = []
         for k in range(5):
-            suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+            suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
 
             print('==> Resuming from checkpoint..')
             model_path = checkpoint_path + suffix + '_best.t'
