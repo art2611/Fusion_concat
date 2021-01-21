@@ -204,8 +204,8 @@ def multi_process() :
 
             print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
 
-            query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery = nquery, net = net)
-            gall_feat_pool,  gall_feat_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net)
+            query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold])
+            gall_feat_pool,  gall_feat_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold])
 
 
             # pool5 feature
