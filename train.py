@@ -22,10 +22,10 @@ import argparse
 from datetime import date
 
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
-parser.add_argument('--fusion', default='layer1', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
+parser.add_argument('--fusion', default='layer5', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
 parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
-parser.add_argument('--dataset', default='regdb', help='dataset name (regdb / sysu )')
+parser.add_argument('--dataset', default='sysu', help='dataset name (regdb / sysu )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
 args = parser.parse_args()
 
