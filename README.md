@@ -22,22 +22,22 @@ The command to launch a training are the following :
 
 Parameters :
 
-  --fusion      Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
-  --fuse        Fusion type (cat / sum)\
-  --fold        Fold number (0 to 4)\
-  --dataset     Dataset name (regdb / sysu )\
-  --reid        Type of ReID (BtoB / TtoT / TtoT), should be BtoB exept for unimodal\
+  --fusion : Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
+  --fuse : Fusion type (cat / sum)\
+  --fold : Fold number (0 to 4)\
+  --dataset : Dataset name (regdb / sysu )\
+  --reid : Type of ReID (BtoB / TtoT / TtoT), should be BtoB exept for unimodal\
 
 The command to launch a testing is the following : 
 
     python test.sh 
     
-  --fusion      Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
-  --fuse        Fusion type (cat / sum)\
-  --fold        Fold number (0 to 4)\
-  --dataset     Dataset name (regdb / sysu )\
-  --reid        Type of ReID (BtoB / TtoT / TtoT), should be BtoB exept for unimodal\
-  --trained     Previously trained model (BtoB / VtoV / TtoT)
+  --fusion : Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
+  --fuse : Fusion type (cat / sum)\
+  --fold : Fold number (0 to 4)\
+  --dataset : Dataset name (regdb / sysu )\
+  --reid : Type of ReID (BtoB / TtoT / TtoT), should be BtoB exept for unimodal\
+  --trained : Previously trained model (BtoB / VtoV / TtoT)
     
 # Bash files 
    
