@@ -9,7 +9,7 @@ data_path = '../Datasets/SYSU/'
 file_path_train = os.path.join(data_path, 'exp/train_id.txt')
 file_path_valid = os.path.join(data_path, 'exp/val_id.txt')
 
-###GET VALID AND TRAIN initial IDS in one list
+###GET VALID AND TRAIN IDS in one list
 with open(file_path_train, 'r') as file:
     ids = file.read().splitlines()
     ids = [int(y) for y in ids[0].split(',')]
@@ -25,11 +25,11 @@ with open(file_path_valid, 'r') as file:
 training_lists=[[],[],[],[],[]]
 val_lists = ['','','','','']
 
-# i = 5 : Nombre de folds
+# i is the number of folds
 for i in range(5):
     # j = on parcours toutes les identités
     for j in range(1,len(all_ids)+1):
-        # Validation is only 1/i ids, we have 395 ids which lead to folds of 79 ids
+        # Validation is only done on 1/5 of the ids, we have 395 ids which lead to folds of 79 ids
         if j >= 79*i + 1 and j <= (79*(i+1)) :
             if j == 79*(i+1) :
                 val_lists[i] = val_lists[i] + str(all_ids[j-1])
@@ -39,16 +39,17 @@ for i in range(5):
         else :
             training_lists[i].append("%04d" % all_ids[j-1])
 
-# We create txt files with the validation ids in it, it is enough for validation
+# We create txt files with the validation ids in it, it is enough for validation, as we already have for testing
 for k in range(5) :
     f = open(data_path + f"exp/val_id_{k}.txt", "w+")
     f.write(val_lists[k])
     f.close()
 
+
 rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
 ir_cameras = ['cam3', 'cam6']
 
-### GET imgs associated to ids
+### GET imgs associated to ids for each folds
 files_rgb_train = [[], [], [], [], []]
 files_ir_train = [[], [], [], [], []]
 
@@ -100,8 +101,7 @@ def read_imgs(train_image,k):
 
     return np.array(train_img), np.array(train_label)
 
-#Output .npy files
-
+#Output .npy files for each fold
 for k in range(5):
 
     # rgb imges train

@@ -8,61 +8,6 @@ from random import randrange
 import random
 
 class RegDBData(data.Dataset):
-    def __init__(self, data_dir, trial, transform=None, colorIndex=None, thermalIndex=None):
-        # Load training images (path) and labels
-        data_dir = '../Datasets/RegDB/'
-        train_color_list = data_dir + 'idx/train_visible_{}'.format(trial) + '.txt'
-        train_thermal_list = data_dir + 'idx/train_thermal_{}'.format(trial) + '.txt'
-        #Load color and thermal images + labels
-        color_img_file, train_color_label = load_data(train_color_list)
-        thermal_img_file, train_thermal_label = load_data(train_thermal_list)
-
-        #Get real and thermal images with good shape in a list
-        train_color_image = []
-        for i in range(len(color_img_file)):
-            img = Image.open(data_dir + color_img_file[i])
-            img = img.resize((144, 288), Image.ANTIALIAS)
-            pix_array = np.array(img)
-            train_color_image.append(pix_array)
-
-        train_thermal_image = []
-        for i in range(len(thermal_img_file)):
-            img = Image.open(data_dir + thermal_img_file[i])
-            img = img.resize((144, 288), Image.ANTIALIAS)
-            pix_array = np.array(img)
-            train_thermal_image.append(pix_array)
-
-        train_color_image = np.array(train_color_image)
-        train_thermal_image = np.array(train_thermal_image)
-
-        # Init color images / labels
-        self.train_color_image = train_color_image
-        self.train_color_label = train_color_label
-
-        # Init themal images / labels
-        self.train_thermal_image = train_thermal_image
-        self.train_thermal_label = train_thermal_label
-
-        self.transform = transform
-
-        # Prepare index
-        self.cIndex = colorIndex
-        self.tIndex = thermalIndex
-
-    def __getitem__(self, index):
-        #Dataset[i] return images from both modal and the corresponding label
-        img1, target1 = self.train_color_image[self.cIndex[index]], self.train_color_label[self.cIndex[index]]
-        img2, target2 = self.train_thermal_image[self.tIndex[index]], self.train_thermal_label[self.tIndex[index]]
-
-        img1 = self.transform(img1)
-        img2 = self.transform(img2)
-
-        return img1, img2, target1, target2
-
-    def __len__(self):
-        return len(self.train_color_label)
-
-class RegDBData_clean(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         # Load training images (path) and labels
         data_dir = '../Datasets/RegDB/'
@@ -101,19 +46,18 @@ class RegDBData_clean(data.Dataset):
     def __len__(self):
         return len(self.train_color_label)
 
+# Get SYSU data for training
 class SYSUData(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         data_dir = '../Datasets/SYSU/'
-        # Load training images (path) and labels
-        train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
+        # Load training labels
         self.train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
-
-        train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
         self.train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
 
-        # BGR to RGB
-        self.train_color_image = train_color_image
-        self.train_thermal_image = train_thermal_image
+        # Load training images
+        self.train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
+        self.train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
+
         self.transform = transform
         self.cIndex = colorIndex
         self.tIndex = thermalIndex
@@ -156,15 +100,17 @@ def GenIdx(train_color_label, train_thermal_label):
 
     return color_pos, thermal_pos
 
-def process_BOTH(img_dir, mode, dataset, fold=0):
+# Call the corresponding dataset function to process data for the validation or the test phase
+def process_data(img_dir, mode, dataset, fold=0):
     if dataset=="sysu":
-        img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam= process_BOTH_sysu(img_dir, mode, fold)
+        img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam= process_sysu(img_dir, mode, fold)
     elif dataset == "regdb" :
         query_cam, gall_cam = None, None
-        img_query, label_query, img_gallery, label_gallery = process_BOTH_regdb(img_dir, mode, fold)
+        img_query, label_query, img_gallery, label_gallery = process_regdb(img_dir, mode, fold)
     return (img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam)
 
-def process_BOTH_regdb(img_dir, mode, fold):
+# Process regDB data for test or validation
+def process_regdb(img_dir, mode, fold):
 
     if mode == "test" :
         input_visible_data_path = img_dir + f'idx/test_visible_{1}.txt'
@@ -213,9 +159,8 @@ def process_BOTH_regdb(img_dir, mode, fold):
 
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
-def process_BOTH_sysu(data_path, method, fold):
-    # random.seed(0)
-
+# Process SYSU data for test or validation
+def process_sysu(data_path, method, fold):
     rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
     ir_cameras = ['cam3', 'cam6']
 
@@ -286,14 +231,6 @@ def process_BOTH_sysu(data_path, method, fold):
     gall_id = []
     gall_cam = []
 
-    # print(len(files_query_visible))
-    # print(len(files_gallery_visible))
-    # print(len(files_query_thermal))
-    # print(len(files_gallery_thermal))
-    # for k in range(10):
-    #     print(f"visible  : {files_gallery_visible[k]}")
-    #     print(f"thermal : {files_gallery_thermal[k]}")
-
     #Finally get the img, the corresponding ids. The cam doesn't matter.
     for img_path in files_query_visible:
         camid, pid = int(img_path[-15]), int(img_path[-13:-9])
@@ -317,6 +254,7 @@ def process_BOTH_sysu(data_path, method, fold):
     # print(query_img)
     return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
 
+# Get all images from the differents cameras in two lists
 def image_list(id, data_path) :
     files_ir = 0
     for k in [3,6]:
@@ -338,29 +276,7 @@ def image_list(id, data_path) :
 
     return(files_ir, files_rgb)
 
-class TestData(data.Dataset):
-    def __init__(self, test_img_file, test_label, transform=None, img_size = (144,288)):
-
-        test_image = []
-        for i in range(len(test_img_file)):
-            img = Image.open(test_img_file[i])
-            img = img.resize((img_size[0], img_size[1]), Image.ANTIALIAS)
-            pix_array = np.array(img)
-            test_image.append(pix_array)
-        test_image = np.array(test_image)
-        self.test_image = test_image
-        self.test_label = test_label
-        self.transform = transform
-
-    def __getitem__(self, index):
-        img1,  target1 = self.test_image[index],  self.test_label[index]
-        img1 = self.transform(img1)
-        return img1, target1
-
-    def __len__(self):
-        return len(self.test_image)
-
-class TestData_both(data.Dataset):
+class Prepare_set(data.Dataset):
     def __init__(self, test_img_file, test_label, transform=None, img_size = (144,288)):
 
         test_image1 = []

@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 from torchvision.models import resnet50
+from torchsummary import summary
 
 class Identity(nn.Module):
     def __init__(self):
@@ -89,14 +90,15 @@ class Network_layer4(nn.Module):
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
-    def forward(self, x1, x2, modal=0, fuse="sum"):
+    def forward(self, x1, x2, modal=0, fuse="cat"):
         if modal == 0:
             x1 = self.visible_module(x1)
             x2 = self.thermal_module(x2)
-            print(f"Shape before concat : {x1.shape}")
+            # print(f"Shape before concat : {x1.shape}")
             if fuse == "cat":
                 x = torch.cat((x1, x2), -1)
-                print(f"Shape of vector : {x.shape}")
+                # x=x1
+                # print(f"Shape of vector : {x.shape}")
             elif fuse == "sum":
                 x = x1.add(x2)
         elif modal == 1:
@@ -118,7 +120,7 @@ class Network_layer4(nn.Module):
 
 
 # from torchsummary import summary
-# model = Network_layer1(250, arch='resnet50')
+# model = Network_layer4(250, arch='resnet50')
 # summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
 
 #print(resneut50(pretrained= True))

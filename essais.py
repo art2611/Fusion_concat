@@ -23,11 +23,11 @@ import random
 # plt.show()
 
 # affiche la figure a l'ecran
-a = torch.randint(10, (2,2,2,2))
-b =  torch.randint(10, (2, 2,2,2))
+a = torch.randint(10, (2,2))
+b =  torch.randint(10, (2, 2))
 print(a)
 print(b)
-c = torch.cat((a,b), dim=1)
+c = torch.cat((a,b), dim=-1)
 
 print(c)
 print(c.shape)

@@ -87,7 +87,7 @@ def read_imgs(train_image, k):
     return np.array(train_img)
 
 
-#Output .npy files
+#Output .npy files for each folds
 
 for k in range(5):
     # rgb imges train

@@ -39,18 +39,15 @@ workers = 4
 lr = 0.001
 checkpoint_path = '../save_model/'
 #
-parser = argparse.ArgumentParser(description='PyTorch Cross-Modality Training')
-parser.add_argument('--fusion', default='layer1', help='Layer to fuse data')
+parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
+parser.add_argument('--fusion', default='layer1', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
 parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
-parser.add_argument('--dataset', default='regdb', help='dataset name: regdb or sysu]')
-parser.add_argument('--reid', default='VtoT', help='Visible to thermal reid')
-parser.add_argument('--trained', default='VtoT', help='Model trained based on VtoT validation')
-parser.add_argument('--split', default='paper_based', help='How to split data')
+parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
+parser.add_argument('--dataset', default='regdb', help='dataset name (regdb / sysu )')
+parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
+parser.add_argument('--trained', default='BTOB', help='Trained model (BtoB / VtoV / TtoT)')
 args = parser.parse_args()
 
-split_list = ["paper_based", "experience_based"]
-if args.split not in split_list:
-    sys.exit(f"--split should be in {split_list}")
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 transform_test = transforms.Compose([
@@ -66,13 +63,7 @@ d1 = today.strftime("%d/%m/%Y")
 writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
 
 
-if args.dataset == 'sysu':
-    nclass = 316
-    data_path = '../Datasets/SYSU/'
-elif args.dataset == 'regdb':
-    nclass = 164
-    data_path = '../Datasets/RegDB/'
-
+# Function to extract gallery features
 def extract_gall_feat(gall_loader, ngall, net):
     net.eval()
     print('Extracting Gallery Feature...')
@@ -111,6 +102,7 @@ def extract_gall_feat(gall_loader, ngall, net):
 
     return gall_feat_pool, gall_feat_fc
 
+#Function to extract query image features
 def extract_query_feat(query_loader, nquery, net):
     net.eval()
     print('Extracting Query Feature...')
@@ -151,231 +143,199 @@ def extract_query_feat(query_loader, nquery, net):
 
     return query_feat_pool, query_feat_fc
 
-def multi_process() :
-
-    end = time.time()
-    if args.dataset == "regdb":
-        net = []
-        for k in range(5):
-            suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
-
-            print('==> Resuming from checkpoint..')
-            model_path = checkpoint_path + suffix + '_best.t'
-            print(f"model path : {model_path}")
-
-            if os.path.isfile(model_path):
-                print('==> loading checkpoint')
-
-                checkpoint = torch.load(model_path)
-                Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
-                            "layer2": Network_layer2(nclass).to(device),
-                            "layer3": Network_layer3(nclass).to(device), \
-                            "layer4": Network_layer4(nclass).to(device),
-                            "layer5": Network_layer5(nclass).to(device), \
-                            "unimodal": Network_unimodal(nclass).to(device)}
-                net.append(Networks[args.fusion])
-
-                net[k].load_state_dict(checkpoint['net'])
-                print(f"Fold {k} loaded")
-            else:
-                print(f"Fold {k} doesn't exist")
-                print(f"==> Model ({model_path}) can't be loaded")
-
-        loaded_folds = len(net)
-
-        for test_fold in range(loaded_folds):
-
-            #Prepare query and gallery
-
-            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                process_BOTH(data_path, "test", args.dataset, test_fold)
-
-            # Gallery and query set
-            gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-            queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
-
-            # Validation data loader
-            gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
-                                                      num_workers=workers)
-            query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
-                                                       num_workers=workers)
-            nquery = len(query_label)
-            ngall = len(gall_label)
-
-            print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
-
-            query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold])
-            gall_feat_pool,  gall_feat_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold])
 
 
-            # pool5 feature
-            distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
-            cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool,query_label , gall_label)
+end = time.time()
 
-            # fc feature
-            distmat = np.matmul( query_feat_fc, np.transpose(gall_feat_fc))
-            cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
+if args.dataset == "regdb":
+    nclass = 164
+    data_path = '../Datasets/RegDB/'
+    net = []
+    for k in range(5):
+        suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
 
-            if test_fold == 0:
-                all_cmc = cmc
-                all_mAP = mAP
-                all_mINP = mINP
-                all_cmc_pool = cmc_pool
-                all_mAP_pool = mAP_pool
-                all_mINP_pool = mINP_pool
-            else:
-                all_cmc = all_cmc + cmc
-                all_mAP = all_mAP + mAP
-                all_mINP = all_mINP + mINP
-                all_cmc_pool = all_cmc_pool + cmc_pool
-                all_mAP_pool = all_mAP_pool + mAP_pool
-                all_mINP_pool = all_mINP_pool + mINP_pool
+        print('==> Resuming from checkpoint..')
+        model_path = checkpoint_path + suffix + '_best.t'
+        print(f"model path : {model_path}")
 
-        print(f'Test fold: {test_fold}')
-        print(
-            'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
-        print(
-            'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+        if os.path.isfile(model_path):
+            print('==> loading checkpoint')
 
-    if args.dataset == 'sysu':
+            checkpoint = torch.load(model_path)
+            Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
+                        "layer2": Network_layer2(nclass).to(device),
+                        "layer3": Network_layer3(nclass).to(device), \
+                        "layer4": Network_layer4(nclass).to(device),
+                        "layer5": Network_layer5(nclass).to(device), \
+                        "unimodal": Network_unimodal(nclass).to(device)}
+            net.append(Networks[args.fusion])
 
-        net = []
-        for k in range(5):
-            suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            net[k].load_state_dict(checkpoint['net'])
+            print(f"Fold {k} loaded")
+        else:
+            print(f"Fold {k} doesn't exist")
+            print(f"==> Model ({model_path}) can't be loaded")
 
-            print('==> Resuming from checkpoint..')
-            model_path = checkpoint_path + suffix + '_best.t'
-            print(f"model path : {model_path}")
+    loaded_folds = len(net)
 
-            if os.path.isfile(model_path):
-                print('==> loading checkpoint')
+    for test_fold in range(loaded_folds):
 
-                checkpoint = torch.load(model_path)
-                Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
-                            "layer2": Network_layer2(nclass).to(device), "layer3": Network_layer3(nclass).to(device), \
-                            "layer4": Network_layer4(nclass).to(device), "layer5": Network_layer5(nclass).to(device), \
-                            "unimodal": Network_unimodal(nclass).to(device)}
-                net.append(Networks[args.fusion])
+        #Prepare query and gallery
 
-                net[k].load_state_dict(checkpoint['net'])
-                print(f"Fold {k} loaded")
-            else :
-                print(f"Fold {k} doesn't exist")
-                print(f"==> Model ({model_path}) can't be loaded")
+        query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
+            process_data(data_path, "test", args.dataset, test_fold)
 
-        loaded_folds = len(net)
+        # Gallery and query set
+        gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+        queryset = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
 
-        # testing set
-        # if args.reid == "VtoT" or args.reid== "TtoV":
-        #     query_img, query_label, query_cam = process_query_sysu(data_path, "test", mode="all", trial=0, reid=args.reid)
-        #     gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all", trial=0, reid=args.reid)
-        #
-        #     queryset = TestData(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
-        #     query_loader = data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-        #     nquery = len(query_label)
-        #     query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
-        # elif args.reid =="VtoV" or args.reid == "TtoT" :
-        #     query_img, query_label, query_cam, gall_img, gall_label, gall_cam =\
-        #         process_test_single_sysu(data_path, "test", trial=0, mode='all', relabel=False, reid=args.reid)
-        #     nquery = len(query_label)
-
-        if args.reid == "BtoB" or args.fusion== "unimodal":
-            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-                process_BOTH_sysu(data_path, "test", fold=0)
-            nquery = len(query_label)
-
-
+        # Validation data loader
+        gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
+                                                  num_workers=workers)
+        query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
+                                                   num_workers=workers)
+        nquery = len(query_label)
         ngall = len(gall_label)
-        print("Dataset statistics:")
-        print("  ------------------------------")
-        print("  subset   | # ids | # images")
-        print("  ------------------------------")
-        print("  query    | {:5d} | {:8d}".format(len(np.unique(query_label)), nquery))
-        print("  gallery  | {:5d} | {:8d}".format(len(np.unique(gall_label)), ngall))
-        print("  ------------------------------")
+
         print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
 
-        for test_fold in range(loaded_folds):
+        query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold])
+        gall_feat_pool,  gall_feat_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold])
 
-            # Could be used again if we try VtoT or TtoV with a BtoB trained model
-            # if args.reid == "VtoT" or args.reid == "TtoV":
-            #     gall_img, gall_label, gall_cam = process_gallery_sysu(data_path, "test", mode="all",  trial=trial, reid=args.reid)
-            #     trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-            #     trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-            #     gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader, ngall = ngall, net = net)
-            #
-            # elif args.reid == "VtoV" or args.reid =="TtoT":
-            #     query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
-            #         process_test_single_sysu(data_path, "test", trial=trial, mode='all', relabel=False, reid=args.reid)
-            #     queryset = TestData(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
-            #     query_loader = data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-            #     query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net)
-            #
-            #     trial_gallset = TestData(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-            #     trial_gall_loader = data.DataLoader(trial_gallset, batch_size=test_batch_size, shuffle=False, num_workers=4)
-            #     gall_feat_pool, gall_feat_fc = extract_gall_feat(trial_gall_loader,ngall = ngall, net = net)
 
-            if args.reid == "BtoB" or args.fusion=="unimodal" :
-                query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_BOTH_sysu(data_path, "test", fold=0)
+        # pool5 feature
+        distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
+        cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool,query_label , gall_label)
 
-                gallset = TestData_both(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-                queryset = TestData_both(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+        # fc feature
+        distmat = np.matmul( query_feat_fc, np.transpose(gall_feat_fc))
+        cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
 
-                gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
-                                                          num_workers=workers)
-                query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
-                                                           num_workers=workers)
-                query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold])
-                gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold])
+        if test_fold == 0:
+            all_cmc = cmc
+            all_mAP = mAP
+            all_mINP = mINP
+            all_cmc_pool = cmc_pool
+            all_mAP_pool = mAP_pool
+            all_mINP_pool = mINP_pool
+        else:
+            all_cmc = all_cmc + cmc
+            all_mAP = all_mAP + mAP
+            all_mINP = all_mINP + mINP
+            all_cmc_pool = all_cmc_pool + cmc_pool
+            all_mAP_pool = all_mAP_pool + mAP_pool
+            all_mINP_pool = all_mINP_pool + mINP_pool
 
-            # pool5 feature
-            distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
-            cmc_pool, mAP_pool, mINP_pool = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
-
-            # fc feature
-            distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-            cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
-
-            if test_fold == 0:
-                all_cmc = cmc
-                all_mAP = mAP
-                all_mINP = mINP
-                all_cmc_pool = cmc_pool
-                all_mAP_pool = mAP_pool
-                all_mINP_pool = mINP_pool
-            else:
-                all_cmc = all_cmc + cmc
-                all_mAP = all_mAP + mAP
-                all_mINP = all_mINP + mINP
-                all_cmc_pool = all_cmc_pool + cmc_pool
-                all_mAP_pool = all_mAP_pool + mAP_pool
-                all_mINP_pool = all_mINP_pool + mINP_pool
-
-            print(f'Test fold: {test_fold}')
-            print('FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                    cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
-            print('POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                    cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
-
-    # Means
-    cmc = all_cmc / loaded_folds
-    mAP = all_mAP / loaded_folds
-    mINP = all_mINP / loaded_folds
-
-    cmc_pool = all_cmc_pool / loaded_folds
-    mAP_pool = all_mAP_pool / loaded_folds
-    mINP_pool = all_mINP_pool / loaded_folds
-    print('All Average:')
-    print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+    print(f'Test fold: {test_fold}')
+    print(
+        'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
             cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
-    print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-    cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+    print(
+        'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+            cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-    for k in range(len(cmc)):
-        writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
 
-if __name__ == '__main__':
-    freeze_support()
-    multi_process()
+if args.dataset == 'sysu':
+    nclass = 316
+    data_path = '../Datasets/SYSU/'
+    net = []
+    # Since we have 5 folds max, this loop search for the 5 potentially saved models
+    for k in range(5):
+        suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+
+        print('==> Resuming from checkpoint..')
+        model_path = checkpoint_path + suffix + '_best.t'
+        print(f"model path : {model_path}")
+        if os.path.isfile(model_path):
+            print('==> loading checkpoint')
+
+            checkpoint = torch.load(model_path)
+            Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
+                        "layer2": Network_layer2(nclass).to(device), "layer3": Network_layer3(nclass).to(device), \
+                        "layer4": Network_layer4(nclass).to(device), "layer5": Network_layer5(nclass).to(device), \
+                        "unimodal": Network_unimodal(nclass).to(device)}
+            net.append(Networks[args.fusion])
+
+            # Append the found model in the network list
+            net[k].load_state_dict(checkpoint['net'])
+            print(f"Fold {k} loaded")
+        else :
+            print(f"Fold {k} doesn't exist")
+            print(f"==> Model ({model_path}) can't be loaded")
+
+    # Get the number of found models
+    loaded_folds = len(net)
+
+    # Get the data and display all
+    query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_sysu(data_path, "test", fold=0)
+
+    gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+    queryset = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+
+    gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
+                                              num_workers=workers)
+    query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
+                                               num_workers=workers)
+    nquery = len(query_label)
+    ngall = len(gall_label)
+
+    print("Dataset statistics:")
+    print("  ------------------------------")
+    print("  subset   | # ids | # images")
+    print("  ------------------------------")
+    print("  query    | {:5d} | {:8d}".format(len(np.unique(query_label)), nquery))
+    print("  gallery  | {:5d} | {:8d}".format(len(np.unique(gall_label)), ngall))
+    print("  ------------------------------")
+    print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
+
+    for test_fold in range(loaded_folds):
+        # Extract normalized distances with the differents trained networks (from fold 0 to 4)
+        query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold])
+        gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold])
+
+        # pool5 feature
+        distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
+        cmc_pool, mAP_pool, mINP_pool = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
+
+        # fc feature
+        distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
+        cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
+        cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
+
+        if test_fold == 0:
+            all_cmc = cmc
+            all_mAP = mAP
+            all_mINP = mINP
+            all_cmc_pool = cmc_pool
+            all_mAP_pool = mAP_pool
+            all_mINP_pool = mINP_pool
+        else:
+            all_cmc = all_cmc + cmc
+            all_mAP = all_mAP + mAP
+            all_mINP = all_mINP + mINP
+            all_cmc_pool = all_cmc_pool + cmc_pool
+            all_mAP_pool = all_mAP_pool + mAP_pool
+            all_mINP_pool = all_mINP_pool + mINP_pool
+
+        print(f'Test fold: {test_fold}')
+        print('FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+                cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
+        print('POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+                cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+
+# Means
+cmc = all_cmc / loaded_folds
+mAP = all_mAP / loaded_folds
+mINP = all_mINP / loaded_folds
+
+cmc_pool = all_cmc_pool / loaded_folds
+mAP_pool = all_mAP_pool / loaded_folds
+mINP_pool = all_mINP_pool / loaded_folds
+print('All Average:')
+print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
+print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+
+for k in range(len(cmc)):
+    writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
