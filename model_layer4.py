@@ -93,6 +93,7 @@ class Network_layer4(nn.Module):
         if modal == 0:
             x1 = self.visible_module(x1)
             x2 = self.thermal_module(x2)
+            print(f"Shape before concat : {x1.shape}")
             if fuse == "cat":
                 x = torch.cat((x1, x2), -1)
                 print(f"Shape of vector : {x.shape}")
