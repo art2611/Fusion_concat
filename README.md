@@ -16,11 +16,11 @@ The datasets have to be at this position form this repository : \
 
 # Use 
 
-The command to launch a training are the following : 
+Command to launch training : 
 
     python train.py 
 
-Parameters :
+_Parameters_ :
 
   --fusion : Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
   --fuse : Fusion type (cat / sum)\
