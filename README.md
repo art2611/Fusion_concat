@@ -20,18 +20,24 @@ The command to launch a training are the following :
 
     python train.py 
 
-Parameters : \
-'--fusion', default='layer1', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
-parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
-parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
-parser.add_argument('--dataset', default='regdb', help='dataset name (regdb / sysu )')
-parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
-    
+Parameters :
+
+  --fusion      Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
+  --fuse        Fusion type (cat / sum)\
+  --fold        Fold number (0 to 4)\
+  --dataset     Dataset name (regdb / sysu )\
+  --reid        Type of ReID (BtoB / TtoT / TtoT), should be BtoB exept for unimodal\
+
 The command to launch a testing is the following : 
 
     python test.sh 
     
-
+  --fusion      Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
+  --fuse        Fusion type (cat / sum)\
+  --fold        Fold number (0 to 4)\
+  --dataset     Dataset name (regdb / sysu )\
+  --reid        Type of ReID (BtoB / TtoT / TtoT), should be BtoB exept for unimodal\
+  --trained     Previously trained model (BtoB / VtoV / TtoT)
     
 # Bash files 
    
@@ -40,5 +46,5 @@ You can launch a full training (On 5 folds) by using the next command and a test
     bash train.sh 
     bash test.sh
     
-Then you will have to give the options, which are the same as those described earlier.
+Then you will be asked to give the options, which are the same as those described earlier.
 
