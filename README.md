@@ -11,8 +11,9 @@ Then the following commands should be used to prepare both datasets :
     python pre_process_regdb_clean.py
 
 The datasets have to be at this position form this repository : \
-../Datasets/SYSU\
-../Datasets/RegDB\
+
+    ../Datasets/SYSU
+    ../Datasets/RegDB
 
 # Use 
 
@@ -20,7 +21,7 @@ Command to launch training :
 
     python train.py 
 
-_Parameters_ :
+**Parameters :**
 
   --fusion : Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
   --fuse : Fusion type (cat / sum)\
@@ -32,6 +33,7 @@ The command to launch a testing is the following :
 
     python test.sh 
     
+**Parameters :**
   --fusion : Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
   --fuse : Fusion type (cat / sum)\
   --fold : Fold number (0 to 4)\
