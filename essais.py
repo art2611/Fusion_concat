@@ -6,26 +6,31 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
 
-a = [2,3]
-print(a + 2)
-sys.exit()
-x = np.array([1, 3, 4, 6])
-y = np.array([2, 3, 5, 1])
-y2 = np.sin(x)
-plt.plot(x, y, label="cos(x)")
-plt.plot(x, y2, label="sin(x)")
+# a = [2,3]
+# print(a + 2)
+# sys.exit()
+# x = np.array([1, 3, 4, 6])
+# y = np.array([2, 3, 5, 1])
+# y2 = np.sin(x)
+# plt.plot(x, y, label="cos(x)")
+# plt.plot(x, y2, label="sin(x)")
+#
+# plt.legend()
+# plt.xlabel("abscisses")
+# plt.ylabel("ordonnees")
+# plt.title("Fonction plop")
 
-plt.legend()
-plt.xlabel("abscisses")
-plt.ylabel("ordonnees")
-plt.title("Fonction plop")
-
-plt.show()
+# plt.show()
 
 # affiche la figure a l'ecran
-# a = torch.randint(10, (2,2,2,2))
-# b =  torch.randint(10, (2, 2,2,2))
+a = torch.randint(10, (2,2,2,2))
+b =  torch.randint(10, (2, 2,2,2))
+print(a)
+print(b)
+c = torch.cat((a,b), dim=1)
 
+print(c)
+print(c.shape)
 sys.exit()
 
 def fonction(x):
