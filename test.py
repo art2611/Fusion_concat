@@ -45,7 +45,7 @@ parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='regdb', help='dataset name (regdb / sysu )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
-parser.add_argument('--trained', default='BTOB', help='Trained model (BtoB / VtoV / TtoT)')
+parser.add_argument('--trained', default='BtoB', help='Trained model (BtoB / VtoV / TtoT)')
 args = parser.parse_args()
 
 
