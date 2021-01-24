@@ -21,7 +21,7 @@ Command to launch training :
 
     python train.py 
 
-**Parameters :**
+**Parameters :** \
 
   --fusion : Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)\
   --fuse : Fusion type (cat / sum)\
