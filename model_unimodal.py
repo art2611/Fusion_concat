@@ -64,9 +64,9 @@ class Network_unimodal(nn.Module):
             return self.l2norm(x_pool), self.l2norm(feat)
 
 
-from torchsummary import summary
-model = Network_unimodal(250, arch='resnet50')
-summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
+# from torchsummary import summary
+# model = Network_unimodal(250, arch='resnet50')
+# summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
 
 
 #   model = Network(250, arch='resnet50')
