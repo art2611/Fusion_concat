@@ -97,7 +97,6 @@ class Network_layer4(nn.Module):
             # print(f"Shape before concat : {x1.shape}")
             if fuse == "cat":
                 x = torch.cat((x1, x2), -1)
-                # x=x1
                 # print(f"Shape of vector : {x.shape}")
             elif fuse == "sum":
                 x = x1.add(x2)

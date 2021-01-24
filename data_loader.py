@@ -136,7 +136,7 @@ def process_regdb(img_dir, mode, fold):
     img_gallery = []
     label_gallery = []
 
-    # On regarde pour chaque id
+    # This loop separate 2 random selected img per modality for the gallery, and the rest goes for query (8 imgs)
     for k in range(len(np.unique(file_label_visible))):
         appeared = []
 

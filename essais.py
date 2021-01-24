@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
 
+rgb_tensor = torch.tensor(np.array([[1, 2, 3], [3, 2, 1]]))
+ir_tensor = torch.tensor(np.array([[1, 2, 3], [1, 2, 3]]))
+summed_tensor = rgb_tensor.add(ir_tensor)
+print(f" summed_tensor : {summed_tensor}")
+
 # a = [2,3]
 # print(a + 2)
 # sys.exit()
@@ -23,22 +28,25 @@ import random
 # plt.show()
 
 # affiche la figure a l'ecran
-a = torch.randint(10, (2,2))
-b =  torch.randint(10, (2, 2))
+a = torch.randint(10, (2, 2))
+b = torch.randint(10, (2, 2))
 print(a)
 print(b)
-c = torch.cat((a,b), dim=-1)
+c = torch.cat((a, b), dim=-1)
 
 print(c)
 print(c.shape)
 sys.exit()
 
+
 def fonction(x):
-    return(x+2)
-a = {"bonjour":fonction, "salut":3}
+    return (x + 2)
+
+
+a = {"bonjour": fonction, "salut": 3}
 print(a["bonjour"](2))
 
-a = [[2,0], [4,6],[0,1]]
+a = [[2, 0], [4, 6], [0, 1]]
 a = np.array(a)
 print(a)
 

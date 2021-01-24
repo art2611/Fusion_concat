@@ -6,24 +6,21 @@ class IdentitySampler(Sampler):
         Args:
             train_color_label, train_thermal_label: labels of two modalities
             color_pos, thermal_pos: positions of each identity
-            batchSize: batch size
+            batch_num_identities: batch size
     """
-    def __init__(self, train_color_label, train_thermal_label, color_pos, thermal_pos, num_pos, batchSize, dataset, epoch):
+    def __init__(self, train_color_label, train_thermal_label, color_pos, thermal_pos, num_of_same_id_in_batch, batch_num_identities, dataset, epoch):
         uni_label = np.unique(train_color_label)
-        # print(uni_label)
-        # print(color_pos)
         self.n_classes = len(uni_label)
         N = np.maximum(len(train_color_label), len(train_thermal_label))
-        for j in range(int(N / (batchSize * num_pos)) + 1):
-            batch_idx = np.random.choice(uni_label, batchSize, replace=False)
+        # Doing as much batch as we can divide the dataset in number of batch
+        for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch)) + 1):
+            batch_idx = np.random.choice(uni_label, batch_num_identities, replace=False)
             # print(f"batch idx {batch_idx}")
-            # On a retiré 41 identités (1 fold), on doit donc recaler batch idx
-            if dataset == "regdb":
-                batch_idx = [w - 41 for w in batch_idx]
-            for i in range(batchSize):
+
+            for i in range(batch_num_identities):
                 # ON choisit des images de la même identité pour les deux modalités, aléatoirement.
-                sample_color = np.random.choice(color_pos[batch_idx[i]], num_pos)
-                sample_thermal = np.random.choice(thermal_pos[batch_idx[i]], num_pos)
+                sample_color = np.random.choice(color_pos[batch_idx[i]], num_of_same_id_in_batch)
+                sample_thermal = np.random.choice(thermal_pos[batch_idx[i]], num_of_same_id_in_batch)
                 if j == 0 and i == 0:
                     index1 = sample_color
                     index2 = sample_thermal
