@@ -12,7 +12,7 @@ else
 fi
 read -e -p "Enter the dataset name (sysu/regdb) :" DATASET
 echo $DATASET
-read -e -p "Enter the fuse type (sum/cat/none) of the trained model :" FUSE
+read -e -p "Enter the fuse type (sum/cat/cat_channel/none) of the trained model :" FUSE
 echo FUSE
 
 python test.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --trained=$TRAINED --fuse=$FUSE ;
