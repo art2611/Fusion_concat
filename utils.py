@@ -16,7 +16,7 @@ class IdentitySampler(Sampler):
         multiplier = 1
         if dataset == "regdb" :
             multiplier = 2
-        for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch))*multiplier + 1):
+        for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch)) + 1):
             batch_idx = np.random.choice(uni_label, batch_num_identities, replace=False)
             # print(f"batch idx {batch_idx}")
 
