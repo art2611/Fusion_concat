@@ -266,7 +266,7 @@ def train(epoch):
 
     for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
         # Labels 1 and 2 are the same because the two inputs correspond to the same identity
-        # print(batch_idx)
+        print(input1.shape)
         labels = label1
 
         input1 = Variable(input1.cuda())
@@ -380,7 +380,7 @@ for epoch in range(41):
     # print(trainset.tIndex)
     multiplier = 1
     if args.dataset == "regdb":
-        multiplier = 0.5
+        multiplier = 2
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch*multiplier, \
                             sampler=sampler, num_workers=workers, drop_last=True)
     print(len(trainloader))
