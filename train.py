@@ -20,8 +20,6 @@ from model_early import Network_early
 from evaluation import *
 import argparse
 from datetime import date
-from imgaug import augmenters as iaa
-import imgaug as ia
 
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
 parser.add_argument('--fusion', default='layer5', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
