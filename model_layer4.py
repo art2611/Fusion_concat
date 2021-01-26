@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 from torchvision.models import resnet50
-from torchsummary import summary
+# from torchsummary import summary
 
 class Identity(nn.Module):
     def __init__(self):
