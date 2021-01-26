@@ -10,7 +10,7 @@ else
 fi
 read -e -p "Enter the dataset name (sysu/regdb) :" DATASET
 echo $DATASET
-read -e -p "Enter the the fuse type (sum/cat/none) :" FUSE
+read -e -p "Enter the the fuse type (sum/cat/cat_channel/none) :" FUSE
 echo $FUSE
 echo \############################### START FOLD 1 \###############################
 python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=0;
