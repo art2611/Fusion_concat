@@ -12,10 +12,27 @@ class RegDBData(data.Dataset):
         # Load training images (path) and labels
         data_dir = '../Datasets/RegDB/'
         #Load color and thermal images + labels
-        train_color_image = np.load( data_dir + f'train_rgb_img_{fold}.npy')
-        train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
+        #Initial images
+        train_color_image_init= np.load( data_dir + f'train_rgb_img_{fold}.npy')
+        train_thermal_image_init = np.load(data_dir + f'train_ir_img_{fold}.npy')
+
+        # Get 5 times each images (preparation of the future data augmentation)
+        train_color_image = np.array([train_color_image_init[0],train_color_image_init[0],train_color_image_init[0],train_color_image_init[0],train_color_image_init[0]])
+        train_thermal_image = np.array([train_thermal_image_init[0],train_color_image_init[0],train_color_image_init[0],train_color_image_init[0],train_color_image_init[0]])
+        print(train_color_image.shape)
+        for k in range(1, len(train_color_image_init)):
+            if train_color_image.shape[0]%500 == 0  :
+                print(f"augmented images : {train_color_image.shape[0]}")
+            for i in range(5):
+                train_color_image = np.append(train_color_image, [train_color_image_init[k]], axis=0)
+                train_thermal_image = np.append(train_thermal_image, [train_thermal_image_init[k]], axis=0)
+
+        train_color_image = np.array(train_color_image)
+        train_thermal_image = np.array(train_thermal_image)
+        print(train_color_image.shape)
         # train_color_label = np.load(data_dir + f'train_label_{fold}.npy')
-        train_color_label = [int(i/10) for i in range((204-40)*10)]
+        # train_color_label = [int(i/10) for i in range((204-40)*10)]
+        train_color_label = [int(i/50) for i in range((204-40)*50)]
         #same labels for both images
         train_thermal_label = train_color_label
 

@@ -159,7 +159,6 @@ if args.dataset=="regdb" :
         transforms.ToTensor(),
         normalize,
     ])
-    print("TRUE")
 
 else :
     transform_train = transforms.Compose([
@@ -193,7 +192,7 @@ elif args.dataset == 'regdb':
     trainset = RegDBData(data_path, transform=transform_train, fold = args.fold)
     # Print some of the images :
     print(trainset.train_color_image.shape)
-
+    sys.exit()
 #The following lines can be used in a way to visualize data and transformations
 # w=0
 # for i in range(0, 24):
