@@ -22,8 +22,8 @@ import argparse
 from datetime import date
 
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
-parser.add_argument('--fusion', default='layer5', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
-parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
+parser.add_argument('--fusion', default='early', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
+parser.add_argument('--fuse', default='cat', help='Fusion type (cat / cat_channel / sum)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='regdb', help='dataset name (regdb / sysu )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
@@ -192,7 +192,7 @@ elif args.dataset == 'regdb':
     trainset = RegDBData(data_path, transform=transform_train, fold = args.fold)
     # Print some of the images :
     print(trainset.train_color_image.shape)
-    sys.exit()
+
 #The following lines can be used in a way to visualize data and transformations
 # w=0
 # for i in range(0, 24):
