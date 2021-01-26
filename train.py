@@ -7,7 +7,7 @@ from torch.autograd import Variable
 import time
 from data_loader import *
 from torchvision import transforms
-from utils import IdentitySampler, AverageMeter, adjust_learning_rate
+from utils import IdentitySampler, AverageMeter, adjust_learning_rate, adjust_learning_rate_regdb
 from loss import BatchHardTripLoss
 from tensorboardX import SummaryWriter
 from model_layer1 import Network_layer1
@@ -250,8 +250,11 @@ net = Networks[args.fusion]
 
 
 def train(epoch):
+    if args.dataset =="regdb" :
+        current_lr = adjust_learning_rate(optimizer, epoch, lr=lr)
+    else :
+        current_lr = adjust_learning_rate_regdb(optimizer, epoch, lr=lr)
 
-    current_lr = adjust_learning_rate(optimizer, epoch, lr=lr)
     train_loss = AverageMeter()
     id_loss = AverageMeter()
     tri_loss = AverageMeter()
@@ -365,7 +368,13 @@ criterion_tri = BatchHardTripLoss(batch_size=loader_batch, margin= 0.3).to(devic
 
 best_acc = 0
 training_time = time.time()
-for epoch in range(41):
+
+if args.dataset == "regdb" :
+    epoch_number = 201
+else :
+    epoch_number = 41
+
+for epoch in range(epoch_number):
 
     print('==> Preparing Data Loader...')
     # identity sampler - Give iteratively index from a randomized list of color index and thermal index
@@ -378,10 +387,8 @@ for epoch in range(41):
     # print(epoch)
     # print(trainset.cIndex)
     # print(trainset.tIndex)
-    multiplier = 1
-    if args.dataset == "regdb":
-        multiplier = 1
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch*multiplier, \
+
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
                             sampler=sampler, num_workers=workers, drop_last=True)
     print(len(trainloader))
 

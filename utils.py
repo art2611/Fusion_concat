@@ -13,10 +13,8 @@ class IdentitySampler(Sampler):
         self.n_classes = len(uni_label)
         N = np.maximum(len(train_color_label), len(train_thermal_label))
         # Doing as much batch as we can divide the dataset in number of batch
-        multiplier = 1
-        if dataset == "regdb" :
-            multiplier = 5
-        for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch))*multiplier + 1):
+
+        for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch)) + 1):
             batch_idx = np.random.choice(uni_label, batch_num_identities, replace=False)
             # print(f"batch idx {batch_idx}")
 
@@ -72,6 +70,25 @@ def adjust_learning_rate(optimizer, epoch, lr):
     elif epoch >= 20 and epoch < 50:
         lr = lr * 0.1
     elif epoch >= 50:
+        lr = lr * 0.01
+
+    optimizer.param_groups[0]['lr'] = 0.1 * lr
+    for i in range(len(optimizer.param_groups) - 1):
+        optimizer.param_groups[i + 1]['lr'] = lr
+
+    return lr
+
+def adjust_learning_rate_regdb(optimizer, epoch, lr):
+    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
+    if epoch < 50:
+        lr = lr * (epoch + 1) / 10
+    # elif epoch >= 10 and epoch < 50:
+    #     lr = lr
+    elif epoch >= 50 and epoch < 100:
+        lr = lr
+    elif epoch >= 100 and epoch < 250:
+        lr = lr * 0.1
+    elif epoch >= 250:
         lr = lr * 0.01
 
     optimizer.param_groups[0]['lr'] = 0.1 * lr
