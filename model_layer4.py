@@ -120,9 +120,9 @@ class Network_layer4(nn.Module):
             return self.l2norm(x_pool), self.l2norm(feat)
 
 
-from torchsummary import summary
-model = Network_layer4(250, arch='resnet50')
-summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
+# from torchsummary import summary
+# model = Network_layer4(250, arch='resnet50')
+# summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
 
 #print(resneut50(pretrained= True))
 # print(thermal_module())
