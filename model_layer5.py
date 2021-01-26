@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 from torchvision.models import resnet50
-
+import sys
 
 class Identity(nn.Module):
     def __init__(self):
@@ -81,6 +81,7 @@ class Network_layer5(nn.Module):
 
         self.thermal_module = thermal_module(arch=arch)
         self.visible_module = visible_module(arch=arch)
+        self.convolution_after_fuse = torch.nn.Conv2d(4096, 2048,1)
         #self.shared_resnet = shared_resnet(arch=arch)
 
         pool_dim = 2048
@@ -101,10 +102,16 @@ class Network_layer5(nn.Module):
             # print(f"Shape before concat : {x1.shape}")
             if fuse == "cat":
                 x = torch.cat((x1, x2), 3)
-                # x=x1
-                # print(f"Shape of vector : {x.shape}")
             elif fuse == "sum":
                 x = x1.add(x2)
+            elif fuse == "cat_channel" :
+                # x = torch.cat((x1, x2), 3)
+                print(f"Shape before fuse : {x1.shape}")
+                x = torch.cat((x1, x2), 1)
+                print(f"Shape after cat fuse : {x.shape}")
+                x = self.convolution_after_fuse(x)
+                # x=x1
+                print(f"Shape after conv : {x.shape}")
         elif modal == 1:
             x = self.visible_module(x1)
         elif modal == 2:

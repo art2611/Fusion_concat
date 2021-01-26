@@ -76,6 +76,7 @@ class Network_layer2(nn.Module):
 
         self.thermal_module = thermal_module(arch=arch)
         self.visible_module = visible_module(arch=arch)
+        self.convolution_after_fuse = torch.nn.Conv2d(512, 256,1)
         self.shared_resnet = shared_resnet(arch=arch)
 
         pool_dim = 2048
@@ -92,10 +93,14 @@ class Network_layer2(nn.Module):
         if modal == 0:
             x1 = self.visible_module(x1)
             x2 = self.thermal_module(x2)
+            # Multiple fusion definitions
             if fuse == "cat":
                 x = torch.cat((x1, x2), -1)
             elif fuse == "sum":
                 x = x1.add(x2)
+            elif fuse == "cat_channel" :
+                x = torch.cat((x1, x2), 1)
+                x = self.convolution_after_fuse(x)
         elif modal == 1:
             x = self.visible_module(x1)
         elif modal == 2:

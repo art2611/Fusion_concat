@@ -78,8 +78,8 @@ class Network_layer4(nn.Module):
 
         self.thermal_module = thermal_module(arch=arch)
         self.visible_module = visible_module(arch=arch)
+        self.convolution_after_fuse = torch.nn.Conv2d(2048, 1024, 1)
         self.shared_resnet = shared_resnet(arch=arch)
-
         pool_dim = 2048
 
         # self.bottleneck.apply(weights_init_kaiming)
@@ -94,12 +94,14 @@ class Network_layer4(nn.Module):
         if modal == 0:
             x1 = self.visible_module(x1)
             x2 = self.thermal_module(x2)
-            # print(f"Shape before concat : {x1.shape}")
+            # Multiple fusion definitions
             if fuse == "cat":
                 x = torch.cat((x1, x2), -1)
-                # print(f"Shape of vector : {x.shape}")
             elif fuse == "sum":
                 x = x1.add(x2)
+            elif fuse == "cat_channel" :
+                x = torch.cat((x1, x2), 1)
+                x = self.convolution_after_fuse(x)
         elif modal == 1:
             x = self.visible_module(x1)
         elif modal == 2:
@@ -118,9 +120,9 @@ class Network_layer4(nn.Module):
             return self.l2norm(x_pool), self.l2norm(feat)
 
 
-# from torchsummary import summary
-# model = Network_layer4(250, arch='resnet50')
-# summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
+from torchsummary import summary
+model = Network_layer4(250, arch='resnet50')
+summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
 
 #print(resneut50(pretrained= True))
 # print(thermal_module())
