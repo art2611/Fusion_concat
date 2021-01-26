@@ -191,7 +191,7 @@ elif args.dataset == 'regdb':
     suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
     trainset = RegDBData(data_path, transform=transform_train, fold = args.fold)
     # Print some of the images :
-    print(trainset.train_color_image.shape)
+    # print(trainset.train_color_image.shape)
 
 #The following lines can be used in a way to visualize data and transformations
 # w=0
@@ -269,7 +269,6 @@ def train(epoch):
 
     for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
         # Labels 1 and 2 are the same because the two inputs correspond to the same identity
-        print(input1.shape)
         labels = label1
 
         input1 = Variable(input1.cuda())
@@ -390,7 +389,7 @@ for epoch in range(epoch_number):
 
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
                             sampler=sampler, num_workers=workers, drop_last=True)
-    print(len(trainloader))
+    # print(len(trainloader))
 
     # training
     train(epoch)
