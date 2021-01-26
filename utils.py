@@ -4,7 +4,7 @@ from torch.utils.data.sampler import Sampler
 class IdentitySampler(Sampler):
     """Sample person identities evenly in each batch.
         Args:
-            train_color_label, train_thermal_label: labels of two modalities
+            train_color_label, train_thermal_label: labels of each modalities
             color_pos, thermal_pos: positions of each identity
             batch_num_identities: batch size
     """
@@ -13,7 +13,10 @@ class IdentitySampler(Sampler):
         self.n_classes = len(uni_label)
         N = np.maximum(len(train_color_label), len(train_thermal_label))
         # Doing as much batch as we can divide the dataset in number of batch
-        for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch)) + 1):
+        multiplier = 1
+        if dataset == "regdb" :
+            multiplier = 5
+        for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch))*multiplier + 1):
             batch_idx = np.random.choice(uni_label, batch_num_identities, replace=False)
             # print(f"batch idx {batch_idx}")
 
