@@ -106,12 +106,12 @@ class Network_layer5(nn.Module):
                 x = x1.add(x2)
             elif fuse == "cat_channel" :
                 # x = torch.cat((x1, x2), 3)
-                print(f"Shape before fuse : {x1.shape}")
+                # print(f"Shape before fuse : {x1.shape}")
                 x = torch.cat((x1, x2), 1)
-                print(f"Shape after cat fuse : {x.shape}")
+                # print(f"Shape after cat fuse : {x.shape}")
                 x = self.convolution_after_fuse(x)
                 # x=x1
-                print(f"Shape after conv : {x.shape}")
+                # print(f"Shape after conv : {x.shape}")
         elif modal == 1:
             x = self.visible_module(x1)
         elif modal == 2:

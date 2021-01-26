@@ -20,12 +20,14 @@ from model_early import Network_early
 from evaluation import *
 import argparse
 from datetime import date
+from imgaug import augmenters as iaa
+import imgaug as ia
 
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
 parser.add_argument('--fusion', default='layer5', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
 parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
-parser.add_argument('--dataset', default='sysu', help='dataset name (regdb / sysu )')
+parser.add_argument('--dataset', default='regdb', help='dataset name (regdb / sysu )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
 args = parser.parse_args()
 
@@ -99,6 +101,9 @@ def extract_query_feat(query_loader, nquery, net):
     return query_feat_pool, query_feat_fc
 
 
+
+
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 ### Tensorboard init - This is used afterwards to plot results on local website
@@ -125,16 +130,48 @@ checkpoint_path = '../save_model/'
 
 # Data info  :
 
-normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+# class ImgAugTransform:
+#     def __init__(self):
+#         self.aug = iaa.Sequential([
+#             iaa.Scale((224, 224)),
+#             iaa.Sometimes(0.25, iaa.GaussianBlur(sigma=(0, 3.0))),
+#             iaa.Fliplr(0.5),
+#             iaa.Affine(rotate=(-20, 20), mode='symmetric'),
+#             iaa.Sometimes(0.25,
+#                           iaa.OneOf([iaa.Dropout(p=(0, 0.1)),
+#                                      iaa.CoarseDropout(0.1, size_percent=0.5)])),
+#             iaa.AddToHueAndSaturation(value=(-10, 10), per_channel=True)
+#         ])
+#
+#     def __call__(self, img):
+#         img = np.array(img)
+#         return self.aug.augment_image(img)
+# transforms = ImgAugTransform()
 
-transform_train = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Pad(10),
-    transforms.RandomCrop((img_h, img_w)),
-    transforms.RandomHorizontalFlip(),
-    transforms.ToTensor(),
-    normalize,
-])
+normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+if args.dataset=="regdb" :
+    transform_train = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Pad(10),
+        transforms.RandomCrop((img_h, img_w)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomPerspective(distortion_scale=0.25, p=0.5, interpolation=2),
+        transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0),
+        #The following lines has to be removed for a data visualisation
+        transforms.ToTensor(),
+        normalize,
+    ])
+    print("TRUE")
+
+else :
+    transform_train = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Pad(10),
+        transforms.RandomCrop((img_h, img_w)),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        normalize,
+    ])
 transform_test = transforms.Compose([
     transforms.ToPILImage(),
     transforms.Resize((img_h, img_w)),
@@ -156,6 +193,18 @@ elif args.dataset == 'regdb':
     data_path = '../Datasets/RegDB/'
     suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
     trainset = RegDBData(data_path, transform=transform_train, fold = args.fold)
+    # Print some of the images :
+    print(trainset.train_color_image.shape)
+
+#The following lines can be used in a way to visualize data and transformations
+w=0
+for i in range(0, 24):
+    w += 1
+    print(i)
+    plt.subplot(5,5,w)
+    plt.imshow(transform_train(trainset.train_thermal_image[i]))
+plt.show()
+sys.exit()
 
 # Get ids positions (color_pos[0] returns [0,1,...,9] which are the positions of id 0 in trainset.train_color_image)
 color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)

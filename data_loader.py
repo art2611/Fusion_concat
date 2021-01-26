@@ -40,7 +40,7 @@ class RegDBData(data.Dataset):
 
         img1 = self.transform(img1)
         img2 = self.transform(img2)
-
+        print("TRUE")
         return img1, img2, target1, target2
 
     def __len__(self):
