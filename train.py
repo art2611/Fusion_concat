@@ -195,14 +195,14 @@ elif args.dataset == 'regdb':
     print(trainset.train_color_image.shape)
 
 #The following lines can be used in a way to visualize data and transformations
-w=0
-for i in range(0, 24):
-    w += 1
-    print(i)
-    plt.subplot(5,5,w)
-    plt.imshow(transform_train(trainset.train_thermal_image[i]))
-plt.show()
-sys.exit()
+# w=0
+# for i in range(0, 24):
+#     w += 1
+#     print(i)
+#     plt.subplot(5,5,w)
+#     plt.imshow(transform_train(trainset.train_thermal_image[i]))
+# plt.show()
+# sys.exit()
 
 # Get ids positions (color_pos[0] returns [0,1,...,9] which are the positions of id 0 in trainset.train_color_image)
 color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_thermal_label)
