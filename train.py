@@ -369,7 +369,7 @@ best_acc = 0
 training_time = time.time()
 
 if args.dataset == "regdb" :
-    epoch_number = 201
+    epoch_number = 51
 else :
     epoch_number = 41
 
