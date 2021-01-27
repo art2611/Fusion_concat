@@ -365,11 +365,11 @@ loader_batch = batch_num_identities * num_of_same_id_in_batch
 criterion_id = nn.CrossEntropyLoss().to(device)
 criterion_tri = BatchHardTripLoss(batch_size=loader_batch, margin= 0.3).to(device)
 
-best_acc = 0
+best_map = 0
 training_time = time.time()
 
 if args.dataset == "regdb" :
-    epoch_number = 51
+    epoch_number = 101
 else :
     epoch_number = 41
 
@@ -401,8 +401,10 @@ for epoch in range(epoch_number):
         # testing
         cmc, mAP, mINP, cmc_att, mAP_att, mINP_att = valid(epoch)
         # save model
-        if cmc_att[0] > best_acc:  # not the real best for sysu-mm01
-            best_acc = cmc_att[0]
+        # if cmc[0] > best_acc:  # not the real best for sysu-mm01
+        if mAP > best_map:  # not the real best for sysu-mm01
+            # best_acc = cmc_att[0]
+            best_map = mAP
             best_epoch = epoch
             state = {
                 'net': net.state_dict(),
