@@ -250,10 +250,10 @@ net = Networks[args.fusion]
 
 
 def train(epoch):
-    if args.dataset =="regdb" :
-        current_lr = adjust_learning_rate(optimizer, epoch, lr=lr)
-    else :
-        current_lr = adjust_learning_rate_regdb(optimizer, epoch, lr=lr)
+    # if args.dataset =="regdb" :
+    #     current_lr = adjust_learning_rate_regdb(optimizer, epoch, lr=lr)
+    # else :
+    current_lr = adjust_learning_rate(optimizer, epoch, lr=lr)
 
     train_loss = AverageMeter()
     id_loss = AverageMeter()
