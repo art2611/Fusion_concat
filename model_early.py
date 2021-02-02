@@ -75,7 +75,7 @@ class Network_early(nn.Module):
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
-    def forward(self, x1, x2, modal=0, fuse="sum"):
+    def forward(self, x1, x2, modal=0, fuse="sum", modality = "not used here"):
         if modal == 0:
             # Multiple fusion definitions
             if fuse == "cat":

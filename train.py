@@ -246,9 +246,11 @@ print('==> Building model..')
 Networks = {"early":Network_early(n_class).to(device),"layer1":Network_layer1(n_class).to(device), \
             "layer2":Network_layer2(n_class).to(device), "layer3":Network_layer3(n_class).to(device), \
             "layer4":Network_layer4(n_class).to(device), "layer5":Network_layer5(n_class).to(device), \
-            "unimodal":Network_unimodal(n_class).to(device)}
-# Just call the network needed
+            "unimodal":Network_unimodal(n_class).to(device), "late":Network_unimodal(n_class).to(device)}
+# Just call the network needed - Two distinct model if the fusion is at scores position
+
 net = Networks[args.fusion]
+
 
 ######################################### TRAIN AND VALIDATION FUNCTIONS
 
@@ -286,7 +288,9 @@ def train(epoch):
         # If the reid is using both images (BtoB), there is nothing to do too, network use the two inputs
         if args.reid == "TtoT":
             input1 = input2
+
         feat, out0, = net(input1, input2, fuse = args.fuse)
+
         loss_ce = criterion_id(out0, labels)
         loss_tri, batch_acc = criterion_tri(feat, labels)
         correct += (batch_acc / 2)

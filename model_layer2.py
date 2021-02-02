@@ -106,7 +106,7 @@ class Network_layer2(nn.Module):
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
-    def forward(self, x1, x2, modal=0, fuse="sum"):
+    def forward(self, x1, x2, modal=0, fuse="sum", modality = "not used here"):
         if modal == 0:
             x1 = self.visible_module(x1)    # Early : torch.Size([32, 64, 72, 36])  Middle : ([32, 512, 36, 18])  End : torch.Size([32, 2048, 9, 5])
             x2 = self.thermal_module(x2)

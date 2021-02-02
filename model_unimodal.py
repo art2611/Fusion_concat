@@ -37,9 +37,11 @@ class Network_unimodal(nn.Module):
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
-    def forward(self, x, x1, modal="no use here", fuse="no use here"):
+    def forward(self, x, x1, modal="no use here", fuse="no use here", modality = "visible"):
         # Firsts Resnet50 5 convolutional layers
         # x input shape : torch.Size([batch_size, 3, 288, 144])
+        if modality == "thermal" :
+            x = x1
         x = self.unimodal.conv1(x)      # Output : x.shape = torch.Size([batch_size, 64, 144, 72])
         x = self.unimodal.bn1(x)
         x = self.unimodal.relu(x)

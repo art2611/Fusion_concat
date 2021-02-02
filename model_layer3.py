@@ -108,7 +108,7 @@ class Network_layer3(nn.Module):
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
-    def forward(self, x1, x2, modal=0, fuse="sum"):
+    def forward(self, x1, x2, modal=0, fuse="sum", modality = "not used here"):
         if modal == 0:
             x1 = self.visible_module(x1)
             x2 = self.thermal_module(x2)

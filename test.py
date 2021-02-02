@@ -64,14 +64,14 @@ writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.rei
 
 
 # Function to extract gallery features
-def extract_gall_feat(gall_loader, ngall, net):
+def extract_gall_feat(gall_loader, ngall, net, modality="visible"):
     net.eval()
     print('Extracting Gallery Feature...')
     start = time.time()
     ptr = 0
 
-    gall_feat_pool = np.zeros((ngall, 2048))
-    gall_feat_fc = np.zeros((ngall, 2048))
+    gall_feat_pool = np.zeros((ngall, 512))
+    gall_feat_fc = np.zeros((ngall, 512))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(gall_loader):
@@ -85,7 +85,7 @@ def extract_gall_feat(gall_loader, ngall, net):
                 if args.reid == "unimodal" and args.reid=="VtOV":
                     input1 = input1
                 test_mode=0
-                feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse)
+                feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse, modality = modality)
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
@@ -102,14 +102,14 @@ def extract_gall_feat(gall_loader, ngall, net):
     return gall_feat_pool, gall_feat_fc
 
 #Function to extract query image features
-def extract_query_feat(query_loader, nquery, net):
+def extract_query_feat(query_loader, nquery, net, modality="visible"):
     net.eval()
     print('Extracting Query Feature...')
     start = time.time()
     ptr = 0
 
-    query_feat_pool = np.zeros((nquery, 2048))
-    query_feat_fc = np.zeros((nquery, 2048))
+    query_feat_pool = np.zeros((nquery, 512))
+    query_feat_fc = np.zeros((nquery, 512))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(query_loader):
@@ -124,7 +124,7 @@ def extract_query_feat(query_loader, nquery, net):
                 if args.reid == "unimodal" and args.reid=="VtOV":
                     input1 = input1
                 test_mode=0
-                feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse)
+                feat_pool, feat_fc = net(input1, input2, modal=test_mode, fuse=args.fuse , modality=modality)
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             elif args.reid == "VtoT" or args.reid == "TtoT":
                 test_mode = 2
@@ -142,6 +142,8 @@ def extract_query_feat(query_loader, nquery, net):
 
     return query_feat_pool, query_feat_fc
 
+#
+# if args.fusion == "late":
 
 
 end = time.time()
@@ -150,35 +152,45 @@ if args.dataset == "regdb":
     nclass = 164
     data_path = '../Datasets/RegDB/'
     net = []
+    net2 = [[],[],[],[],[]]
+    Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
+                "layer2": Network_layer2(nclass).to(device),
+                "layer3": Network_layer3(nclass).to(device), \
+                "layer4": Network_layer4(nclass).to(device),
+                "layer5": Network_layer5(nclass).to(device), \
+                "unimodal": Network_unimodal(nclass).to(device)}
     for k in range(5):
         suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
-
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
         print(f"model path : {model_path}")
 
+        if args.fusion == "late" :
+            suffix = f'RegDB_VtoV_fuseType(None)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix2 = f'RegDB_TtoT_fuseType(None)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            model_path2 = checkpoint_path + suffix2 + '_best.t'
+
         if os.path.isfile(model_path):
             print('==> loading checkpoint')
-
             checkpoint = torch.load(model_path)
-            Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
-                        "layer2": Network_layer2(nclass).to(device),
-                        "layer3": Network_layer3(nclass).to(device), \
-                        "layer4": Network_layer4(nclass).to(device),
-                        "layer5": Network_layer5(nclass).to(device), \
-                        "unimodal": Network_unimodal(nclass).to(device)}
             net.append(Networks[args.fusion])
-
             net[k].load_state_dict(checkpoint['net'])
             print(f"Fold {k} loaded")
+            if args.fusion == "late" :
+                if os.path.isfile(model_path2) :
+                    print('==> loading checkpoint 2')
+                    checkpoint2 = torch.load(model_path2)
+                    net2[k] = Networks[args.fusion]
+                    net2[k].load_state_dict(checkpoint2['net'])
+                    print(f"Fold {k} loaded")
         else:
             print(f"Fold {k} doesn't exist")
             print(f"==> Model ({model_path}) can't be loaded")
 
-    loaded_folds = len(net)
+        # loaded_folds = len(net)
 
-    for test_fold in range(loaded_folds):
-
+    # for test_fold in range(loaded_folds):
+        test_fold = k
         #Prepare query and gallery
 
         query_img, query_label, query_cam, gall_img, gall_label, gall_cam = \
@@ -201,6 +213,20 @@ if args.dataset == "regdb":
         query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold])
         gall_feat_pool,  gall_feat_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold])
 
+        if args.fusion == "late":
+            # Extraction for the IR images with the model trained on IR modality
+            query_feat_pool2, query_feat_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "thermal")
+            gall_feat_pool2, gall_feat_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "thermal")
+
+            # Basic summation of FC normalized output (should be the prob for each class )
+            query_feat_fc = query_feat_fc.add(query_feat_fc2)
+            gall_feat_fc = gall_feat_fc.add(gall_feat_fc2)
+
+            # Normalisation
+            norm = query_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
+            query_feat_fc = query_feat_fc.div(norm)
+            norm = gall_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
+            gall_feat_fc = gall_feat_fc.div(norm)
 
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
