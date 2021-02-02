@@ -401,8 +401,9 @@ for epoch in range(epoch_number):
         # testing
         cmc, mAP, mINP, cmc_att, mAP_att, mINP_att = valid(epoch)
         # save model
-        # if cmc[0] > best_acc:  # not the real best for sysu-mm01
-        if mAP > best_map:  # not the real best for sysu-mm01
+        # if cmc[0] > best_acc:
+        # USE OF THE MAP INSTEAD OF THE CMC[0] BECAUSE  CMC HIT 100% with REGDB DATASET
+        if mAP > best_map:
             # best_acc = cmc_att[0]
             best_map = mAP
             best_epoch = epoch
