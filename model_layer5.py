@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 from torchvision.models import resnet50
-from torchvision.models import resnet18 as resnet50
+# from torchvision.models import resnet18 as resnet50
+from torchvision.models import resnet34 as resnet50
 import sys
 
 class Identity(nn.Module):
