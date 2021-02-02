@@ -86,9 +86,9 @@ class fusion_function_concat(nn.Module):
         x = self.fusionBlock(x)
         return x
 
-class Network_layer1(nn.Module):
+class Network_layer2(nn.Module):
     def __init__(self,  class_num, arch='resnet50'):
-        super(Network_layer1, self).__init__()
+        super(Network_layer2, self).__init__()
 
         self.thermal_module = thermal_module(arch=arch)
         self.visible_module = visible_module(arch=arch)
