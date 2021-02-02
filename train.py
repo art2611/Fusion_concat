@@ -36,8 +36,10 @@ def extract_gall_feat(gall_loader, ngall, net):
     start = time.time()
     ptr = 0
 
-    gall_feat_pool = np.zeros((ngall, 2048))
-    gall_feat_fc = np.zeros((ngall, 2048))
+    gall_feat_pool = np.zeros((ngall, 512))
+    # gall_feat_pool = np.zeros((ngall, 2048))
+    gall_feat_fc = np.zeros((ngall, 512))
+    # gall_feat_fc = np.zeros((ngall, 2048))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(gall_loader):
@@ -68,8 +70,10 @@ def extract_query_feat(query_loader, nquery, net):
     start = time.time()
     ptr = 0
 
-    query_feat_pool = np.zeros((nquery, 2048))
-    query_feat_fc = np.zeros((nquery, 2048))
+    gall_feat_pool = np.zeros((nquery, 512))
+    # gall_feat_pool = np.zeros((ngall, 2048))
+    gall_feat_fc = np.zeros((nquery, 512))
+    # gall_feat_fc = np.zeros((ngall, 2048))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(query_loader):
