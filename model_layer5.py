@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 from torchvision.models import resnet50
-from torchvision.models import resnet34
+from torchvision.models import resnet18 as resnet50
 import sys
 
 class Identity(nn.Module):
@@ -23,10 +23,10 @@ class Normalize(nn.Module):
         return out
 
 class visible_module(nn.Module):
-    def __init__(self, arch='resnet34'):
+    def __init__(self, arch='resnet50'):
         super(visible_module, self).__init__()
 
-        model_t = resnet34(pretrained=True)
+        model_t = resnet50(pretrained=True)
         # avg pooling to global pooling
         self.visible = model_t
 
@@ -43,10 +43,10 @@ class visible_module(nn.Module):
         return x
 
 class thermal_module(nn.Module):
-    def __init__(self, arch='resnet34'):
+    def __init__(self, arch='resnet50'):
         super(thermal_module, self).__init__()
 
-        model_t = resnet34(pretrained=True)
+        model_t = resnet50(pretrained=True)
         # avg pooling to global pooling
         self.thermal = model_t
 
@@ -62,10 +62,10 @@ class thermal_module(nn.Module):
         return x
 
 class shared_resnet(nn.Module):
-    def __init__(self, arch='resnet34'):
+    def __init__(self, arch='resnet50'):
         super(shared_resnet, self).__init__()
 
-        model_base = resnet34(pretrained=True)
+        model_base = resnet50(pretrained=True)
         # avg pooling to global pooling
         model_base.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         model_base.fc = Identity()
@@ -93,7 +93,7 @@ class fusion_function_concat(nn.Module):
         return x
 
 class Network_layer5(nn.Module):
-    def __init__(self,  class_num, arch='resnet34'):
+    def __init__(self,  class_num, arch='resnet50'):
         super(Network_layer5, self).__init__()
 
         self.thermal_module = thermal_module(arch=arch)
@@ -152,7 +152,7 @@ class Network_layer5(nn.Module):
 
 
 # from torchsummary import summary
-# model = Network_layer5(250, arch='resnet34')
+# model = Network_layer5(250, arch='resnet50')
 # summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
 
 
