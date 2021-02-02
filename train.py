@@ -153,8 +153,8 @@ if args.dataset=="regdb" :
         transforms.Pad(10),
         transforms.RandomCrop((img_h, img_w)),
         transforms.RandomHorizontalFlip(),
-        transforms.RandomPerspective(distortion_scale=0.25, p=0.5, interpolation=2),
-        transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0),
+        # transforms.RandomPerspective(distortion_scale=0.25, p=0.5, interpolation=2),
+        # transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0, hue=0),
         #The following lines has to be removed for a data visualisation
         transforms.ToTensor(),
         normalize,
@@ -369,7 +369,7 @@ best_map = 0
 training_time = time.time()
 
 if args.dataset == "regdb" :
-    epoch_number = 101
+    epoch_number = 80
 else :
     epoch_number = 41
 
