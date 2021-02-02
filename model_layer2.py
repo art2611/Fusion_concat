@@ -35,7 +35,6 @@ class visible_module(nn.Module):
         x = self.visible.relu(x)
         x = self.visible.maxpool(x)
         x = self.visible.layer1(x)
-
         return x
 
 class thermal_module(nn.Module):
@@ -65,18 +64,36 @@ class shared_resnet(nn.Module):
         self.base = model_base
 
     def forward(self, x):
+
         x = self.base.layer2(x)
         x = self.base.layer3(x)
         x = self.base.layer4(x)
         return x
 
-class Network_layer2(nn.Module):
+class fusion_function_concat(nn.Module):
+    def __init__(self):
+        super(fusion_function_concat, self).__init__()
+        layers = [
+            nn.Conv2d(128, 64, kernel_size=7, stride=2, padding=3,
+                      bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        ]
+        self.fusionBlock = nn.Sequential(*layers)
+    def forward(self, x1, x2):
+        x = torch.cat((x1, x2), 1)
+        x = self.fusionBlock(x)
+        return x
+
+class Network_layer1(nn.Module):
     def __init__(self,  class_num, arch='resnet50'):
-        super(Network_layer2, self).__init__()
+        super(Network_layer1, self).__init__()
 
         self.thermal_module = thermal_module(arch=arch)
         self.visible_module = visible_module(arch=arch)
-        self.convolution_after_fuse = torch.nn.Conv2d(512, 256,1)
+        self.convolution_after_fuse = torch.nn.Conv2d(128, 64,1)
+        # self.fusion_function_concat = fusion_function_concat()
         self.shared_resnet = shared_resnet(arch=arch)
 
         pool_dim = 2048
@@ -91,7 +108,7 @@ class Network_layer2(nn.Module):
 
     def forward(self, x1, x2, modal=0, fuse="sum"):
         if modal == 0:
-            x1 = self.visible_module(x1)
+            x1 = self.visible_module(x1)    # Early : torch.Size([32, 64, 72, 36])  Middle : ([32, 512, 36, 18])  End : torch.Size([32, 2048, 9, 5])
             x2 = self.thermal_module(x2)
             # Multiple fusion definitions
             if fuse == "cat":
@@ -99,6 +116,7 @@ class Network_layer2(nn.Module):
             elif fuse == "sum":
                 x = x1.add(x2)
             elif fuse == "cat_channel" :
+                # x = self.fusion_function_concat(x1, x2)
                 x = torch.cat((x1, x2), 1)
                 x = self.convolution_after_fuse(x)
         elif modal == 1:
