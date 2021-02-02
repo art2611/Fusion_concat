@@ -98,7 +98,9 @@ class Network_layer4(nn.Module):
         self.convolution_after_fuse = torch.nn.Conv2d(2048, 1024, 1)
         # self.fusion_function_concat = fusion_function_concat()
         self.shared_resnet = shared_resnet(arch=arch)
-        pool_dim = 2048
+
+        # pool_dim = 2048
+        pool_dim = 512
 
         # self.bottleneck.apply(weights_init_kaiming)
         # self.classifier.apply(weights_init_classifier)
