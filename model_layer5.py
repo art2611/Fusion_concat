@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import init
 from torchvision.models import resnet50
+from torchvision.models import resnet34
 import sys
 
 class Identity(nn.Module):
@@ -22,10 +23,10 @@ class Normalize(nn.Module):
         return out
 
 class visible_module(nn.Module):
-    def __init__(self, arch='resnet50'):
+    def __init__(self, arch='resnet34'):
         super(visible_module, self).__init__()
 
-        model_t = resnet50(pretrained=True)
+        model_t = resnet34(pretrained=True)
         # avg pooling to global pooling
         self.visible = model_t
 
@@ -42,10 +43,10 @@ class visible_module(nn.Module):
         return x
 
 class thermal_module(nn.Module):
-    def __init__(self, arch='resnet50'):
+    def __init__(self, arch='resnet34'):
         super(thermal_module, self).__init__()
 
-        model_t = resnet50(pretrained=True)
+        model_t = resnet34(pretrained=True)
         # avg pooling to global pooling
         self.thermal = model_t
 
@@ -61,10 +62,10 @@ class thermal_module(nn.Module):
         return x
 
 class shared_resnet(nn.Module):
-    def __init__(self, arch='resnet50'):
+    def __init__(self, arch='resnet34'):
         super(shared_resnet, self).__init__()
 
-        model_base = resnet50(pretrained=True)
+        model_base = resnet34(pretrained=True)
         # avg pooling to global pooling
         model_base.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         model_base.fc = Identity()
@@ -92,17 +93,19 @@ class fusion_function_concat(nn.Module):
         return x
 
 class Network_layer5(nn.Module):
-    def __init__(self,  class_num, arch='resnet50'):
+    def __init__(self,  class_num, arch='resnet34'):
         super(Network_layer5, self).__init__()
 
         self.thermal_module = thermal_module(arch=arch)
         self.visible_module = visible_module(arch=arch)
-        self.convolution_after_fuse = torch.nn.Conv2d(4096, 2048,1)
+        # self.convolution_after_fuse = torch.nn.Conv2d(4096, 2048,1)
+        self.convolution_after_fuse = torch.nn.Conv2d(1024, 512,1)
         self.fusion_function_concat = fusion_function_concat()
         #self.shared_resnet = shared_resnet(arch=arch)
 
         pool_dim = 2048
-        # pool_dim = 4096
+        pool_dim = 512
+
 
         # self.bottleneck.apply(weights_init_kaiming)
         # self.classifier.apply(weights_init_classifier)
@@ -149,9 +152,9 @@ class Network_layer5(nn.Module):
             return self.l2norm(x_pool), self.l2norm(feat)
 
 
-# from torchsummary import summary
-# model = Network_layer5(250, arch='resnet50')
-# summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
+from torchsummary import summary
+model = Network_layer5(250, arch='resnet34')
+summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
 
 
 #   model = Network(250, arch='resnet50')
