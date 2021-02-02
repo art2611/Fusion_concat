@@ -83,7 +83,7 @@ class Network_early(nn.Module):
             elif fuse == "sum":
                 x = x1.add(x2)
             elif fuse == "cat_channel" :
-                x = fusion_function_concat(x1, x2)
+                x = self.fusion_function_concat(x1, x2)
                 # x = torch.cat((x1, x2), 1)
                 # x = self.convolution_after_fuse(x)
         elif modal == 1:
