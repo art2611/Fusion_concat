@@ -78,7 +78,7 @@ class fusion_function_concat(nn.Module):
         layers = [
             nn.Conv2d(2048, 1024, kernel_size=7, stride=2, padding=3,
                       bias=False),
-            nn.BatchNorm2d(256),
+            nn.BatchNorm2d(1024),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         ]
