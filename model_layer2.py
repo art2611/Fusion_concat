@@ -70,21 +70,21 @@ class shared_resnet(nn.Module):
         x = self.base.layer4(x)
         return x
 
-class fusion_function_concat(nn.Module):
-    def __init__(self):
-        super(fusion_function_concat, self).__init__()
-        layers = [
-            nn.Conv2d(512, 256, kernel_size=7, stride=2, padding=3,
-                      bias=False),
-            nn.BatchNorm2d(256),
-            nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        ]
-        self.fusionBlock = nn.Sequential(*layers)
-    def forward(self, x1, x2):
-        x = torch.cat((x1, x2), 1)
-        x = self.fusionBlock(x)
-        return x
+# class fusion_function_concat(nn.Module):
+#     def __init__(self):
+#         super(fusion_function_concat, self).__init__()
+#         layers = [
+#             nn.Conv2d(512, 256, kernel_size=7, stride=2, padding=3,
+#                       bias=False),
+#             nn.BatchNorm2d(256),
+#             nn.ReLU(inplace=True),
+#             nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+#         ]
+#         self.fusionBlock = nn.Sequential(*layers)
+#     def forward(self, x1, x2):
+#         x = torch.cat((x1, x2), 1)
+#         x = self.fusionBlock(x)
+#         return x
 
 class Network_layer2(nn.Module):
     def __init__(self,  class_num, arch='resnet50'):
