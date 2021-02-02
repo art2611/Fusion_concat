@@ -28,7 +28,7 @@ class Network_unimodal(nn.Module):
         # Get the pretrained resnet50 model
         self.unimodal = resnet50(pretrained=True)
 
-        pool_dim = 2048
+        # pool_dim = 2048
         pool_dim = 512
 
         # Prepare last layers
