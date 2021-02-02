@@ -188,6 +188,7 @@ if args.dataset == "regdb":
             print(f"==> Model ({model_path}) can't be loaded")
 
         # loaded_folds = len(net)
+        loaded_folds = 5
 
     # for test_fold in range(loaded_folds):
         test_fold = k
