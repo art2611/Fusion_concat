@@ -120,6 +120,7 @@ class Network_layer5(nn.Module):
             if fuse == "cat":
                 x = torch.cat((x1, x2), 3)
             elif fuse == "sum":
+                print("SUM")
                 x = x1.add(x2)
             elif fuse == "cat_channel" :
                 x = self.fusion_function_concat(x1, x2)
