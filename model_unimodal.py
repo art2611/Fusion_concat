@@ -29,6 +29,7 @@ class Network_unimodal(nn.Module):
         self.unimodal = resnet50(pretrained=True)
 
         pool_dim = 2048
+        pool_dim = 512
 
         # Prepare last layers
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
