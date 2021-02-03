@@ -62,8 +62,8 @@ class Network_early(nn.Module):
     def __init__(self,  class_num, arch='resnet50'):
         super(Network_early, self).__init__()
 
-        self.convolution_after_fuse = torch.nn.Conv2d(6, 3, 1)
-        # self.fusion_function_concat = fusion_function_concat()
+        # self.convolution_after_fuse = torch.nn.Conv2d(6, 3, 1)
+        self.fusion_function_concat = fusion_function_concat()
         self.shared_resnet = shared_resnet(arch=arch)
 
         # pool_dim = 2048
@@ -85,9 +85,9 @@ class Network_early(nn.Module):
             elif fuse == "sum":
                 x = x1.add(x2)
             elif fuse == "cat_channel" :
-                # x = self.fusion_function_concat(x1, x2)
-                x = torch.cat((x1, x2), 1)
-                x = self.convolution_after_fuse(x)
+                x = self.fusion_function_concat(x1, x2)
+                # x = torch.cat((x1, x2), 1)
+                # x = self.convolution_after_fuse(x)
         elif modal == 1:
             x = x1 #Visible
         elif modal == 2:
