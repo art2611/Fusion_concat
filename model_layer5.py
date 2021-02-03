@@ -81,9 +81,9 @@ class fusion_function_concat(nn.Module):
     def __init__(self):
         super(fusion_function_concat, self).__init__()
         layers = [
-            nn.Conv2d(4096, 2048, kernel_size=7, stride=2, padding=3,
-                      bias=False),
-            nn.BatchNorm2d(2048),
+            # nn.Conv2d(2048, 1024, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.Conv2d(1024, 512, kernel_size=7, stride=2, padding=3, bias=False),
+            nn.BatchNorm2d(512),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         ]
