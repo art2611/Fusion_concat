@@ -432,12 +432,13 @@ for epoch in range(epoch_number):
         #     }
         #     torch.save(state, checkpoint_path + suffix + '_epoch_{}.t'.format(epoch))
 
-        print(
-            'POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
-        print(
-            'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-                cmc_att[0], cmc_att[4], cmc_att[9], cmc_att[19], mAP_att, mINP_att))
+        # print(
+        #     'POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+        #         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
+        # print(
+        #     'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+        #         cmc_att[0], cmc_att[4], cmc_att[9], cmc_att[19], mAP_att, mINP_att))
+        print('Rank-1: {:.2%} | Rank-5: {:.2%} | mAP: {:.2%}| mINP: {:.2%}'.format(cmc_att[0], cmc_att[4], cmc_att[9], cmc_att[19], mAP_att, mINP_att))
         print('Best Epoch [{}]'.format(best_epoch))
 
 print(f' Training time for {args.fusion} fusion : {time.time() - training_time}')
