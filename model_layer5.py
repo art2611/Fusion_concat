@@ -100,7 +100,7 @@ class Network_layer5(nn.Module):
         self.thermal_module = thermal_module(arch=arch)
         self.visible_module = visible_module(arch=arch)
         # self.convolution_after_fuse = torch.nn.Conv2d(4096, 2048,1)
-        self.convolution_after_fuse = torch.nn.Conv2d(1024, 512,1)
+        # self.convolution_after_fuse = torch.nn.Conv2d(1024, 512,1)
         self.fusion_function_concat = fusion_function_concat()
         #self.shared_resnet = shared_resnet(arch=arch)
 
