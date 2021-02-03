@@ -289,32 +289,33 @@ if args.dataset == 'sysu':
             print(f"Fold {k} doesn't exist")
             print(f"==> Model ({model_path}) can't be loaded")
 
-    # Get the number of found models
-    loaded_folds = len(net)
+        # Get the data and display all
+        query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_sysu(data_path, "test", fold=0)
 
-    # Get the data and display all
-    query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_sysu(data_path, "test", fold=0)
+        gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+        queryset = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
 
-    gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
-    queryset = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+        gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
+                                                  num_workers=workers)
+        query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
+                                                   num_workers=workers)
+        nquery = len(query_label)
+        ngall = len(gall_label)
 
-    gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
-                                              num_workers=workers)
-    query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
-                                               num_workers=workers)
-    nquery = len(query_label)
-    ngall = len(gall_label)
+        print("Dataset statistics:")
+        print("  ------------------------------")
+        print("  subset   | # ids | # images")
+        print("  ------------------------------")
+        print("  query    | {:5d} | {:8d}".format(len(np.unique(query_label)), nquery))
+        print("  gallery  | {:5d} | {:8d}".format(len(np.unique(gall_label)), ngall))
+        print("  ------------------------------")
+        print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
 
-    print("Dataset statistics:")
-    print("  ------------------------------")
-    print("  subset   | # ids | # images")
-    print("  ------------------------------")
-    print("  query    | {:5d} | {:8d}".format(len(np.unique(query_label)), nquery))
-    print("  gallery  | {:5d} | {:8d}".format(len(np.unique(gall_label)), ngall))
-    print("  ------------------------------")
-    print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
+        # loaded_folds = len(net)
+        loaded_folds = 5
 
-    for test_fold in range(loaded_folds):
+        # for test_fold in range(loaded_folds):
+        test_fold = k
         # Extract normalized distances with the differents trained networks (from fold 0 to 4)
         query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold])
         gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold])
