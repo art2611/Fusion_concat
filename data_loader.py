@@ -218,13 +218,22 @@ def process_sysu(data_path, method, fold):
                 if w not in rand_rgb:
                     temp_query_visible.append(w)
 
-            #Get the same number of images for each modality => the minimal available images per id of each modality
-            for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
-                files_query_visible.append(temp_query_visible[k])
-                files_query_thermal.append(temp_query_thermal[k])
-            for k in range(min(len(temp_gallery_visible), len(temp_gallery_thermal))) :
-                files_gallery_visible.append(temp_gallery_visible[k])
-                files_gallery_thermal.append(temp_query_visible[k])
+            #   Get the same number of images for each modality => the minimal available images per id of each modality
+
+            minimum_available_query = min(len(temp_query_visible), len(temp_query_thermal))
+            files_query_visible.extend(random.sample(temp_query_visible, minimum_available_query))
+            files_query_thermal.extend(random.sample(temp_query_thermal, minimum_available_query))
+
+            minimum_available_gallery= min(len(temp_gallery_visible), len(temp_gallery_thermal))
+            files_gallery_visible.extend(random.sample(temp_gallery_visible, minimum_available_gallery))
+            files_gallery_thermal.extend(random.sample(temp_gallery_thermal, minimum_available_gallery))
+
+            # for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
+            #     files_query_visible.append(temp_query_visible[k])
+            #     files_query_thermal.append(temp_query_thermal[k])
+            # for k in range(min(len(temp_gallery_visible), len(temp_gallery_thermal))) :
+            #     files_gallery_visible.append(temp_gallery_visible[k])
+            #     files_gallery_thermal.append(temp_gallery_thermal[k])
 
     query_img = []
     query_id = []

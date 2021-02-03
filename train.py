@@ -254,7 +254,6 @@ net = Networks[args.fusion]
 
 ######################################### TRAIN AND VALIDATION FUNCTIONS
 
-
 def train(epoch):
     # if args.dataset =="regdb" :
     #     current_lr = adjust_learning_rate_regdb(optimizer, epoch, lr=lr)
@@ -320,7 +319,6 @@ def train(epoch):
                   f'TLoss: {tri_loss.val:.4f} ({tri_loss.avg:.4f}) '
                   f'Accu: {100. * correct / total:.2f}')
     # For each batch, write in tensorBoard :
-
     writer.add_scalar('total_loss', train_loss.avg, epoch)
     writer.add_scalar('Accuracy training', 100. * correct / total, epoch)
 
