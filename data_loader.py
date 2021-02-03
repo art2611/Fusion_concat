@@ -218,15 +218,15 @@ def process_sysu(data_path, method, fold):
                 if w not in rand_rgb:
                     temp_query_visible.append(w)
 
-            #   Get the same number of images for each modality => the minimal available images per id of each modality
+            # Get the same number of images for each modality => the minimal available images per id of each modality
 
             minimum_available_query = min(len(temp_query_visible), len(temp_query_thermal))
             files_query_visible.extend(random.sample(temp_query_visible, minimum_available_query))
             files_query_thermal.extend(random.sample(temp_query_thermal, minimum_available_query))
 
-            minimum_available_gallery= min(len(temp_gallery_visible), len(temp_gallery_thermal))
-            files_gallery_visible.extend(random.sample(temp_gallery_visible, minimum_available_gallery))
-            files_gallery_thermal.extend(random.sample(temp_gallery_thermal, minimum_available_gallery))
+            # Add the two randomly selected images to the gallery
+            files_gallery_visible.extend(temp_gallery_visible)
+            files_gallery_thermal.extend(temp_gallery_thermal)
 
             # for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
             #     files_query_visible.append(temp_query_visible[k])

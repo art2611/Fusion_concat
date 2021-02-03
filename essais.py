@@ -7,10 +7,10 @@ from scipy.spatial.distance import pdist
 import random
 
 
-list1 = [3,4,5,6,7,8]
+list1 = [3,4,5]
 list2= []
 for k in range(2):
-    list2.extend(random.sample(list1, 3))
+    list2.extend(random.sample(list1, 4))
 print(list2)
 
 
