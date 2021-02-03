@@ -122,7 +122,6 @@ class Network_layer5(nn.Module):
             x2 = self.thermal_module(x2)
             # print(f"Shape before concat : {x1.shape}")
             if fuse == "cat":
-                print("HEEEEERE")
                 x = torch.cat((x1, x2), 3)
             elif fuse == "sum":
                 x = x1.add(x2)
