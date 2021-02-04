@@ -270,25 +270,45 @@ if args.dataset == 'sysu':
     data_path = '../Datasets/SYSU/'
     net = []
     # Since we have 5 folds max, this loop search for the 5 potentially saved models
+    net2 = [[],[],[],[],[]]
+    Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
+                "layer2": Network_layer2(nclass).to(device),
+                "layer3": Network_layer3(nclass).to(device), \
+                "layer4": Network_layer4(nclass).to(device),
+                "layer5": Network_layer5(nclass).to(device), \
+                "unimodal": Network_unimodal(nclass).to(device),
+                "late": Network_unimodal(nclass).to(device)}
     for k in range(5):
         suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
 
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
         print(f"model path : {model_path}")
+
+        if args.fusion == "late" :
+            suffix = f'SYSU_VtoV_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix2 = f'SYSU_TtoT_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            model_path = checkpoint_path + suffix + '_best.t'
+
+            model_path2 = checkpoint_path + suffix2 + '_best.t'
+            print(f"model path2 : {model_path2}")
+
         if os.path.isfile(model_path):
             print('==> loading checkpoint')
 
             checkpoint = torch.load(model_path)
-            Networks = {"early": Network_early(nclass).to(device), "layer1": Network_layer1(nclass).to(device), \
-                        "layer2": Network_layer2(nclass).to(device), "layer3": Network_layer3(nclass).to(device), \
-                        "layer4": Network_layer4(nclass).to(device), "layer5": Network_layer5(nclass).to(device), \
-                        "unimodal": Network_unimodal(nclass).to(device)}
             net.append(Networks[args.fusion])
 
             # Append the found model in the network list
             net[k].load_state_dict(checkpoint['net'])
             print(f"Fold {k} loaded")
+            if args.fusion == "late" :
+                if os.path.isfile(model_path2) :
+                    print('==> loading checkpoint 2')
+                    checkpoint2 = torch.load(model_path2)
+                    net2[k] = Networks[args.fusion]
+                    net2[k].load_state_dict(checkpoint2['net'])
+                    print(f"Fold {k} loaded")
         else :
             print(f"Fold {k} doesn't exist")
             print(f"==> Model ({model_path}) can't be loaded")
@@ -323,6 +343,15 @@ if args.dataset == 'sysu':
         # Extract normalized distances with the differents trained networks (from fold 0 to 4)
         query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold])
         gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold])
+
+        if args.fusion == "late":
+            # Extraction for the IR images with the model trained on IR modality
+            query_feat_pool2, query_feat_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "thermal")
+            gall_feat_pool2, gall_feat_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "thermal")
+
+            # Basic summation of FC normalized output (should be the prob for each class )
+            query_feat_fc = query_feat_fc + query_feat_fc2
+            gall_feat_fc = gall_feat_fc + gall_feat_fc2
 
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
