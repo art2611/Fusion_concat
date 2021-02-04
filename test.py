@@ -166,8 +166,8 @@ if args.dataset == "regdb":
         print(f"model path : {model_path}")
 
         if args.fusion == "late" :
-            suffix = f'RegDB_VtoV_fuseType(None)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
-            suffix2 = f'RegDB_TtoT_fuseType(None)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix = f'RegDB_VtoV_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix2 = f'RegDB_TtoT_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             model_path2 = checkpoint_path + suffix2 + '_best.t'
 
         if os.path.isfile(model_path):
@@ -223,11 +223,11 @@ if args.dataset == "regdb":
             query_feat_fc = query_feat_fc.add(query_feat_fc2)
             gall_feat_fc = gall_feat_fc.add(gall_feat_fc2)
 
-            # Normalisation
-            norm = query_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
-            query_feat_fc = query_feat_fc.div(norm)
-            norm = gall_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
-            gall_feat_fc = gall_feat_fc.div(norm)
+            # # Normalisation
+            # norm = query_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
+            # query_feat_fc = query_feat_fc.div(norm)
+            # norm = gall_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
+            # gall_feat_fc = gall_feat_fc.div(norm)
 
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
