@@ -224,8 +224,8 @@ if args.dataset == "regdb":
             gall_feat_pool2, gall_feat_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "thermal")
 
             # Basic summation of FC normalized output (should be the prob for each class )
-            query_feat_fc = query_feat_fc + query_feat_fc2
-            gall_feat_fc = gall_feat_fc + gall_feat_fc2
+            query_feat_fc = query_feat_fc + 0.5*query_feat_fc2
+            gall_feat_fc = gall_feat_fc + 0.5*gall_feat_fc2
 
             # # Normalisation
             # norm = query_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
