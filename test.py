@@ -168,6 +168,8 @@ if args.dataset == "regdb":
         if args.fusion == "late" :
             suffix = f'RegDB_VtoV_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             suffix2 = f'RegDB_TtoT_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            model_path = checkpoint_path + suffix + '_best.t'
+            print(f"model path : {model_path}")
             model_path2 = checkpoint_path + suffix2 + '_best.t'
 
         if os.path.isfile(model_path):
