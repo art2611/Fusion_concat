@@ -158,7 +158,8 @@ if args.dataset == "regdb":
                 "layer3": Network_layer3(nclass).to(device), \
                 "layer4": Network_layer4(nclass).to(device),
                 "layer5": Network_layer5(nclass).to(device), \
-                "unimodal": Network_unimodal(nclass).to(device)}
+                "unimodal": Network_unimodal(nclass).to(device),
+                "late": Network_unimodal(nclass).to(device)}
     for k in range(5):
         suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
         print('==> Resuming from checkpoint..')
