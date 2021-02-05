@@ -9,7 +9,7 @@ then
 else
     REID="BtoB"
 fi
-read -e -p "Enter the dataset name (sysu/regdb) :" DATASET
+read -e -p "Enter the dataset name (SYSU/RegDB) :" DATASET
 echo $DATASET
 if [ "$DATASET" =  "regdb" ]
 then
