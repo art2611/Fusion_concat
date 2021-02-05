@@ -17,6 +17,7 @@ from model_layer4 import Network_layer4
 from model_layer5 import Network_layer5
 from model_unimodal import Network_unimodal
 from model_early import Network_early
+from model import Global_network
 from evaluation import *
 import argparse
 from datetime import date
@@ -35,11 +36,12 @@ def extract_gall_feat(gall_loader, ngall, net):
     print('Extracting Gallery Feature...')
     start = time.time()
     ptr = 0
-
-    gall_feat_pool = np.zeros((ngall, 512))
+    # For resnet50
     # gall_feat_pool = np.zeros((ngall, 2048))
-    gall_feat_fc = np.zeros((ngall, 512))
     # gall_feat_fc = np.zeros((ngall, 2048))
+    # For resnet18
+    gall_feat_pool = np.zeros((ngall, 512))
+    gall_feat_fc = np.zeros((ngall, 512))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(gall_loader):
@@ -47,14 +49,8 @@ def extract_gall_feat(gall_loader, ngall, net):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            # For a unimodal training :
-            if args.reid== "TtoT" :
-                input1 = input2
-            elif args.reid=="VtoV":
-                input1 = input1
-
             #Test mode 0 by default if BtoB and we need to use both inputs
-            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
+            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse, modality=args.reid)
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
@@ -69,11 +65,8 @@ def extract_query_feat(query_loader, nquery, net):
     print('Extracting Query Feature...')
     start = time.time()
     ptr = 0
-
     query_feat_pool = np.zeros((nquery, 512))
-    # query_feat_pool = np.zeros((ngall, 2048))
     query_feat_fc = np.zeros((nquery, 512))
-    # query_feat_fc = np.zeros((ngall, 2048))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(query_loader):
@@ -85,14 +78,9 @@ def extract_query_feat(query_loader, nquery, net):
             # print(batch_idx)
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
-            # For a unimodal training :
-            if args.reid == "TtoT":
-                input1 = input2
-            elif args.reid == "VtoV":
-                input1 = input1
 
             # Test mode 0 by default if BtoB and we need to use both inputs
-            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse)
+            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse, modality=args.reid)
             # print(feat_pool.shape)
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
@@ -116,8 +104,11 @@ writer = SummaryWriter(f"runs/{args.reid}_{args.fusion}_Fusion_train_fusiontype(
 
 ### Verify the fusion args is good
 fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'unimodal']
+fuse_list=['cat', 'cat_channel', 'sum', 'none']
 if args.fusion not in fusion_list :
     sys.exit(f'--fusion should be in {fusion_list}')
+if args.fuse not in fuse_list :
+    sys.exit(f'--fuse should be in {fuse_list}')
 
 # Init variables :
 img_w = 144
@@ -244,14 +235,19 @@ print('==> Building model..')
 
 ######################################### MODEL
 
-Networks = {"early":Network_early(n_class).to(device),"layer1":Network_layer1(n_class).to(device), \
-            "layer2":Network_layer2(n_class).to(device), "layer3":Network_layer3(n_class).to(device), \
-            "layer4":Network_layer4(n_class).to(device), "layer5":Network_layer5(n_class).to(device), \
-            "unimodal":Network_unimodal(n_class).to(device), "late":Network_unimodal(n_class).to(device)}
+# Networks = {"early":Network_early(n_class).to(device),"layer1":Network_layer1(n_class).to(device), \
+#             "layer2":Network_layer2(n_class).to(device), "layer3":Network_layer3(n_class).to(device), \
+#             "layer4":Network_layer4(n_class).to(device), "layer5":Network_layer5(n_class).to(device), \
+#             "unimodal":Network_unimodal(n_class).to(device), "late":Network_unimodal(n_class).to(device)}
 
 # Just call the network needed - Two distinct model if the fusion is at scores position
-net = Networks[args.fusion]
-
+# net = Networks[args.fusion]
+Fusion_layer = {"early": 0,"layer1":1, \
+            "layer2":2, "layer3":3, \
+            "layer4":4, "layer5":5, \
+            "unimodal":0}
+# New global model
+net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
 
 ######################################### TRAIN AND VALIDATION FUNCTIONS
 
@@ -286,10 +282,8 @@ def train(epoch):
         # So if the reid is TtoT (Thermal to Thermal), the first input has to be the IR image
         # If the reid is VtoV (Visible to visible), the first input is already the RGB image
         # If the reid is using both images (BtoB), there is nothing to do too, network use the two inputs
-        if args.reid == "TtoT":
-            input1 = input2
 
-        feat, out0, = net(input1, input2, fuse = args.fuse)
+        feat, out0, = net(input1, input2, fuse = args.fuse, modality=args.reid)
 
         loss_ce = criterion_id(out0, labels)
         loss_tri, batch_acc = criterion_tri(feat, labels)

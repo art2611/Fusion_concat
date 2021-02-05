@@ -144,6 +144,6 @@ class Network_layer4(nn.Module):
 # from torchsummary import summary
 # model = Network_layer4(250, arch='resnet50')
 # summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)
-
-#print(resneut50(pretrained= True))
+#
+# print(resnet50(pretrained= True).layer1)
 # print(thermal_module())
