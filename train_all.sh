@@ -1,6 +1,4 @@
 #!/bin/sh
-read -e -p "Enter the fusion type (early/layerX/unimodal) : " FUSION
-echo $FUSION
 
 REID="BtoB"
 
