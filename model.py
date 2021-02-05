@@ -37,7 +37,6 @@ class visible_module(nn.Module):
 
     def forward(self, x):
         for i in range(0, self.fusion_layer):
-            print(f"visible module : {i}")
             x = self.layer_dict["layer" + str(i)](x)
         return x
 
@@ -73,7 +72,6 @@ class shared_resnet(nn.Module):
     def forward(self, x):
 
         for i in range(self.fusion_layer, 5):
-            print(i)
             x = self.layer_dict["layer" + str(i)](x)
         return x
 
