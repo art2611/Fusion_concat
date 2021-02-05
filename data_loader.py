@@ -7,6 +7,13 @@ import os
 from random import randrange
 import random
 
+
+def TrainingData(data_path, dataset, transform, fold):
+    if dataset == "SYSU":
+        return(SYSUData(data_path, transform=transform, fold = fold))
+    elif dataset == "RegDB":
+        return(RegDBData(data_path, transform=transform, fold = fold))
+
 class RegDBData(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         # Load training images (path) and labels
@@ -104,9 +111,9 @@ def GenIdx(train_color_label, train_thermal_label):
 
 # Call the corresponding dataset function to process data for the validation or the test phase
 def process_data(img_dir, mode, dataset, fold=0):
-    if dataset=="sysu":
+    if dataset=="SYSU":
         img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam= process_sysu(img_dir, mode, fold)
-    elif dataset == "regdb" :
+    elif dataset == "RegDB" :
         query_cam, gall_cam = None, None
         img_query, label_query, img_gallery, label_gallery = process_regdb(img_dir, mode, fold)
     return (img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam)

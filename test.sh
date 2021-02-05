@@ -12,6 +12,14 @@ else
 fi
 read -e -p "Enter the dataset name (sysu/regdb) :" DATASET
 echo $DATASET
+if [ "$DATASET" =  "regdb" ]
+then
+  DATASET="RegDB"
+elif [ "$DATASET" =  "sysu" ]
+then
+  DATASET="SYSU"
+fi
+
 read -e -p "Enter the fuse type (sum/cat/cat_channel/none) of the trained model :" FUSE
 echo FUSE
 

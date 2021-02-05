@@ -10,13 +10,7 @@ from torchvision import transforms
 from utils import IdentitySampler, AverageMeter, adjust_learning_rate, adjust_learning_rate_regdb
 from loss import BatchHardTripLoss
 from tensorboardX import SummaryWriter
-from model_layer1 import Network_layer1
-from model_layer2 import Network_layer2
-from model_layer3 import Network_layer3
-from model_layer4 import Network_layer4
-from model_layer5 import Network_layer5
-from model_unimodal import Network_unimodal
-from model_early import Network_early
+
 from model import Global_network
 from evaluation import *
 import argparse
@@ -26,7 +20,7 @@ parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
 parser.add_argument('--fusion', default='early', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
 parser.add_argument('--fuse', default='cat', help='Fusion type (cat / cat_channel / sum)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
-parser.add_argument('--dataset', default='regdb', help='dataset name (regdb / sysu )')
+parser.add_argument('--dataset', default='RegDB', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / VtoV / TtoT)')
 args = parser.parse_args()
 
@@ -100,7 +94,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d")
-writer = SummaryWriter(f"runs/{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
+writer = SummaryWriter(f"runs_{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
 ### Verify the fusion args is good
 fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'unimodal']
@@ -142,7 +136,7 @@ checkpoint_path = '../save_model/'
 # transforms = ImgAugTransform()
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-if args.dataset=="regdb" :
+if args.dataset=="RegDB" :
     transform_train = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Pad(10),
@@ -175,18 +169,21 @@ Timer1 = time.time()
 
 ######################################### TRAINING SET
 
-if args.dataset == 'sysu':
-    data_path = '../Datasets/SYSU/'
-    suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
-    # training set
-    trainset = SYSUData(data_path, transform=transform_train, fold = args.fold)
+data_path = f'../Datasets/{args.dataset}/'
+suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+trainset = TrainingData(data_path, args.dataset, transform_train, args.fold)
 
-elif args.dataset == 'regdb':
-    data_path = '../Datasets/RegDB/'
-    suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
-    trainset = RegDBData(data_path, transform=transform_train, fold = args.fold)
-    # Print some of the images :
-    # print(trainset.train_color_image.shape)
+# if args.dataset == 'sysu':
+#     data_path = '../Datasets/SYSU/'
+#     suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+#     # training set
+#     trainset = SYSUData(data_path, transform=transform_train, fold = args.fold)
+#
+# elif args.dataset == 'RegDB':
+#     data_path = '../Datasets/RegDB/'
+#     suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+#     trainset = RegDBData(data_path, transform=transform_train, fold = args.fold)
+
 
 #The following lines can be used in a way to visualize data and transformations
 # w=0
@@ -242,10 +239,7 @@ print('==> Building model..')
 
 # Just call the network needed - Two distinct model if the fusion is at scores position
 # net = Networks[args.fusion]
-Fusion_layer = {"early": 0,"layer1":1, \
-            "layer2":2, "layer3":3, \
-            "layer4":4, "layer5":5, \
-            "unimodal":0}
+Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "unimodal":0}
 # New global model
 net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
 
@@ -333,11 +327,11 @@ def valid(epoch):
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
     # evaluation
-    if args.dataset == 'regdb':
+    if args.dataset == 'RegDB':
         cmc, mAP, mINP = eval_regdb(-distmat_pool, query_label, gall_label)
         cmc_att, mAP_att, mINP_att  = eval_regdb(-distmat_fc, query_label, gall_label)
 
-    elif args.dataset == 'sysu':
+    elif args.dataset == 'SYSU':
         cmc, mAP, mINP = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
         cmc_att, mAP_att, mINP_att = eval_sysu(-distmat_fc, query_label, gall_label, query_cam, gall_cam)
 
@@ -369,7 +363,7 @@ criterion_tri = BatchHardTripLoss(batch_size=loader_batch, margin= 0.3).to(devic
 best_map = 0
 training_time = time.time()
 
-if args.dataset == "regdb" :
+if args.dataset == "RegDB" :
     epoch_number = 80
 else :
     epoch_number = 41
@@ -379,8 +373,7 @@ for epoch in range(epoch_number):
     print('==> Preparing Data Loader...')
     # identity sampler - Give iteratively index from a randomized list of color index and thermal index
     sampler = IdentitySampler(trainset.train_color_label, trainset.train_thermal_label, \
-                              color_pos, thermal_pos, num_of_same_id_in_batch, batch_num_identities,
-                              args.dataset, epoch)
+                              color_pos, thermal_pos, num_of_same_id_in_batch, batch_num_identities, epoch)
 
     trainset.cIndex = sampler.index1  # color index
     trainset.tIndex = sampler.index2  # thermal index
