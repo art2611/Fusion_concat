@@ -212,7 +212,8 @@ color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_therm
 
 
 ######################################### VALIDATION SET
-# Validation imgs and labels
+
+# Validation imgs and labels, depending of the cross validation fold
 query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "valid", args.dataset, args.fold)
 
 # Gallery and query set
@@ -247,8 +248,8 @@ Networks = {"early":Network_early(n_class).to(device),"layer1":Network_layer1(n_
             "layer2":Network_layer2(n_class).to(device), "layer3":Network_layer3(n_class).to(device), \
             "layer4":Network_layer4(n_class).to(device), "layer5":Network_layer5(n_class).to(device), \
             "unimodal":Network_unimodal(n_class).to(device), "late":Network_unimodal(n_class).to(device)}
-# Just call the network needed - Two distinct model if the fusion is at scores position
 
+# Just call the network needed - Two distinct model if the fusion is at scores position
 net = Networks[args.fusion]
 
 
