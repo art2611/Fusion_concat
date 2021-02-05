@@ -19,9 +19,7 @@ import random
 # summed_tensor = rgb_tensor.add(ir_tensor)
 # print(f" summed_tensor : {summed_tensor}")
 
-a = [2,3]
-print(a + 2)
-sys.exit()
+
 x = np.array([1, 3, 4, 6])
 y = np.array([2, 3, 5, 1])
 y2 = np.sin(x)
