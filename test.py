@@ -145,13 +145,13 @@ if args.dataset == "RegDB":
     net2 = [[],[],[],[],[]]
     # Since we are supposed to have 5 models, this loop get an average result
     for k in range(5):
-        suffix = f'RegDB_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+        suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
 
         if args.fusion == "score" :
-            suffix = f'RegDB_VtoV_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
-            suffix2 = f'RegDB_TtoT_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix = f'{args.dataset}_VtoV_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             model_path = checkpoint_path + suffix + '_best.t'
             model_path2 = checkpoint_path + suffix2 + '_best.t'
             print(f"model path2 : {model_path2}")
@@ -259,15 +259,15 @@ if args.dataset == 'SYSU':
 
     # Since we are supposed to have 5 models, this loop get an average result
     for k in range(5):
-        suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+        suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
 
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
         print(f"model path : {model_path}")
 
         if args.fusion == "score" :
-            suffix = f'SYSU_VtoV_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
-            suffix2 = f'SYSU_TtoT_fuseType(none)_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix = f'{args.dataset}_VtoV_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             model_path = checkpoint_path + suffix + '_best.t'
 
             model_path2 = checkpoint_path + suffix2 + '_best.t'

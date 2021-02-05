@@ -170,7 +170,7 @@ Timer1 = time.time()
 ######################################### TRAINING SET
 
 data_path = f'../Datasets/{args.dataset}/'
-suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
 trainset = TrainingData(data_path, args.dataset, transform_train, args.fold)
 
 # if args.dataset == 'sysu':

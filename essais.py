@@ -13,9 +13,8 @@ import random
 #     list2.extend(random.sample(list1, 4))
 # print(list2)
 
-a = "RegDB"
-if a =="RegDb":
-    print("TRUE")
+a = [0, 0 ,1]
+print(np.std(a))
 # rgb_tensor = torch.tensor(np.array([[1, 2, 3], [3, 2, 1]]))
 # ir_tensor = torch.tensor(np.array([[1, 2, 3], [1, 2, 3]]))
 # summed_tensor = rgb_tensor.add(ir_tensor)
