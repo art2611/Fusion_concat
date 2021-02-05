@@ -94,7 +94,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d")
-writer = SummaryWriter(f"{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
+writer = SummaryWriter(f"runs/{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
 ### Verify the fusion args is good
 fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'unimodal']
