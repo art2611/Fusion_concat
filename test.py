@@ -134,7 +134,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
 #
 # if args.fusion == "late":
 
-
+mAP_list = []
 end = time.time()
 Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "unimodal":0, "score":0}
 # New global model
@@ -248,6 +248,7 @@ if args.dataset == "RegDB":
         print(
             'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                 cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+        mAP_list.append(mAP)
 
 
 if args.dataset == 'SYSU':
@@ -363,6 +364,10 @@ if args.dataset == 'SYSU':
                 cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
         print('POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                 cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+        mAP_list.append(mAP)
+
+#Standard Deviation :
+standard_deviation = np.std(mAP_list)
 
 # Means
 cmc = all_cmc / loaded_folds
@@ -373,10 +378,10 @@ cmc_pool = all_cmc_pool / loaded_folds
 mAP_pool = all_mAP_pool / loaded_folds
 mINP_pool = all_mINP_pool / loaded_folds
 print('All Average:')
-print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
-print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | std: {:.2%}'.format(
+        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation))
+# print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+# cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
 for k in range(len(cmc)):
     writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
