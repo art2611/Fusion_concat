@@ -135,6 +135,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
 # if args.fusion == "late":
 
 mAP_list = []
+mINP_list = []
 end = time.time()
 Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "unimodal":0, "score":0}
 # New global model
@@ -249,7 +250,7 @@ if args.dataset == "RegDB":
             'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                 cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
         mAP_list.append(mAP)
-
+        mINP_list.append(mINP)
 
 if args.dataset == 'SYSU':
     nclass = 316
@@ -365,10 +366,11 @@ if args.dataset == 'SYSU':
         print('POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                 cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
         mAP_list.append(mAP)
+        mINP_list.append(mINP)
 
 #Standard Deviation :
-standard_deviation = np.std(mAP_list)
-
+standard_deviation_mAP = np.std(mAP_list)
+standard_deviation_mINP = np.std(mINP_list)
 # Means
 cmc = all_cmc / loaded_folds
 mAP = all_mAP / loaded_folds
@@ -378,12 +380,12 @@ cmc_pool = all_cmc_pool / loaded_folds
 mAP_pool = all_mAP_pool / loaded_folds
 mINP_pool = all_mINP_pool / loaded_folds
 print('All Average:')
-print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | std: {:.2%}'.format(
-        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation))
+print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
+        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
 f = open('results.txt','a')
 f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
-f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | std: {:.2%}\n\n'.format(
-        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation))
+f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
+        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
 f.close()
 # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
 # cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
