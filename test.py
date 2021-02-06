@@ -382,7 +382,7 @@ print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation))
 f = open('results.txt','a')
 f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
-f.write('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | std: {:.2%}\n\n'.format(
+f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | std: {:.2%}\n\n'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation))
 f.close()
 # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(

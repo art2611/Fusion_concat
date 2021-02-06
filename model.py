@@ -22,9 +22,6 @@ class Normalize(nn.Module):
         out = x.div(norm)
         return out
 
-
-
-
 class visible_module(nn.Module):
     def __init__(self, fusion_layer=4, arch='resnet50'):
         super(visible_module, self).__init__()
