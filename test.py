@@ -60,7 +60,7 @@ today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d/%m/%Y")
 
-writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
+# writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
 
 
 # Function to extract gallery features
@@ -169,7 +169,7 @@ if args.dataset == "RegDB":
             net.append(Global_network(nclass, fusion_layer=Fusion_layer[args.fusion]).to(device))
             net[k].load_state_dict(checkpoint['net'])
             print(f"Fold {k} loaded")
-            if args.fusion == "score" :
+            if args.fusion == "score" or args.fusion=="fc":
                 if os.path.isfile(model_path2) :
                     print('==> loading checkpoint 2')
                     checkpoint2 = torch.load(model_path2)
@@ -289,7 +289,7 @@ if args.dataset == 'SYSU':
             # Append the found model in the network list
             net[k].load_state_dict(checkpoint['net'])
             print(f"Fold {k} loaded")
-            if args.fusion == "score" :
+            if args.fusion == "score" or args.fusion=="fc":
                 if os.path.isfile(model_path2) :
                     print('==> loading checkpoint 2')
                     checkpoint2 = torch.load(model_path2)
@@ -398,17 +398,17 @@ mINP_pool = all_mINP_pool / loaded_folds
 print('All Average:')
 print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
-f = open('results.txt','a')
-if args.fusion == "unimodal" :
-    f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
-else :
-    f.write(f"{args.dataset}_{args.fusion}_{args.fuse}\n")
-f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
-        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
-f.close()
+# f = open('results.txt','a')
+# if args.fusion == "unimodal" :
+#     f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
+# else :
+#     f.write(f"{args.dataset}_{args.fusion}_{args.fuse}\n")
+# f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
+#         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
+# f.close()
 
 # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
 # cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-for k in range(len(cmc)):
-    writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
+# for k in range(len(cmc)):
+#     writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
