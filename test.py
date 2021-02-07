@@ -60,7 +60,7 @@ today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d/%m/%Y")
 
-# writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
+writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
 
 
 # Function to extract gallery features
@@ -271,16 +271,15 @@ if args.dataset == 'SYSU':
 
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
-        print(f"model path : {model_path}")
 
-        if args.fusion == "score" :
-            suffix = f'{args.dataset}_VtoV_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
-            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+
+        if args.fusion=="score" or args.fusion=="fc":
+            suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             model_path = checkpoint_path + suffix + '_best.t'
-
             model_path2 = checkpoint_path + suffix2 + '_best.t'
-            print(f"model path2 : {model_path2}")
-
+            print(f"model path 2 : {model_path2}")
+        print(f"model path : {model_path}")
         if os.path.isfile(model_path):
             print('==> loading checkpoint')
 
@@ -329,19 +328,16 @@ if args.dataset == 'SYSU':
         # for test_fold in range(loaded_folds):
         test_fold = k
         # Extract normalized distances with the differents trained networks (from fold 0 to 4)
-        if args.fusion == "score":
+        if args.fusion=="score" or args.fusion=="fc":
             args.reid = "VtoV"
         query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold], modality = args.reid)
         gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold], modality = args.reid)
 
-        if args.fusion == "score":
+        if args.fusion=="score" or args.fusion=="fc":
             # Extraction for the IR images with the model trained on IR modality
             query_feat_pool2, query_feat_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
             gall_feat_pool2, gall_feat_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
 
-            # Basic summation of FC normalized output (should be the prob for each class )
-            query_feat_fc = query_feat_fc + query_feat_fc2
-            gall_feat_fc = gall_feat_fc + gall_feat_fc2
 
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
@@ -349,7 +345,20 @@ if args.dataset == 'SYSU':
 
         # fc feature
         distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-        cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
+        if args.fusion == "score" or args.fusion=="fc":
+            # Extraction for the IR images with the model trained on IR modality
+            query_feat_pool2, query_feat_fc2, query_final_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
+            gall_feat_pool2, gall_feat_fc2, gall_final_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
+
+            if args.fusion == "score" :
+                # Proceed to 2nd matching and aggregate matching matrix
+                distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
+                distmat = distmat + distmat2
+            else :
+                # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
+                query_feat_fc = query_feat_fc + query_feat_fc2
+                gall_feat_fc = gall_feat_fc + gall_feat_fc2
+
         cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
 
         if test_fold == 0:
@@ -389,14 +398,14 @@ mINP_pool = all_mINP_pool / loaded_folds
 print('All Average:')
 print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
-# f = open('results.txt','a')
-# f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
-# f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
-#         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
-# f.close()
+f = open('results.txt','a')
+f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
+f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
+        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
+f.close()
 
 # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
 # cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-# for k in range(len(cmc)):
-#     writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
+for k in range(len(cmc)):
+    writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
