@@ -155,8 +155,8 @@ if args.dataset == "RegDB":
         model_path = checkpoint_path + suffix + '_best.t'
 
         if args.fusion == "score" or args.fusion=="fc" :
-            suffix = f'{args.dataset}_VtoV_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
-            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
+            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             model_path = checkpoint_path + suffix + '_best.t'
             model_path2 = checkpoint_path + suffix2 + '_best.t'
             print(f"model path2 : {model_path2}")
