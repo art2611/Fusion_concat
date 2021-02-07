@@ -6,13 +6,6 @@ from torch.autograd import Variable
 import time
 from data_loader import *
 import numpy as np
-from model_layer1 import Network_layer1
-from model_layer2 import Network_layer2
-from model_layer3 import Network_layer3
-from model_layer4 import Network_layer4
-from model_layer5 import Network_layer5
-from model_unimodal import Network_unimodal
-from model_early import Network_early
 from model import Global_network
 
 from evaluation import eval_regdb, eval_sysu
