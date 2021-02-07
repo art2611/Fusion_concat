@@ -44,7 +44,7 @@ def extract_gall_feat(gall_loader, ngall, net):
             input2 = Variable(input2.cuda())
 
             #Test mode 0 by default if BtoB and we need to use both inputs
-            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse, modality=args.reid)
+            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality=args.reid)
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
@@ -74,7 +74,7 @@ def extract_query_feat(query_loader, nquery, net):
             input2 = Variable(input2.cuda())
 
             # Test mode 0 by default if BtoB and we need to use both inputs
-            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse, modality=args.reid)
+            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality=args.reid)
             # print(feat_pool.shape)
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()

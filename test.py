@@ -42,7 +42,7 @@ lr = 0.001
 checkpoint_path = '../save_model/'
 #
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
-parser.add_argument('--fusion', default='layer1', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
+parser.add_argument('--fusion', default='layer1', help='Which layer fusion to test (early, layer1, layer2 .., layer5, unimodal, score, fc)')
 parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--dataset', default='RegDB', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
@@ -71,15 +71,15 @@ def extract_gall_feat(gall_loader, ngall, net, modality="VtoV"):
     ptr = 0
 
     gall_feat_pool = np.zeros((ngall, 512))
-    # gall_feat_fc = np.zeros((ngall, 512))
-    gall_feat_fc = np.zeros((ngall, 164))
+    gall_feat_fc = np.zeros((ngall, 512))
+    gall_final_fc = np.zeros((ngall, 164))
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(gall_loader):
             batch_num = input1.size(0)
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse, modality = modality)
+            feat_pool, feat_fc, fc_final = net(input1, input2, fuse=args.fuse, modality = modality)
 
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             # elif args.reid == "VtoT" or args.reid == "TtoT":
@@ -91,10 +91,11 @@ def extract_gall_feat(gall_loader, ngall, net, modality="VtoV"):
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+            gall_final_fc[ptr:ptr + batch_num, :] = fc_final.detach().cpu().numpy()
             ptr = ptr + batch_num
     print('Extracting Time:\t {:.3f}'.format(time.time() - start))
 
-    return gall_feat_pool, gall_feat_fc
+    return gall_feat_pool, gall_feat_fc, gall_final_fc
 
 #Function to extract query image features
 def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
@@ -104,8 +105,8 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
     ptr = 0
 
     query_feat_pool = np.zeros((nquery, 512))
-    # query_feat_fc = np.zeros((nquery, 512))
-    query_feat_fc = np.zeros((nquery, 164))
+    query_feat_fc = np.zeros((nquery, 512))
+    query_final_fc = np.zeros((nquery, 164))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(query_loader):
@@ -114,7 +115,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            feat_pool, feat_fc = net(input1, input2, fuse=args.fuse , modality=modality)
+            feat_pool, feat_fc, final_fc = net(input1, input2, fuse=args.fuse , modality=modality)
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             # elif args.reid == "VtoT" or args.reid == "TtoT":
             #     test_mode = 2
@@ -127,10 +128,12 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
+            query_final_fc[ptr:ptr + batch_num, :] = final_fc.detach().cpu().numpy()
+
             ptr = ptr + batch_num
         print('Extracting Time:\t {:.3f}'.format(time.time() - start))
 
-    return query_feat_pool, query_feat_fc
+    return query_feat_pool, query_feat_fc, query_final_fc
 
 #
 # if args.fusion == "late":
@@ -138,7 +141,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
 mAP_list = []
 mINP_list = []
 end = time.time()
-Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "unimodal":0, "score":0}
+Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "unimodal":0, "score":0, "fc":0}
 # New global model
 if args.dataset == "RegDB":
     nclass = 164
@@ -151,7 +154,7 @@ if args.dataset == "RegDB":
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
 
-        if args.fusion == "score" :
+        if args.fusion == "score" or args.fusion=="fc" :
             suffix = f'{args.dataset}_VtoV_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             suffix2 = f'{args.dataset}_TtoT_fuseType(none)_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{k}'
             model_path = checkpoint_path + suffix + '_best.t'
@@ -200,42 +203,36 @@ if args.dataset == "RegDB":
         ngall = len(gall_label)
 
         print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
-        if args.fusion=="score":
+        if args.fusion=="score" or args.fusion=="fc":
             args.reid = "VtoV"
-        query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold], modality = args.reid)
-        gall_feat_pool,  gall_feat_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold], modality = args.reid)
+        query_feat_pool, query_feat_fc, query_final_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold], modality = args.reid)
+        gall_feat_pool,  gall_feat_fc, gall_final_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold], modality = args.reid)
 
-        if args.fusion == "score":
-            # Extraction for the IR images with the model trained on IR modality
-            query_feat_pool2, query_feat_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
-            gall_feat_pool2, gall_feat_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
 
-            # Basic summation of FC normalized output (should be the prob for each class )
-            query_feat_fc = 0.5*query_feat_fc + query_feat_fc2
-            gall_feat_fc = 0.5*gall_feat_fc + gall_feat_fc2
-
-            # # Normalisation
-            # norm = query_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
-            # query_feat_fc = query_feat_fc.div(norm)
-            # norm = gall_feat_fc.pow(2).sum(1, keepdim=True).pow(1. / 2)
-            # gall_feat_fc = gall_feat_fc.div(norm)
 
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
-        print(query_feat_pool.shape)
-        print(gall_feat_pool.shape)
-        print(distmat_pool.shape)
+
         cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool,query_label , gall_label)
 
         # fc feature
         distmat = np.matmul( query_feat_fc, np.transpose(gall_feat_fc))
-        print(query_feat_fc.shape)
-        print(gall_feat_fc.shape)
-        print(query_label.shape)
-        print(gall_label.shape)
-        print(distmat.shape)
-        cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
 
+        if args.fusion == "score" or args.fusion=="fc":
+            # Extraction for the IR images with the model trained on IR modality
+            query_feat_pool2, query_feat_fc2, query_final_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
+            gall_feat_pool2, gall_feat_fc2, gall_final_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
+
+            if args.fusion == "score" :
+                # Proceed to 2nd matching and aggregate matching matrix
+                distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
+                distmat = distmat + distmat2
+            else :
+                # Proceed to a simple features aggregation, features incoming from two distinct unimodal trained models
+                query_feat_fc = query_feat_fc + query_feat_fc2
+                gall_feat_fc = gall_feat_fc + gall_feat_fc2
+
+        cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
 
         if test_fold == 0:
             all_cmc = cmc
