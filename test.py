@@ -399,7 +399,10 @@ print('All Average:')
 print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
 f = open('results.txt','a')
-f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
+if args.fusion == "unimodal" :
+    f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
+else :
+    f.write(f"{args.dataset}_{args.fusion}_{args.fuse}\n")
 f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
 f.close()
