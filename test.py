@@ -346,7 +346,7 @@ if args.dataset == 'SYSU':
             if args.fusion == "score" :
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
-                distmat = distmat + distmat2
+                distmat = distmat + 0.7*distmat2
             else :
                 # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
                 query_feat_fc = query_feat_fc + query_feat_fc2
@@ -395,7 +395,7 @@ f = open('results.txt','a')
 if args.fusion == "unimodal" :
     f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
 else :
-    f.write(f"{args.dataset}_{args.fusion}_{args.fuse} : (1 on RGB - 1 on IR )\n")
+    f.write(f"{args.dataset}_{args.fusion}_{args.fuse} : (1 on RGB - 0.7 on IR )\n")
 f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
 f.close()
