@@ -5,7 +5,7 @@ read -e -p "Enter the reid type wanted (BtoB/TtoT/VtoV) : " REID
 echo $REID
 if [ "$FUSION" =  "unimodal" ]
 then
-    read -e -p "Enter the wanted reid type (VtoV / TtoT) : " TRAINED
+    read -e -p "Enter the trained model type (VtoV / TtoT) : " TRAINED
     echo $TRAINED
 else
     TRAINED="BtoB"
