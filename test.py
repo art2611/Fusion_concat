@@ -201,7 +201,7 @@ if args.dataset == "RegDB":
 
         print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
         if args.fusion=="score":
-            modality = "VtoV"
+            args.reid = "VtoV"
         query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold], modality = args.reid)
         gall_feat_pool,  gall_feat_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold], modality = args.reid)
 
@@ -226,7 +226,11 @@ if args.dataset == "RegDB":
 
         # fc feature
         distmat = np.matmul( query_feat_fc, np.transpose(gall_feat_fc))
+        print(query_label.shape)
+        print(gall_label.shape)
+        print(distmat.shape)
         cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
+
 
         if test_fold == 0:
             all_cmc = cmc
