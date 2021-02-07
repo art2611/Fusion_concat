@@ -79,7 +79,7 @@ def extract_gall_feat(gall_loader, ngall, net, modality="VtoV"):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            feat_pool, feat_fc, fc_final = net(input1, input2, fuse=args.fuse, modality = modality)
+            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality = modality)
 
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             # elif args.reid == "VtoT" or args.reid == "TtoT":
@@ -91,7 +91,7 @@ def extract_gall_feat(gall_loader, ngall, net, modality="VtoV"):
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-            gall_final_fc[ptr:ptr + batch_num, :] = fc_final.detach().cpu().numpy()
+            # gall_final_fc[ptr:ptr + batch_num, :] = fc_final.detach().cpu().numpy()
             ptr = ptr + batch_num
     print('Extracting Time:\t {:.3f}'.format(time.time() - start))
 
@@ -115,7 +115,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            feat_pool, feat_fc, final_fc = net(input1, input2, fuse=args.fuse , modality=modality)
+            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse , modality=modality)
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             # elif args.reid == "VtoT" or args.reid == "TtoT":
             #     test_mode = 2
@@ -128,7 +128,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             query_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
-            query_final_fc[ptr:ptr + batch_num, :] = final_fc.detach().cpu().numpy()
+            # query_final_fc[ptr:ptr + batch_num, :] = final_fc.detach().cpu().numpy()
 
             ptr = ptr + batch_num
         print('Extracting Time:\t {:.3f}'.format(time.time() - start))

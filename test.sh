@@ -1,5 +1,5 @@
 #!/bin/sh
-read -e -p "Enter the fusion type (early/layerX/unimodal) : " FUSION
+read -e -p "Enter the fusion type (early/layerX/unimodal, score, fc) : " FUSION
 echo $FUSION
 read -e -p "Enter the reid type wanted (BtoB/TtoT/VtoV) : " REID
 echo $REID
