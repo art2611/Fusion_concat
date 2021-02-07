@@ -323,13 +323,13 @@ if args.dataset == 'SYSU':
         # Extract normalized distances with the differents trained networks (from fold 0 to 4)
         if args.fusion=="score" or args.fusion=="fc":
             args.reid = "VtoV"
-        query_feat_pool, query_feat_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold], modality = args.reid)
-        gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold], modality = args.reid)
+        query_feat_pool, query_feat_fc, _ = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold], modality = args.reid)
+        gall_feat_pool, gall_feat_fc, _ = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold], modality = args.reid)
 
         if args.fusion=="score" or args.fusion=="fc":
             # Extraction for the IR images with the model trained on IR modality
-            query_feat_pool2, query_feat_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
-            gall_feat_pool2, gall_feat_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
+            query_feat_pool2, query_feat_fc2, _ = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
+            gall_feat_pool2, gall_feat_fc2, _ = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
 
 
         # pool5 feature
