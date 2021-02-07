@@ -222,6 +222,7 @@ if args.dataset == "RegDB":
 
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
+        print(distmat_pool.shape)
         cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool,query_label , gall_label)
 
         # fc feature
