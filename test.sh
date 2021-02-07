@@ -5,10 +5,10 @@ read -e -p "Enter the reid type wanted (BtoB/TtoT/VtoV) : " REID
 echo $REID
 if [ "$FUSION" =  "unimodal" ]
 then
-    read -e -p "Enter the wanted reid type (VtoV / TtoT) : " REID
-    echo $VAR
+    read -e -p "Enter the wanted reid type (VtoV / TtoT) : " TRAINED
+    echo $TRAINED
 else
-    REID="BtoB"
+    TRAINED="BtoB"
 fi
 read -e -p "Enter the dataset name (SYSU/RegDB) :" DATASET
 echo $DATASET
