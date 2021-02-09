@@ -201,8 +201,6 @@ if args.dataset == "RegDB":
         query_feat_pool, query_feat_fc, query_final_fc = extract_query_feat(query_loader, nquery = nquery, net = net[test_fold], modality = args.reid)
         gall_feat_pool,  gall_feat_fc, gall_final_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[test_fold], modality = args.reid)
 
-
-
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
 
@@ -220,10 +218,11 @@ if args.dataset == "RegDB":
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
                 distmat = distmat + distmat2
-            else :
-                # Proceed to a simple features aggregation, features incoming from two distinct unimodal trained models
+            else:
+                # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
                 query_feat_fc = query_feat_fc + query_feat_fc2
                 gall_feat_fc = gall_feat_fc + gall_feat_fc2
+                distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
         cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
 
@@ -321,22 +320,25 @@ if args.dataset == 'SYSU':
         # for test_fold in range(loaded_folds):
         test_fold = k
         # Extract normalized distances with the differents trained networks (from fold 0 to 4)
+
+        # Extraction for RGB
         if args.fusion=="score" or args.fusion=="fc":
             args.reid = "VtoV"
         query_feat_pool, query_feat_fc, _ = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold], modality = args.reid)
         gall_feat_pool, gall_feat_fc, _ = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold], modality = args.reid)
 
+        # Here
         if args.fusion=="score" or args.fusion=="fc":
-            # Extraction for the IR images with the model trained on IR modality
+            # Extraction for the IR images with the unimodal model trained on IR modality
             query_feat_pool2, query_feat_fc2, _ = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
             gall_feat_pool2, gall_feat_fc2, _ = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
 
-
+        #
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
         cmc_pool, mAP_pool, mINP_pool = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
 
-        # fc feature
+        #
         distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
         if args.fusion == "score" or args.fusion=="fc":
             # Extraction for the IR images with the model trained on IR modality
@@ -346,11 +348,12 @@ if args.dataset == 'SYSU':
             if args.fusion == "score" :
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
-                distmat = distmat + 0.7*distmat2
+                distmat = distmat + distmat2
             else :
                 # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
                 query_feat_fc = query_feat_fc + query_feat_fc2
                 gall_feat_fc = gall_feat_fc + gall_feat_fc2
+                distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
         cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
 

@@ -72,7 +72,6 @@ class shared_resnet(nn.Module):
             x = self.layer_dict["layer" + str(i)](x)
         return x
 
-
 class fusion_function_concat(nn.Module): # concat the features and
     def __init__(self, layer_size):
         super(fusion_function_concat, self).__init__()
