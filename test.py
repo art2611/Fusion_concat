@@ -347,8 +347,8 @@ if args.dataset == 'SYSU':
 
             else :
                 # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
-                query_feat_fc = query_feat_fc + query_feat_fc2
-                gall_feat_fc = gall_feat_fc + gall_feat_fc2
+                query_feat_fc = (query_feat_fc + query_feat_fc2) / 2
+                gall_feat_fc = (gall_feat_fc + gall_feat_fc2) / 2
 
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
