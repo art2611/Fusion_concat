@@ -343,7 +343,7 @@ if args.dataset == 'SYSU':
             if args.fusion == "score" :
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
-                distmat = distmat + distmat2
+                distmat = (distmat + distmat2)/2
 
             else :
                 # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
