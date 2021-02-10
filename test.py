@@ -53,7 +53,7 @@ today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d/%m/%Y")
 
-writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
+# writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
 
 
 # Function to extract gallery features
@@ -321,24 +321,17 @@ if args.dataset == 'SYSU':
         test_fold = k
         # Extract normalized distances with the differents trained networks (from fold 0 to 4)
 
-        # Extraction for RGB
+        # Extraction for RGB if score or fc fusion
         if args.fusion=="score" or args.fusion=="fc":
             args.reid = "VtoV"
         query_feat_pool, query_feat_fc, _ = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold], modality = args.reid)
         gall_feat_pool, gall_feat_fc, _ = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold], modality = args.reid)
 
-        # Here
-        if args.fusion=="score" or args.fusion=="fc":
-            # Extraction for the IR images with the unimodal model trained on IR modality
-            query_feat_pool2, query_feat_fc2, _ = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
-            gall_feat_pool2, gall_feat_fc2, _ = extract_gall_feat(gall_loader, ngall=ngall, net=net2[test_fold], modality = "TtoT")
-
-        #
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
         cmc_pool, mAP_pool, mINP_pool = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
 
-        #
+        # EXtraction for IR if score or fc fusion
         distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
         if args.fusion == "score" or args.fusion=="fc":
             # Extraction for the IR images with the model trained on IR modality
@@ -394,17 +387,17 @@ mINP_pool = all_mINP_pool / loaded_folds
 print('All Average:')
 print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
-f = open('results.txt','a')
-if args.fusion == "unimodal" :
-    f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
-else :
-    f.write(f"{args.dataset}_{args.fusion}_{args.fuse} : (1 on RGB - 0.7 on IR )\n")
-f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
-        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
-f.close()
+# f = open('results.txt','a')
+# if args.fusion == "unimodal" :
+#     f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
+# else :
+#     f.write(f"{args.dataset}_{args.fusion}_{args.fuse} : (1 on RGB - 1 on IR )\n")
+# f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
+#         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
+# f.close()
 
 # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
 # cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-for k in range(len(cmc)):
-    writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
+# for k in range(len(cmc)):
+#     writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
