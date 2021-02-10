@@ -333,6 +333,8 @@ if args.dataset == 'SYSU':
 
         # EXtraction for IR if score or fc fusion
         distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
+        print(f"distmat : {distmat}")
+        print(f"gallfeat  : {gall_feat_fc}")
         if args.fusion == "score" or args.fusion=="fc":
             # Extraction for the IR images with the model trained on IR modality
             query_feat_pool2, query_feat_fc2, query_final_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
@@ -342,10 +344,12 @@ if args.dataset == 'SYSU':
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
                 distmat = distmat + distmat2
+
             else :
                 # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
                 query_feat_fc = query_feat_fc + query_feat_fc2
                 gall_feat_fc = gall_feat_fc + gall_feat_fc2
+
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
         cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
@@ -387,6 +391,7 @@ mINP_pool = all_mINP_pool / loaded_folds
 print('All Average:')
 print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
+
 # f = open('results.txt','a')
 # if args.fusion == "unimodal" :
 #     f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
