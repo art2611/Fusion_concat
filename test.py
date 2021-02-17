@@ -126,7 +126,15 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
 
     return query_feat_pool, query_feat_fc, query_final_fc
 
-#
+def minmax_norm(data):
+    min = np.amin(data, axis=1)
+    max = np.amax(data, axis=1)
+
+    for k in range(data.shape[0]):
+        for i in range(data.shape[1]):
+            data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
+    return(data)
+
 
 mAP_list = []
 mINP_list = []
@@ -343,6 +351,13 @@ if args.dataset == 'SYSU':
                 distmat = (distmat + distmat2)/2
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
+                #First do a minmax norm :
+                query_final_fc = minmax_norm(query_final_fc)
+                query_final_fc2 = minmax_norm(query_final_fc2)
+                gall_final_fc = minmax_norm(gall_final_fc)
+                gall_final_fc2 = minmax_norm(gall_final_fc2)
+
+                #then aggregate all
                 query_feat_fc = (query_final_fc + query_final_fc2) / 2
                 gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
 

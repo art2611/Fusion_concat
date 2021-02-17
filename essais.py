@@ -18,9 +18,6 @@ from sklearn.preprocessing import MinMaxScaler
 data = np.array([[6., 2.,4.],
 				[4., 12.,6.]])
 
-scaler = MinMaxScaler()
-scaler.fit(data)
-print(scaler.transform(data))
 min = np.amin(data, axis=1)
 max = np.amax(data,axis=1)
 print(data.shape)
