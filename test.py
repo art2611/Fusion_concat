@@ -63,7 +63,7 @@ def extract_gall_feat(gall_loader, ngall, net, modality="VtoV"):
 
     gall_feat_pool = np.zeros((ngall, 512))
     gall_feat_fc = np.zeros((ngall, 512))
-    gall_final_fc = np.zeros((ngall, 164))
+    gall_final_fc = np.zeros((ngall, 512))
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(gall_loader):
             batch_num = input1.size(0)
@@ -97,7 +97,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
 
     query_feat_pool = np.zeros((nquery, 512))
     query_feat_fc = np.zeros((nquery, 512))
-    query_final_fc = np.zeros((nquery, 164))
+    query_final_fc = np.zeros((nquery, 512))
 
     with torch.no_grad():
         for batch_idx, (input1, input2, label) in enumerate(query_loader):
