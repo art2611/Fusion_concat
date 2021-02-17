@@ -321,8 +321,8 @@ if args.dataset == 'SYSU':
         # Extraction for RGB if score or fc fusion
         if args.fusion=="score" or args.fusion=="fc":
             args.reid = "VtoV"
-        query_feat_pool, query_feat_fc, _ = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold], modality = args.reid)
-        gall_feat_pool, gall_feat_fc, _ = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold], modality = args.reid)
+        query_feat_pool, query_feat_fc, query_final_fc = extract_query_feat(query_loader, nquery=nquery, net=net[test_fold], modality = args.reid)
+        gall_feat_pool, gall_feat_fc, gall_final_fc = extract_gall_feat(gall_loader,ngall = ngall, net = net[test_fold], modality = args.reid)
 
         # pool5 feature
         distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
@@ -343,8 +343,8 @@ if args.dataset == 'SYSU':
                 distmat = (distmat + distmat2)/2
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
-                query_feat_fc = (query_feat_fc + query_feat_fc2) / 2
-                gall_feat_fc = (gall_feat_fc + gall_feat_fc2) / 2
+                query_feat_fc = (query_final_fc + query_final_fc2) / 2
+                gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
 
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
