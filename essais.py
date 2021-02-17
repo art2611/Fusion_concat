@@ -9,11 +9,33 @@ from sklearn.preprocessing import minmax_scale
 from PIL import Image
 import os
 
-# list1 = [3,4,5]
-# list2= []
-# for k in range(2):
-#     list2.extend(random.sample(list1, 4))
-# print(list2)
+
+# example of a normalization
+from numpy import asarray
+from sklearn.preprocessing import MinMaxScaler
+# define data
+
+data = np.array([[6., 2.,4.],
+				[4., 12.,6.]])
+
+scaler = MinMaxScaler()
+scaler.fit(data)
+print(scaler.transform(data))
+min = np.amin(data, axis=1)
+max = np.amax(data,axis=1)
+print(data.shape)
+for k in range(data.shape[0]) :
+    for i in range(data.shape[1]):
+        data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
+print(data)
+
+
+
+# define min max scaler
+
+
+sys.exit()
+
 
 # print(minmax_scale(np.array([[1,5,12],[5,3,12]]), axis=1))
 

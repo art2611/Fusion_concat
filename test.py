@@ -70,7 +70,7 @@ def extract_gall_feat(gall_loader, ngall, net, modality="VtoV"):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality = modality)
+            feat_pool, feat_fc, gall_final_fc = net(input1, input2, fuse=args.fuse, modality = modality)
 
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             # elif args.reid == "VtoT" or args.reid == "TtoT":
@@ -106,7 +106,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse , modality=modality)
+            feat_pool, feat_fc, query_final_fc = net(input1, input2, fuse=args.fuse , modality=modality)
             # If we want to test cross modal reid with our multi modal models, keep those elifs
             # elif args.reid == "VtoT" or args.reid == "TtoT":
             #     test_mode = 2

@@ -22,6 +22,15 @@ class Normalize(nn.Module):
         out = x.div(norm)
         return out
 
+class Normalize_MinMax(nn.Module):
+    def __init__(self):
+        super(Normalize_MinMax, self).__init__()
+
+    def forward(self, x):
+        norm = x.pow(self.power).sum(1, keepdim=True).pow(1. / self.power)
+        out = x.div(norm)
+        return out
+
 class visible_module(nn.Module):
     def __init__(self, fusion_layer=4, arch='resnet50'):
         super(visible_module, self).__init__()
