@@ -352,7 +352,9 @@ if args.dataset == 'SYSU':
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                 #First do a minmax norm :
+                print(query_final_fc[0])
                 query_final_fc = minmax_norm(query_final_fc)
+                print(query_final_fc[0])
                 query_final_fc2 = minmax_norm(query_final_fc2)
                 gall_final_fc = minmax_norm(gall_final_fc)
                 gall_final_fc2 = minmax_norm(gall_final_fc2)
