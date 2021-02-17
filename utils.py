@@ -62,8 +62,6 @@ def adjust_learning_rate(optimizer, epoch, lr):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
     if epoch < 10:
         lr = lr * (epoch + 1) / 10
-    # elif epoch >= 10 and epoch < 50:
-    #     lr = lr
     elif epoch >= 10 and epoch < 20:
         lr = lr
     elif epoch >= 20 and epoch < 50:
@@ -74,24 +72,4 @@ def adjust_learning_rate(optimizer, epoch, lr):
     optimizer.param_groups[0]['lr'] = 0.1 * lr
     for i in range(len(optimizer.param_groups) - 1):
         optimizer.param_groups[i + 1]['lr'] = lr
-
-    return lr
-
-def adjust_learning_rate_regdb(optimizer, epoch, lr):
-    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
-    if epoch < 50:
-        lr = lr * (epoch + 1) / 10
-    # elif epoch >= 10 and epoch < 50:
-    #     lr = lr
-    elif epoch >= 50 and epoch < 100:
-        lr = lr
-    elif epoch >= 100 and epoch < 250:
-        lr = lr * 0.1
-    elif epoch >= 250:
-        lr = lr * 0.01
-
-    optimizer.param_groups[0]['lr'] = 0.1 * lr
-    for i in range(len(optimizer.param_groups) - 1):
-        optimizer.param_groups[i + 1]['lr'] = lr
-
     return lr

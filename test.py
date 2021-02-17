@@ -20,8 +20,6 @@ from datetime import date
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-# net = Network(class_num=nclass).to(device)
-
 pool_dim = 2048
 
 # Init variables :
@@ -129,7 +127,6 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
     return query_feat_pool, query_feat_fc, query_final_fc
 
 #
-# if args.fusion == "late":
 
 mAP_list = []
 mINP_list = []
@@ -220,8 +217,8 @@ if args.dataset == "RegDB":
                 distmat = distmat + distmat2
             else:
                 # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
-                query_feat_fc = query_feat_fc + query_feat_fc2
-                gall_feat_fc = gall_feat_fc + gall_feat_fc2
+                query_feat_fc = query_final_fc + query_final_fc2
+                gall_feat_fc = gall_final_fc + gall_final_fc2
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
         cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
@@ -344,9 +341,8 @@ if args.dataset == 'SYSU':
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat2 = np.matmul(query_feat_fc2, np.transpose(gall_feat_fc2))
                 distmat = (distmat + distmat2)/2
-
             else :
-                # Proceed to a simple feature aggregation, features incoming from two distinct unimodal trained models
+                # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                 query_feat_fc = (query_feat_fc + query_feat_fc2) / 2
                 gall_feat_fc = (gall_feat_fc + gall_feat_fc2) / 2
 

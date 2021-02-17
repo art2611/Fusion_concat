@@ -144,7 +144,7 @@ class Global_network(nn.Module):
         if self.training:
             return x_pool, self.fc(feat)
         else:
-            return self.l2norm(x_pool), self.l2norm(feat), self.fc(feat)
+            return self.l2norm(x_pool), self.l2norm(feat), feat
 
 # from torchsummary import summary
 # model = Global_network(250, arch='resnet50', fusion_layer=5)

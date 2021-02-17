@@ -7,7 +7,7 @@ from torch.autograd import Variable
 import time
 from data_loader import *
 from torchvision import transforms
-from utils import IdentitySampler, AverageMeter, adjust_learning_rate, adjust_learning_rate_regdb
+from utils import IdentitySampler, AverageMeter, adjust_learning_rate
 from loss import BatchHardTripLoss
 from tensorboardX import SummaryWriter
 
@@ -246,9 +246,7 @@ net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
 ######################################### TRAIN AND VALIDATION FUNCTIONS
 
 def train(epoch):
-    # if args.dataset =="regdb" :
-    #     current_lr = adjust_learning_rate_regdb(optimizer, epoch, lr=lr)
-    # else :
+
     current_lr = adjust_learning_rate(optimizer, epoch, lr=lr)
 
     train_loss = AverageMeter()
