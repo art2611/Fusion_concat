@@ -135,6 +135,15 @@ def minmax_norm(data):
             data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
     return(data)
 
+def Z_mean(data):
+    std = np.std(data, axis=1)
+    mean = np.mean(data, axis=1)
+
+    for k in range(data.shape[0]):
+        for i in range(data.shape[1]):
+            data[k][i] = (data[k][i] - mean[k])/ std[k]
+    return(data)
+
 
 mAP_list = []
 mINP_list = []
@@ -361,6 +370,7 @@ if args.dataset == 'SYSU':
 
                 #then aggregate all
                 query_feat_fc = (query_final_fc + query_final_fc2) / 2
+                print(query_feat_fc)
                 gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
 
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
