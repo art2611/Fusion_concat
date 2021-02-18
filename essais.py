@@ -15,24 +15,25 @@ from numpy import asarray
 from sklearn.preprocessing import MinMaxScaler
 # define data
 
-data = np.array([[6., 2.,4.],
-				[4., 12.,6.]])
-
-min = np.mean(data, axis=1)
-print(min)
-max = np.amax(data,axis=1)
-print(data.shape)
-for k in range(data.shape[0]) :
-    for i in range(data.shape[1]):
-        data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
-print(data)
+#DATA NORMALISATION
+# data = np.array([[6., 2.,4.],
+# 				[4., 12.,6.]])
+#
+# min = np.min(data, axis=1)
+# print(min)
+# max = np.max(data,axis=1)
+# print(data.shape)
+# for k in range(data.shape[0]) :
+#     for i in range(data.shape[1]):
+#         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
+# print(data)
 
 
 
 # define min max scaler
 
 
-sys.exit()
+
 
 
 # print(minmax_scale(np.array([[1,5,12],[5,3,12]]), axis=1))
