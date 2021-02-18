@@ -144,6 +144,14 @@ def Z_mean(data):
             data[k][i] = (data[k][i] - mean[k])/ std[k]
     return(data)
 
+def l2_norm(data):
+    std = np.std(data, axis=1)
+    mean = np.mean(data, axis=1)
+
+    for k in range(data.shape[0]):
+        for i in range(data.shape[1]):
+            data[k][i] = (data[k][i] - mean[k])/ std[k]
+    return(data)
 
 mAP_list = []
 mINP_list = []
@@ -358,8 +366,8 @@ if args.dataset == 'SYSU':
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                distmat = Z_mean(distmat)
-                distmat2 = Z_mean(distmat2)
+                # distmat = Z_mean(distmat)
+                # distmat2 = Z_mean(distmat2)
                 distmat = (distmat + distmat2)/2
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
