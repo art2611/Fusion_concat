@@ -347,8 +347,8 @@ if args.dataset == 'SYSU':
 
         # EXtraction for IR if score or fc fusion
         distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-        print(f"distmat : {distmat}")
-        print(f"gallfeat  : {gall_feat_fc}")
+        # print(f"distmat : {distmat}")
+        # print(f"gallfeat  : {gall_feat_fc}")
         if args.fusion == "score" or args.fusion=="fc":
             # Extraction for the IR images with the model trained on IR modality
             query_feat_pool2, query_feat_fc2, query_final_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[test_fold], modality = "TtoT")
@@ -362,15 +362,15 @@ if args.dataset == 'SYSU':
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                 #First do a minmax norm :
                 # print(query_final_fc[0])
-                query_final_fc = minmax_norm(query_final_fc)
-                # print(query_final_fc[0])
-                query_final_fc2 = minmax_norm(query_final_fc2)
-                gall_final_fc = minmax_norm(gall_final_fc)
-                gall_final_fc2 = minmax_norm(gall_final_fc2)
+                # query_final_fc = minmax_norm(query_final_fc)
+                # # print(query_final_fc[0])
+                # query_final_fc2 = minmax_norm(query_final_fc2)
+                # gall_final_fc = minmax_norm(gall_final_fc)
+                # gall_final_fc2 = minmax_norm(gall_final_fc2)
 
                 #then aggregate all
                 query_feat_fc = (query_final_fc + query_final_fc2) / 2
-                print(query_feat_fc)
+                # print(query_feat_fc)
                 gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
 
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
