@@ -358,8 +358,8 @@ if args.dataset == 'SYSU':
                 # Proceed to 2nd matching and aggregate matching matrix
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                distmat = minmax_norm(distmat)
-                distmat2 = minmax_norm(distmat2)
+                distmat = Z_mean(distmat)
+                distmat2 = Z_mean(distmat2)
                 distmat = (distmat + distmat2)/2
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
