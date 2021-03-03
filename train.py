@@ -205,6 +205,7 @@ color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_therm
 query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "valid", args.dataset, args.fold)
 # Gallery and query set
 gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+print("CEADFUZIADBU")
 queryset = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
 print("SOERITEITEROR")
 # Validation data loader
