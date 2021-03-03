@@ -181,8 +181,6 @@ def process_tworld(img_dir, mode, fold):
         if os.path.isdir(img_dir):
             new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
             ids_file_IR.append(new_files)
-            print(len(new_files))
-        sys.exit()
 
 
     img_query = []
@@ -194,6 +192,7 @@ def process_tworld(img_dir, mode, fold):
     temp_query_visible = []
     temp_query_thermal = []
     print(ids)
+    print(len(ids_file_IR[0]))
     for k in range(len(ids)):
 
         files_ir = ids_file_IR[k]
