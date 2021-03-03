@@ -60,6 +60,7 @@ for k in range(5) :
             new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
             files_ir_train[k].extend(new_files)
 
+
 fix_image_width = 144
 fix_image_height = 288
 

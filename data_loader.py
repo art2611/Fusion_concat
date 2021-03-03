@@ -200,6 +200,7 @@ def process_tworld(img_dir, mode, fold):
             label_query.append(k)
         for i in range(len(ids_file_IR) - 2):
             label_gallery.append(k)
+        print(f"label_ gallery {len(label_gallery)}")
         # Selection of two IR images
         rand_ir = [random.choice(files_ir)]
         rand_ir2 = random.choice(files_ir)
