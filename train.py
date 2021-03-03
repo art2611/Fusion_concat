@@ -203,6 +203,25 @@ color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_therm
 
 # Validation imgs and labels, depending of the cross validation fold
 query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "valid", args.dataset, args.fold)
+
+# Init variables
+n_class = len(np.unique(trainset.train_color_label))
+n_query = len(query_label)
+n_gall = len(gall_label)
+
+print(f'Dataset {args.dataset} statistics:')
+print('   set     |  Nb ids |  Nb img    ')
+print('  ------------------------------')
+print(f'  visible  | {n_class:5d} | {len(trainset.train_color_label):8d}')
+print(f'  thermal  | {n_class:5d} | {len(trainset.train_thermal_label):8d}')
+print('  ------------------------------')
+print(f'  query    | {len(np.unique(query_label)):5d} | {n_query:8d}')
+print(f'  gallery  | {len(np.unique(gall_label)):5d} | {n_gall:8d}')
+print('  ------------------------------')
+print(f'Data Loading Time:\t {time.time() - Timer1:.3f}')
+print(' ')
+print('==> Building model..')
+
 # Gallery and query set
 gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
 print("CEADFUZIADBU")
