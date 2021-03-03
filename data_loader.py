@@ -200,33 +200,23 @@ def process_tworld(img_dir, mode, fold):
         files_rgb = ids_file_RGB[k]
         # Put the labels in lists (2 for query and the rest for gallery )
         for i in range(2):
-            label_query.append(k)
-        for i in range(len(ids_file_IR[k]) - 2):
             label_gallery.append(k)
+        for i in range(len(files_ir) - 2):
+            label_query.append(k)
         print(f"label_ gallery {len(label_gallery)}")
         # Selection of two IR images
-        rand_ir = [random.choice(files_ir)]
-        rand_ir2 = random.choice(files_ir)
-        while rand_ir2 in rand_ir:
-            rand_ir2 = random.choice(files_ir)
-        rand_ir.append(rand_ir2)
-        temp_gallery_thermal = [rand_ir[0], rand_ir[1]]
+        rand = [random.randint(0, len(files_ir))]
+        rand2 = random.randint(0, len(files_ir))
+        while rand2 in rand:
+            rand2 = random.randint(0, len(files_ir))
+        rand.append(rand2)
+        temp_gallery_visible = [files_rgb[rand[0]], files_rgb[rand[1]]]
+        temp_gallery_thermal = [files_ir[rand[0]], files_ir[rand[1]]]
         # Get all the other IR img in a temporary list
-        for w in files_ir:
-            if w not in rand_ir:
-                temp_query_thermal.append(w)
-        # Selection of two RGB images
-        rand_rgb = [random.choice(files_rgb)]
-        rand_rgb2 = random.choice(files_rgb)
-        while rand_rgb2 in rand_rgb:
-            rand_rgb2 = random.choice(files_rgb)
-        rand_rgb.append(rand_rgb2)
-        temp_gallery_visible = [rand_rgb[0], rand_rgb[1]]
-        # Get all the other RGB img in a temporary list
-        for w in files_rgb:
-            if w not in rand_rgb:
-                temp_query_visible.append(w)
-
+        for w in [i for i in range(len(files_ir))]:
+            if w not in rand:
+                temp_query_thermal.append(files_ir[w])
+                temp_query_visible.append(files_rgb[w])
 
         for j in range(len(temp_query_visible)):
             img_query.append([temp_query_visible[j], temp_query_thermal[j]])
