@@ -170,14 +170,11 @@ def process_tworld(img_dir, mode, fold):
     ids_file_RGB = []
     ids_file_IR = []
     print(ids)
-    for id in sorted(ids):
+    for id in ids:
         img_dir = os.path.join(img_dir, "TV_FULL", str(id))
         if os.path.isdir(img_dir):
             #Since all images are in a same folder, we get all an id here
-            print("coucou")
-
             new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-
             ids_file_RGB.append(new_files)
             print(f"new files : {ids_file_RGB}")
 
