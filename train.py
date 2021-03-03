@@ -21,7 +21,7 @@ parser.add_argument('--fusion', default='unimodal', help='Which layer to fuse (e
 parser.add_argument('--fuse', default='none', help='Fusion type (cat / cat_channel / sum)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='TWorld', help='dataset name (RegDB / SYSU )')
-parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / VtoV / TtoT)')
+parser.add_argument('--reid', default='VtoV', help='Type of ReID (BtoB / VtoV / TtoT)')
 args = parser.parse_args()
 
 # Function to extract gallery features
