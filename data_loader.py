@@ -60,7 +60,7 @@ class RegDBData(data.Dataset):
 # Get TWorld data for training
 class TWorldDATA(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
-        data_dir = '../Datasets/ThermalWorld/'
+        data_dir = '../Datasets/TWorld/'
         # Load training labels
         labels = np.load(data_dir + f'train_label_{fold}.npy')
         self.train_color_label = labels
