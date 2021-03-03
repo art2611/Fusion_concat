@@ -14,7 +14,7 @@ def TrainingData(data_path, dataset, transform, fold):
     elif dataset == "RegDB":
         return(RegDBData(data_path, transform=transform, fold = fold))
     elif dataset == "TWorld":
-        return(RegDBData(data_path, transform=transform, fold = fold))
+        return(TWorldDATA(data_path, transform=transform, fold = fold))
 
 class RegDBData(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
