@@ -169,8 +169,9 @@ def process_tworld(img_dir, mode, fold):
     # Get list of list, each sub list contain the images location for one identity
     ids_file_RGB = []
     ids_file_IR = []
-
+    compteur = 0
     for id in sorted(ids):
+        compteur +=1
         img_dir = os.path.join(img_dir, "TV_FULL", str(id))
         if os.path.isdir(img_dir):
             #Since all images are in a same folder, we get all an id here
@@ -181,6 +182,7 @@ def process_tworld(img_dir, mode, fold):
         if os.path.isdir(img_dir):
             new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
             ids_file_IR.append(new_files)
+    print(f"compteur {compteur}")
 
     img_query = []
     img_gallery = []
