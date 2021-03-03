@@ -59,7 +59,7 @@ def get_height_and_width_variations(files_1, files_2):
     print(f"mean_width  : {total_width/sum}")
     print(f"mean_height : {total_height/sum}")
     print(f"Number of total images : {len(files_1)}")
-dataset = "SYSU"
+
 
 def random_thermalWORLD_training_testing() :
     validation = []
@@ -92,6 +92,8 @@ def random_thermalWORLD_training_testing() :
         g.write(str(testing[k]) + ',')
     g.write(str(testing[len(testing) - 1]))
     g.close
+
+dataset = "ThermalWorld"
 
 if dataset == "ThermalWorld" :
     data_path = '../Datasets/ThermalWorld/TV_FULL'
