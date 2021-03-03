@@ -191,10 +191,8 @@ def process_tworld(img_dir, mode, fold):
     temp_query_visible = []
     temp_query_thermal = []
 
-    print(len(ids_file_RGB))
-    print(len(ids_file_IR))
     for k in range(len(ids)):
-        print(k)
+
         files_ir = ids_file_IR[k]
         files_rgb = ids_file_RGB[k]
         # Put the labels in lists (2 for query and the rest for gallery )
