@@ -39,7 +39,7 @@ for i in range(5):
         else :
             training_lists[i].append("%04d" % all_ids[j-1])
 
-# We create txt files with the validation ids in it, it is enough for validation, as we already have for testing
+# We create txt files with the validation ids in it, it is enough for validation as we already have for testing
 for k in range(5) :
     f = open(data_path + f"exp/val_id_{k}.txt", "w+")
     f.write(val_lists[k])

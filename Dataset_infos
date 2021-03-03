@@ -1,0 +1,168 @@
+import numpy as np
+import torch
+import sys
+import matplotlib
+import matplotlib.pyplot as plt
+from scipy.spatial.distance import pdist
+import random
+from sklearn.preprocessing import minmax_scale
+from PIL import Image
+import os
+import math
+#Get ThermalWorld height and width
+
+def Average(lst):
+    return sum(lst) / len(lst)
+
+
+def get_height_and_width_variations(files_1, files_2):
+    minwidth = 10000
+    maxwidth = 0
+    minheight = 10000
+    maxheight = 0
+    total_width = 0
+    total_height = 0
+    # Get the max lenght or height :
+    for image in files_1:
+        img = Image.open(image)
+        total_width += img.size[0]
+        total_height += img.size[1]
+        if maxwidth < img.size[0]:
+            maxwidth = img.size[0]
+        if minwidth > img.size[0]:
+            minwidth = img.size[0]
+        if maxheight < img.size[1]:
+            maxheight = img.size[1]
+        if minheight > img.size[1]:
+            minheight = img.size[1]
+    for image in files_2:
+        img = Image.open(image)
+        total_width += img.size[0]
+        total_height += img.size[1]
+        if maxwidth < img.size[0]:
+            maxwidth = img.size[0]
+        if minwidth > img.size[0]:
+            minwidth = img.size[0]
+        if maxheight < img.size[1]:
+            maxheight = img.size[1]
+        if minheight > img.size[1]:
+            minheight = img.size[1]
+    numb_of_rgb_img = len(files_1)
+    numb_of_ir_img = len(files_2)
+    sum = numb_of_rgb_img + numb_of_ir_img
+
+    print(f"Number of RGB images : {len(files_1)}")
+    print(f"Number of IR images : {len(files_2)}")
+
+    print(f"[maxwidth, minwidth] : [{maxwidth}, {minwidth}]")
+    print(f"[maxheight, minheight] : [{maxheight}, {minheight}]")
+    print(f"mean_width  : {total_width/sum}")
+    print(f"mean_height : {total_height/sum}")
+dataset = "SYSU"
+
+def random_thermalWORLD_training_testing() :
+    validation = []
+    testing = []
+    all = [y for y in range(409)]
+
+    # Get ~20% of data for testing. This is done considering the upcoming 5 folds validation => For folds of same size, 84 for testing is great
+
+    while len(testing) < 84 :
+        randuuum = random.randint(0, 408)
+        if randuuum not in testing:
+            testing.append(randuuum)
+    testing.sort()
+
+    for k in all:
+        if k not in testing:
+            validation.append(k)
+    print(f"all : {all}")
+    print(f"testing : {testing}")
+    print(validation)
+
+    f = open('training.txt', 'a')
+
+    for k in range(len(validation) - 1):
+        f.write(str(validation[k]) + ',')
+    f.write(str(validation[len(validation) - 1]))
+    f.close
+    g = open('testing.txt', 'a')
+    for k in range(len(testing) - 1):
+        g.write(str(testing[k]) + ',')
+    g.write(str(testing[len(testing) - 1]))
+    g.close
+
+if dataset == "ThermalWorld" :
+    data_path = '../Datasets/ThermalWorld/TV_FULL'
+    data_path_ir = '../Datasets/ThermalWorld/IR_8'
+    files_rgb_train = []
+    files_ir_train = []
+
+    for k in range(409):
+        img_dir_RGB = data_path + '/' + str(k) + '/'
+        img_dir_IR = data_path_ir + '/' + str(k) + '/'
+        new_files_RGB = sorted([img_dir_RGB + '/' + i for i in os.listdir(img_dir_RGB)])
+        new_files_IR = sorted([img_dir_IR + '/' + i for i in os.listdir(img_dir_IR)])
+        files_rgb_train.extend(new_files_RGB)
+        files_ir_train.extend(new_files_IR)
+
+
+
+# Get height and width for sysu dataset
+if dataset == "SYSU" :
+    rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
+    ir_cameras = ['cam3', 'cam6']
+
+    data_path = '../Datasets/SYSU/'
+    file_path_train = os.path.join(data_path, 'exp/all_id.txt')
+    ###GET VALID AND TRAIN IDS in one list
+    with open(file_path_train, 'r') as file:
+        ids = file.read().splitlines()
+        ids = [int(y) for y in ids[0].split(',')]
+        all_ids = ids
+
+    print(len(all_ids))
+    training_lists = []
+    for j in range(1,len(all_ids)+1):
+        training_lists.append("%04d" % all_ids[j - 1])
+
+    files_rgb_train = []
+    files_ir_train = []
+
+    Number_id_RGB = []
+    Number_id_IR = []
+    i = 0
+    for id in sorted(training_lists):
+        for cam in rgb_cameras:
+            img_dir = os.path.join(data_path, cam, id)
+            if os.path.isdir(img_dir):
+                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+                if len(Number_id_RGB) < i + 1 :
+                    Number_id_RGB.append(len(new_files))
+                else :
+                    Number_id_RGB[i] = Number_id_RGB[i] + len(new_files)
+                files_rgb_train.extend(new_files)
+
+        for cam in ir_cameras:
+            img_dir = os.path.join(data_path, cam, id)
+            if os.path.isdir(img_dir):
+                new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+                if len(Number_id_IR) < i + 1 :
+                    Number_id_IR.append(len(new_files))
+                else :
+                    Number_id_IR[i] = Number_id_IR[i] + len(new_files)
+                files_ir_train.extend(new_files)
+
+        i = i + 1
+    distance = []
+    for k in range(len(Number_id_RGB)) :
+        distance.append(abs(Number_id_RGB[k] - Number_id_IR[k]))
+
+    print(f" [Min_RGB_image, max_RGB_image, AVG_RGB_image] : [{min(Number_id_RGB)}, {max(Number_id_RGB)}, {Average(Number_id_RGB)}]")
+    print(f" [Min_ir_image, max_ir_image, AVG_ir_image] : [{min(Number_id_IR)}, {max(Number_id_IR)}, {Average(Number_id_IR)}]")
+    print(f" [Min_distance, max_distance, AVG_distance] : [{min(distance)}, {max(distance)}, {Average(distance)}]")
+
+
+get_height_and_width_variations(files_rgb_train, files_ir_train)
+if True :
+    random_thermalWORLD_training_testing()

@@ -13,6 +13,8 @@ def TrainingData(data_path, dataset, transform, fold):
         return(SYSUData(data_path, transform=transform, fold = fold))
     elif dataset == "RegDB":
         return(RegDBData(data_path, transform=transform, fold = fold))
+    elif dataset == "TWorld":
+        return(RegDBData(data_path, transform=transform, fold = fold))
 
 class RegDBData(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
@@ -50,6 +52,35 @@ class RegDBData(data.Dataset):
 
         img1 = self.transform(img1)
         img2 = self.transform(img2)
+        return img1, img2, target1, target2
+
+    def __len__(self):
+        return len(self.train_color_label)
+
+# Get TWorld data for training
+class TWorldDATA(data.Dataset):
+    def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
+        data_dir = '../Datasets/ThermalWorld/'
+        # Load training labels
+        labels = np.load(data_dir + f'train_label_{fold}.npy')
+        self.train_color_label = labels
+        self.train_thermal_label = labels
+
+        # Load training images
+        self.train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
+        self.train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
+
+        self.transform = transform
+        self.cIndex = colorIndex
+        self.tIndex = thermalIndex
+
+    def __getitem__(self, index):
+        img1, target1 = self.train_color_image[self.cIndex[index]], self.train_color_label[self.cIndex[index]]
+        img2, target2 = self.train_thermal_image[self.tIndex[index]], self.train_thermal_label[self.tIndex[index]]
+
+        img1 = self.transform(img1)
+        img2 = self.transform(img2)
+
         return img1, img2, target1, target2
 
     def __len__(self):
@@ -116,7 +147,91 @@ def process_data(img_dir, mode, dataset, fold=0):
     elif dataset == "RegDB" :
         query_cam, gall_cam = None, None
         img_query, label_query, img_gallery, label_gallery = process_regdb(img_dir, mode, fold)
+    elif dataset == "TWorld" :
+        query_cam, gall_cam = None, None
+        img_query, label_query, img_gallery, label_gallery = process_tworld(img_dir, mode, fold)
     return (img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam)
+
+# Process regDB data for test or validation
+def process_tworld(img_dir, mode, fold):
+
+    if mode == "test" :
+        input_visible_data_path = img_dir + f'testing.txt'
+        input_thermal_data_path = img_dir + f'testing.txt'
+    if mode == "valid" :
+        input_visible_data_path = img_dir + f"val_id_RGB_{fold}.txt"
+        input_thermal_data_path = img_dir + f"val_id_IR_{fold}.txt"
+
+    ### GET ids in a list
+    with open(input_visible_data_path, 'r') as file:
+        ids = file.read().splitlines()
+        ids = [int(y) for y in ids[0].split(',')]
+
+    # Get list of list, each sub list contain the images location for one identity
+    ids_file_RGB = []
+    ids_file_IR = []
+
+    for id in sorted(ids):
+        img_dir = os.path.join(img_dir, "TV_FULL", str(id))
+        if os.path.isdir(img_dir):
+            #Since all images are in a same folder, we get all an id here
+            new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+            ids_file_RGB.append(new_files)
+
+        img_dir = os.path.join(img_dir, "IR_8", str(id))
+        if os.path.isdir(img_dir):
+            new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
+            ids_file_IR.append(new_files)
+
+    img_query = []
+    img_gallery = []
+
+    label_query = []
+    label_gallery = []
+
+    temp_query_visible = []
+    temp_query_thermal = []
+
+    for k in range(len(ids)):
+
+        files_ir = ids_file_IR[k]
+        files_rgb = ids_file_RGB[k]
+        # Put the labels in lists (2 for query and the rest for gallery )
+        for i in range(2):
+            label_query.append(k)
+        for i in range(len(ids_file_IR) - 2):
+            label_gallery.append(k)
+        # Selection of two IR images
+        rand_ir = [random.choice(files_ir)]
+        rand_ir2 = random.choice(files_ir)
+        while rand_ir2 in rand_ir:
+            rand_ir2 = random.choice(files_ir)
+        rand_ir.append(rand_ir2)
+        temp_gallery_thermal = [rand_ir[0], rand_ir[1]]
+        # Get all the other IR img in a temporary list
+        for w in files_ir:
+            if w not in rand_ir:
+                temp_query_thermal.append(w)
+        # Selection of two RGB images
+        rand_rgb = [random.choice(files_rgb)]
+        rand_rgb2 = random.choice(files_rgb)
+        while rand_rgb2 in rand_rgb:
+            rand_rgb2 = random.choice(files_rgb)
+        rand_rgb.append(rand_rgb2)
+        temp_gallery_visible = [rand_rgb[0], rand_rgb[1]]
+        # Get all the other RGB img in a temporary list
+        for w in files_rgb:
+            if w not in rand_rgb:
+                temp_query_visible.append(w)
+
+
+        for j in range(len(temp_query_visible)):
+            img_query.append([temp_query_visible[j], temp_query_thermal[j]])
+        for j in range(len(temp_gallery_visible)):
+            img_gallery.append([temp_gallery_visible[j], temp_gallery_thermal[j]])
+
+    return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
+
 
 # Process regDB data for test or validation
 def process_regdb(img_dir, mode, fold):
@@ -127,6 +242,11 @@ def process_regdb(img_dir, mode, fold):
     if mode == "valid" :
         input_visible_data_path = img_dir + f"idx/val_id_RGB_{fold}.txt"
         input_thermal_data_path = img_dir + f"idx/val_id_IR_{fold}.txt"
+
+    files_query_visible = []
+    files_gallery_visible = []
+    files_query_thermal = []
+    files_gallery_thermal = []
 
     with open(input_visible_data_path) as f:
         data_file_list = open(input_visible_data_path, 'rt').read().splitlines()
@@ -190,13 +310,12 @@ def process_sysu(data_path, method, fold):
     files_query_thermal = []
     files_gallery_thermal = []
     minimum = 0
-    temp_query_visible = []
-    temp_query_thermal = []
-    for id in sorted(ids):
-        #Instead of selecting 1 img per cam, we want the same amount of img for both modalities
-        # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with a pair number
 
-        files_ir, files_rgb = image_list(id, data_path)
+    for id in sorted(ids):
+        # Instead of selecting 1 img per cam, we want the same amount of img for both modalities
+        # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with the same number
+
+        files_ir, files_rgb = image_list_SYSU(id, data_path)
         if files_ir != 0 and files_rgb != 0 :
             temp_gallery_visible = []
             temp_gallery_thermal = []
@@ -272,8 +391,8 @@ def process_sysu(data_path, method, fold):
     # print(query_img)
     return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
 
-# Get all images from the differents cameras in two lists
-def image_list(id, data_path) :
+# Get all images concerning one id from the differents cameras in two distinct lists
+def image_list_SYSU(id, data_path) :
     files_ir = 0
     for k in [3,6]:
         img_dir = os.path.join(data_path, f'cam{k}', id)
@@ -293,6 +412,8 @@ def image_list(id, data_path) :
                 files_rgb.extend(sorted([img_dir + '/' + i for i in os.listdir(img_dir)]))
 
     return(files_ir, files_rgb)
+
+
 
 class Prepare_set(data.Dataset):
     def __init__(self, test_img_file, test_label, transform=None, img_size = (144,288)):
