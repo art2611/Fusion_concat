@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 from random import randrange
 import random
-
+import sys
 
 def TrainingData(data_path, dataset, transform, fold):
     if dataset == "SYSU":
