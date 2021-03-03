@@ -156,14 +156,13 @@ def process_data(img_dir, mode, dataset, fold=0):
 def process_tworld(img_dir, mode, fold):
 
     if mode == "test" :
-        input_visible_data_path = img_dir + f'testing.txt'
-        input_thermal_data_path = img_dir + f'testing.txt'
+        input_data_path = img_dir + f'testing.txt'
+
     if mode == "valid" :
-        input_visible_data_path = img_dir + f"val_id_RGB_{fold}.txt"
-        input_thermal_data_path = img_dir + f"val_id_IR_{fold}.txt"
+        input_data_path = img_dir + f"val_id_{fold}.txt"
 
     ### GET ids in a list
-    with open(input_visible_data_path, 'r') as file:
+    with open(input_data_path, 'r') as file:
         ids = file.read().splitlines()
         ids = [int(y) for y in ids[0].split(',')]
 
