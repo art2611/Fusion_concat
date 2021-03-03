@@ -169,7 +169,7 @@ def process_tworld(img_dir, mode, fold):
     # Get list of list, each sub list contain the images location for one identity
     ids_file_RGB = []
     ids_file_IR = []
-
+    print(ids)
     for id in sorted(ids):
         img_dir = os.path.join(img_dir, "TV_FULL", str(id))
         if os.path.isdir(img_dir):
