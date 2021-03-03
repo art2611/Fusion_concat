@@ -222,7 +222,6 @@ def process_tworld(img_dir, mode, fold):
             if w not in rand:
                 temp_query_thermal.append(files_ir[w])
                 temp_query_visible.append(files_rgb[w])
-            print(len(temp_query_thermal))
 
         for j in range(len(temp_query_visible)):
             img_query.append([temp_query_visible[j], temp_query_thermal[j]])
