@@ -170,10 +170,9 @@ def process_tworld(img_dir, mode, fold):
     ids_file_RGB = []
     ids_file_IR = []
     img_dir_init = img_dir
-    print(ids)
+
     for id in sorted(ids):
         img_dir = img_dir_init +  "/TV_FULL/" + str(id)
-        print(img_dir)
         if os.path.isdir(img_dir):
             #Since all images are in a same folder, we get all an id here
             new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
@@ -193,7 +192,7 @@ def process_tworld(img_dir, mode, fold):
     temp_query_visible = []
     temp_query_thermal = []
 
-    print(len(ids))
+    print(len(ids_file_RGB))
     for k in range(len(ids)):
         print(k)
         files_ir = ids_file_IR[k]
