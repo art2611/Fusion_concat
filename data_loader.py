@@ -190,7 +190,7 @@ def process_tworld(img_dir, mode, fold):
 
     temp_query_visible = []
     temp_query_thermal = []
-
+    print(ids)
     for k in range(len(ids)):
 
         files_ir = ids_file_IR[k]
