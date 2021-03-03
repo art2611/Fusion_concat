@@ -175,8 +175,9 @@ def process_tworld(img_dir, mode, fold):
         if os.path.isdir(img_dir):
             #Since all images are in a same folder, we get all an id here
             new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
-            print(f"new files : {new_files}")
+
             ids_file_RGB.append(new_files)
+            print(f"new files : {ids_file_RGB}")
 
         img_dir = os.path.join(img_dir, "IR_8", str(id))
         if os.path.isdir(img_dir):
