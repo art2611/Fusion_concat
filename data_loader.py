@@ -424,7 +424,6 @@ class Prepare_set(data.Dataset):
             pix_array2 = np.array(img2)
             test_image1.append(pix_array1)
             test_image2.append(pix_array2)
-            print(str(i))
 
 
         test_image1 = np.array(test_image1)
