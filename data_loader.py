@@ -423,15 +423,13 @@ class Prepare_set(data.Dataset):
         for i in range(len(test_img_file)):
             img1 = Image.open(test_img_file[i][0])
             img2 = Image.open(test_img_file[i][1])
-            print("CEADFUZIADBU")
             img1 = img1.resize((img_size[0], img_size[1]), Image.ANTIALIAS)
             img2 = img2.resize((img_size[0], img_size[1]), Image.ANTIALIAS)
-            print("CEADFUZIADBU")
-
             pix_array1 = np.array(img1)
             pix_array2 = np.array(img2)
             test_image1.append(pix_array1)
             test_image2.append(pix_array2)
+        print("CEADFUZIADBU")
 
         test_image1 = np.array(test_image1)
         test_image2 = np.array(test_image2)
