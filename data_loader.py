@@ -197,6 +197,7 @@ def process_tworld(img_dir, mode, fold):
     for k in range(len(ids)):
 
         files_ir = ids_file_IR[k]
+        print(len(files_ir))
         files_rgb = ids_file_RGB[k]
         number_images_for_id_k = len(files_ir)
         # Put the labels in lists (2 for query and the rest for gallery )
