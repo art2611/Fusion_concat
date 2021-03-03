@@ -3,7 +3,7 @@ from PIL import Image
 import os
 import sys
 
-data_path = '../Datasets/ThermalWorld/'
+data_path = '../Datasets/TWorld/'
 
 file_path_train =  os.path.join(data_path, 'training.txt')
 
@@ -37,8 +37,8 @@ for k in range(5) :
     f.close()
 
 
-file_path_train_visible = '../Datasets/ThermalWorld/TV_FULL'
-file_path_train_thermal = '../Datasets/ThermalWorld/IR_8'
+file_path_train_visible = '../Datasets/TWorld/TV_FULL'
+file_path_train_thermal = '../Datasets/TWorld/IR_8'
 
 ### GET imgs associated to ids for each folds
 files_rgb_train = [[], [], [], [], []]
