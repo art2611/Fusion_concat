@@ -157,9 +157,9 @@ mINP_list = []
 end = time.time()
 Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "unimodal":0, "score":0, "fc":0}
 # New global model
-if args.dataset == "RegDB":
+if args.dataset == "RegDB" or args.dataset == "TWorld":
     nclass = 164
-    data_path = '../Datasets/RegDB/'
+    data_path = f'../Datasets/{args.dataset}/'
     net = []
     net2 = [[],[],[],[],[]]
     # Since we are supposed to have 5 models, this loop get an average result
