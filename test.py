@@ -258,7 +258,7 @@ if args.dataset == "RegDB" or args.dataset == "TWorld":
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
                 distmat = tanh_norm(distmat)
                 distmat2 = tanh_norm(distmat2)
-                distmat = (distmat + 0.5*distmat2)/2
+                distmat = (distmat + distmat2)/2
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                 #First do a norm :
