@@ -159,6 +159,8 @@ Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "laye
 # New global model
 if args.dataset == "RegDB" or args.dataset == "TWorld":
     nclass = 164
+    if args.dataset == "TWorld" :
+        nclass = 260
     data_path = f'../Datasets/{args.dataset}/'
     net = []
     net2 = [[],[],[],[],[]]
