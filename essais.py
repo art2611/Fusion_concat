@@ -32,6 +32,15 @@ from sklearn.preprocessing import MinMaxScaler
 #     for i in range(data.shape[1]):
 #         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
 # print(data)
+
+random.seed(0)
+a = [2,3,4,5]
+c = [4,2,12,18]
+print(random.choice(a))
+print(random.choice(a))
+print(random.choice(c))
+
+sys.exit()
 w= []
 ids = [0,0,0,0, 1,1,1,1,1,1]
 ids2 = [2,3]
