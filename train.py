@@ -111,7 +111,7 @@ test_batch_size = 64
 batch_num_identities = 8 # 8 different identities in a batch
 num_of_same_id_in_batch = 4 # Number of same identity in a batch
 workers = 4
-lr = 0.001
+lr = 0.1
 checkpoint_path = '../save_model/'
 
 
@@ -170,9 +170,9 @@ Timer1 = time.time()
 ######################################### TRAINING SET
 
 data_path = f'../Datasets/{args.dataset}/'
-suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_0.001_fold_{args.fold}'
 trainset = TrainingData(data_path, args.dataset, transform_train, args.fold)
-lr = 0.1
+
 # if args.dataset == 'sysu':
 #     data_path = '../Datasets/SYSU/'
 #     suffix = f'SYSU_{args.reid}_fuseType({args.fuse})_person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
