@@ -269,9 +269,9 @@ if args.dataset == "RegDB" or args.dataset == "TWorld":
                 # print(query_final_fc[0])
                 # # print(query_final_fc[0])
                 #then aggregate all
-                query_feat_fc = (query_final_fc + 0.5*query_final_fc2) / 2
+                query_feat_fc = (query_final_fc + 0.25*query_final_fc2) / 2
                 # print(query_feat_fc)
-                gall_feat_fc = (gall_final_fc + 0.5*gall_final_fc2) / 2
+                gall_feat_fc = (gall_final_fc + 0.25*gall_final_fc2) / 2
 
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
