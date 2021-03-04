@@ -400,8 +400,8 @@ if args.dataset == 'SYSU':
                 gall_final_fc2 = tanh_norm(gall_final_fc2)
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                distmat = tanh_norm(distmat)
-                distmat2 = tanh_norm(distmat2)
+                # distmat = tanh_norm(distmat)
+                # distmat2 = tanh_norm(distmat2)
                 distmat = (distmat + distmat2)/2
 
             else :
