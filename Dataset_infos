@@ -96,20 +96,27 @@ def random_thermalWORLD_training_testing() :
 dataset = "ThermalWorld"
 
 if dataset == "ThermalWorld" :
-    data_path = '../Datasets/ThermalWorld/TV_FULL'
-    data_path_ir = '../Datasets/ThermalWorld/IR_8'
+    data_path = '../Datasets/TWorld/TV_FULL'
+    data_path_ir = '../Datasets/TWorld/IR_8'
     files_rgb_train = []
     files_ir_train = []
 
+    Number_id_RGB = []
+
+    i = 0
     for k in range(409):
         img_dir_RGB = data_path + '/' + str(k) + '/'
         img_dir_IR = data_path_ir + '/' + str(k) + '/'
         new_files_RGB = sorted([img_dir_RGB + '/' + i for i in os.listdir(img_dir_RGB)])
         new_files_IR = sorted([img_dir_IR + '/' + i for i in os.listdir(img_dir_IR)])
+        if len(Number_id_RGB) < i + 1:
+            Number_id_RGB.append(len(new_files_RGB))
+        else:
+            Number_id_RGB[i] = Number_id_RGB[i] + len(new_files_RGB)
         files_rgb_train.extend(new_files_RGB)
         files_ir_train.extend(new_files_IR)
-
-
+        i = i +1
+    print(f" [Min_image, max_image, AVG_image] : [{min(Number_id_RGB)}, {max(Number_id_RGB)}, {Average(Number_id_RGB)}]")
 
 # Get height and width for sysu dataset
 if dataset == "SYSU" :
@@ -165,7 +172,10 @@ if dataset == "SYSU" :
     print(f" [Min_ir_image, max_ir_image, AVG_ir_image] : [{min(Number_id_IR)}, {max(Number_id_IR)}, {Average(Number_id_IR)}]")
     print(f" [Min_distance, max_distance, AVG_distance] : [{min(distance)}, {max(distance)}, {Average(distance)}]")
 
+# Get variations in height and width in the selected dataset
+if False :
+    get_height_and_width_variations(files_rgb_train, files_ir_train)
 
-get_height_and_width_variations(files_rgb_train, files_ir_train)
-if True :
+# Get a training testing random id split
+if False :
     random_thermalWORLD_training_testing()
