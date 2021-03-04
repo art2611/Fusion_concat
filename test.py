@@ -246,8 +246,8 @@ if args.dataset == "RegDB" or args.dataset == "TWorld":
                 # gall_final_fc2 = minmax_norm(gall_final_fc2)
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                distmat = l2_norm(distmat)
-                distmat2 = l2_norm(distmat2)
+                distmat = Z_mean(distmat)
+                distmat2 = Z_mean(distmat2)
                 distmat = (distmat + distmat2)/2
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
