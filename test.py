@@ -51,7 +51,7 @@ today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d/%m/%Y")
 
-writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
+# writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
 
 
 # Function to extract gallery features
@@ -250,14 +250,14 @@ if args.dataset == "RegDB" or args.dataset == "TWorld":
                 # Proceed to 2nd matching and aggregate matching matrix
 
                 # # print(query_final_fc[0])
-                query_final_fc = l2_norm(query_final_fc)
-                query_final_fc2 = l2_norm(query_final_fc2)
-                gall_final_fc = l2_norm(gall_final_fc)
-                gall_final_fc2 = l2_norm(gall_final_fc2)
+                query_final_fc = tanh_norm(query_final_fc)
+                query_final_fc2 = tanh_norm(query_final_fc2)
+                gall_final_fc = tanh_norm(gall_final_fc)
+                gall_final_fc2 = tanh_norm(gall_final_fc2)
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                distmat = l2_norm(distmat)
-                distmat2 = l2_norm(distmat2)
+                distmat = tanh_norm(distmat)
+                distmat2 = tanh_norm(distmat2)
                 distmat = (distmat + distmat2)/2
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
@@ -460,17 +460,17 @@ print('All Average:')
 print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
 
-f = open('results.txt','a')
-if args.fusion == "unimodal" :
-    f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
-else :
-    f.write(f"{args.dataset}_{args.fusion}_{args.fuse} : (1 on RGB - 1 on IR )\n")
-f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
-        cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
-f.close()
-
-# print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
-# cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
-
-for k in range(len(cmc)):
-    writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
+# f = open('results.txt','a')
+# if args.fusion == "unimodal" :
+#     f.write(f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}\n")
+# else :
+#     f.write(f"{args.dataset}_{args.fusion}_{args.fuse} : (1 on RGB - 1 on IR )\n")
+# f.write('FC: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}\n\n'.format(
+#         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP, standard_deviation_mINP))
+# f.close()
+#
+# # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+# # cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+#
+# for k in range(len(cmc)):
+#     writer.add_scalar('cmc curve', cmc[k]*100, k + 1)
