@@ -203,15 +203,15 @@ def process_tworld(img_dir, mode, fold):
         # print(len(files_ir))
         files_rgb = ids_file_RGB[k]
         number_images_for_id_k = len(files_ir)
-        if len(files_ir) > 1 :
-            # Put the labels in lists (2 for query and the rest for gallery )
+
+        # Put the labels in lists (2 for query and the rest for gallery )
+        if len(files_ir) > 1:
+
             for i in range(2):
                 label_gallery.append(k - not_enought)
             for i in range(number_images_for_id_k - 2):
                 label_query.append(k - not_enought)
-            # print(f"label_ gallery {len(label_gallery)}")
-            # print(f"label_ query {len(label_query)}")
-            # Selection of two IR images
+
             rand = [random.randint(0, number_images_for_id_k - 1)]
             rand2 = random.randint(0, number_images_for_id_k - 1)
             while rand2 in rand:
@@ -219,18 +219,24 @@ def process_tworld(img_dir, mode, fold):
             rand.append(rand2)
             temp_gallery_visible = [files_rgb[rand[0]], files_rgb[rand[1]]]
             temp_gallery_thermal = [files_ir[rand[0]], files_ir[rand[1]]]
-            # Get all the other IR img in a temporary list
-            for w in [i for i in range(len(files_ir))]:
-                if w not in rand:
-                    temp_query_thermal.append(files_ir[w])
-                    temp_query_visible.append(files_rgb[w])
+        # Si une unique image est dispo
+        elif len(files_ir) == 1:
+            label_gallery.append(k)
+            rand = [random.randint(0, number_images_for_id_k - 1)]
+            temp_gallery_visible = [files_rgb[rand[0]]]
+            temp_gallery_thermal = [files_ir[rand[0]]]
 
-            for j in range(len(temp_query_visible)):
-                img_query.append([temp_query_visible[j], temp_query_thermal[j]])
-            for j in range(len(temp_gallery_visible)):
-                img_gallery.append([temp_gallery_visible[j], temp_gallery_thermal[j]])
-        else :
-            not_enought += 1
+        # Get all the other IR img in a temporary list for query
+        for w in [i for i in range(len(files_ir))]:
+            if w not in rand:
+                temp_query_thermal.append(files_ir[w])
+                temp_query_visible.append(files_rgb[w])
+
+        for j in range(len(temp_query_visible)):
+            img_query.append([temp_query_visible[j], temp_query_thermal[j]])
+        for j in range(len(temp_gallery_visible)):
+            img_gallery.append([temp_gallery_visible[j], temp_gallery_thermal[j]])
+
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 
