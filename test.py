@@ -393,16 +393,17 @@ if args.dataset == 'SYSU':
 
             if args.fusion == "score" :
                 # Proceed to 2nd matching and aggregate matching matrix
-                query_final_fc = l2_norm(query_final_fc)
+                query_final_fc = tanh_norm(query_final_fc)
                 # print(query_final_fc[0])
-                query_final_fc2 = l2_norm(query_final_fc2)
-                gall_final_fc = l2_norm(gall_final_fc)
-                gall_final_fc2 = l2_norm(gall_final_fc2)
+                query_final_fc2 = tanh_norm(query_final_fc2)
+                gall_final_fc = tanh_norm(gall_final_fc)
+                gall_final_fc2 = tanh_norm(gall_final_fc2)
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                distmat = l2_norm(distmat)
-                distmat2 = l2_norm(distmat2)
+                distmat = tanh_norm(distmat)
+                distmat2 = tanh_norm(distmat2)
                 distmat = (distmat + distmat2)/2
+
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                 #First do a minmax norm :
