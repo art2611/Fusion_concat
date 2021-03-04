@@ -203,7 +203,7 @@ def process_tworld(img_dir, mode, fold):
         # print(len(files_ir))
         files_rgb = ids_file_RGB[k]
         number_images_for_id_k = len(files_ir)
-        if len(files_ir) > 2 :
+        if len(files_ir) > 1 :
             # Put the labels in lists (2 for query and the rest for gallery )
             for i in range(2):
                 label_gallery.append(k - not_enought)
