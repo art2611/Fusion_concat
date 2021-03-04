@@ -191,15 +191,15 @@ def process_tworld(img_dir, mode, fold):
 
     temp_query_visible = []
     temp_query_thermal = []
-    print(ids)
-    print(len(ids_file_IR[0]))
+    # print(ids)
+    # print(len(ids_file_IR[0]))
 
     for k in range(len(ids)):
         temp_query_visible = []
         temp_query_thermal = []
 
         files_ir = ids_file_IR[k]
-        print(len(files_ir))
+        # print(len(files_ir))
         files_rgb = ids_file_RGB[k]
         number_images_for_id_k = len(files_ir)
         # Put the labels in lists (2 for query and the rest for gallery )
@@ -207,8 +207,8 @@ def process_tworld(img_dir, mode, fold):
             label_gallery.append(k)
         for i in range(number_images_for_id_k - 2):
             label_query.append(k)
-        print(f"label_ gallery {len(label_gallery)}")
-        print(f"label_ query {len(label_query)}")
+        # print(f"label_ gallery {len(label_gallery)}")
+        # print(f"label_ query {len(label_query)}")
         # Selection of two IR images
         rand = [random.randint(0, number_images_for_id_k - 1)]
         rand2 = random.randint(0, number_images_for_id_k - 1)
