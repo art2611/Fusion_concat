@@ -262,10 +262,10 @@ if args.dataset == "RegDB" or args.dataset == "TWorld":
             else :
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                 #First do a norm :
-                query_final_fc = tanh_norm(query_final_fc)
-                query_final_fc2 = tanh_norm(query_final_fc2)
-                gall_final_fc = tanh_norm(gall_final_fc)
-                gall_final_fc2 = tanh_norm(gall_final_fc2)
+                query_final_fc = l2_norm(query_final_fc)
+                query_final_fc2 = l2_norm(query_final_fc2)
+                gall_final_fc = l2_norm(gall_final_fc)
+                gall_final_fc2 = l2_norm(gall_final_fc2)
                 # print(query_final_fc[0])
                 # # print(query_final_fc[0])
                 #then aggregate all
