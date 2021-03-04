@@ -195,9 +195,7 @@ def process_tworld(img_dir, mode, fold):
     # print(len(ids_file_IR[0]))
     #If not enough images (Identity 401 has only 1 img) :
     not_enought = 0
-    print(len(ids))
     for k in range(len(ids)):
-        print(f'{k}')
         temp_query_visible = []
         temp_query_thermal = []
 
@@ -206,7 +204,6 @@ def process_tworld(img_dir, mode, fold):
         files_rgb = ids_file_RGB[k]
         number_images_for_id_k = len(files_ir)
         if len(files_ir) > 2 :
-
             # Put the labels in lists (2 for query and the rest for gallery )
             for i in range(2):
                 label_gallery.append(k - not_enought)
