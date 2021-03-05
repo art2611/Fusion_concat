@@ -153,18 +153,33 @@ def process_data(img_dir, mode, dataset, fold=0):
     return (img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam)
 
 # Process regDB data for test or validation
-def process_tworld(img_dir, mode, fold):
+def process_tworld(img_dir, mode, fold_or_trial):
 
     if mode == "test" :
         input_data_path = img_dir + f'testing.txt'
-
+        input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
+        fold_or_trial_total_number=10
     if mode == "valid" :
-        input_data_path = img_dir + f"val_id_{fold}.txt"
+        input_data_path = img_dir + f"val_id_{fold_or_trial}.txt"
+        input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
+        fold_or_trial_total_number=5
 
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
         ids = file.read().splitlines()
         ids = [int(y) for y in ids[0].split(',')]
+
+    # Get the saved query gallery repartition lists
+    positions_list = [[] for i in range(fold_or_trial_total_number)]
+    trial_number = 0
+    with open(input_query_gallery_path, 'r') as query_gallery_file:
+        for lines in query_gallery_file:
+            the_line = lines.strip()
+            positions = the_line.splitlines()
+            if positions[0] == "fold_or_trial":
+                trial_number += 1
+            else :
+                positions_list[trial_number].append([int(y) for y in positions[0].split(',')])
 
     # Get list of list, each sub list contain the images location for one identity
     ids_file_RGB = []
@@ -182,221 +197,186 @@ def process_tworld(img_dir, mode, fold):
             new_files = sorted([img_dir + '/' + i for i in os.listdir(img_dir)])
             ids_file_IR.append(new_files)
 
-
     img_query = []
     img_gallery = []
 
     label_query = []
     label_gallery = []
 
-    temp_query_visible = []
-    temp_query_thermal = []
     # print(ids)
     # print(len(ids_file_IR[0]))
     #If not enough images (Identity 401 has only 1 img) :
-    not_enought = 0
-    for k in range(len(ids)):
-        temp_query_visible = []
-        temp_query_thermal = []
 
-        files_ir = ids_file_IR[k]
-        # print(len(files_ir))
-        files_rgb = ids_file_RGB[k]
+    for id in range(len(ids)):
+
+        files_ir = ids_file_IR[id]
+        files_rgb = ids_file_RGB[id]
         number_images_for_id_k = len(files_ir)
 
-        # Put the labels in lists (2 for query and the rest for gallery )
-        if len(files_ir) > 1:
+        img_query = []
+        img_gallery = []
+        labels = []
 
-            for i in range(2):
-                label_gallery.append(k - not_enought)
-            for i in range(number_images_for_id_k - 2):
-                label_query.append(k - not_enought)
+        for i in range(len(positions_list[fold_or_trial][id])):
+            #Get two images as gallery
+            if i < 2 :
+                img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
+            #Get the remaining as query :
+            else :
+                img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
+            labels.append(ids[id])
 
-            rand = [random.randint(0, number_images_for_id_k - 1)]
-            rand2 = random.randint(0, number_images_for_id_k - 1)
-            while rand2 in rand:
-                rand2 = random.randint(0, number_images_for_id_k - 1)
-            rand.append(rand2)
-            temp_gallery_visible = [files_rgb[rand[0]], files_rgb[rand[1]]]
-            temp_gallery_thermal = [files_ir[rand[0]], files_ir[rand[1]]]
-        # Si une unique image est dispo
-        elif len(files_ir) == 1:
-            label_gallery.append(k)
-            rand = [random.randint(0, number_images_for_id_k - 1)]
-            temp_gallery_visible = [files_rgb[rand[0]]]
-            temp_gallery_thermal = [files_ir[rand[0]]]
-
-        # Get all the other IR img in a temporary list for query
-        for w in [i for i in range(len(files_ir))]:
-            if w not in rand:
-                temp_query_thermal.append(files_ir[w])
-                temp_query_visible.append(files_rgb[w])
-
-        for j in range(len(temp_query_visible)):
-            img_query.append([temp_query_visible[j], temp_query_thermal[j]])
-        for j in range(len(temp_gallery_visible)):
-            img_gallery.append([temp_gallery_visible[j], temp_gallery_thermal[j]])
-
+        label_query = labels
+        label_gallery = labels
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 
 # Process regDB data for test or validation
-def process_regdb(img_dir, mode, fold):
+def process_regdb(img_dir, mode, fold_or_trial):
 
     if mode == "test" :
         input_visible_data_path = img_dir + f'idx/test_visible_{1}.txt'
         input_thermal_data_path = img_dir + f'idx/test_thermal_{1}.txt'
+        input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
+        fold_or_trial_total_number=10
     if mode == "valid" :
-        input_visible_data_path = img_dir + f"idx/val_id_RGB_{fold}.txt"
-        input_thermal_data_path = img_dir + f"idx/val_id_IR_{fold}.txt"
-
-    files_query_visible = []
-    files_gallery_visible = []
-    files_query_thermal = []
-    files_gallery_thermal = []
+        input_visible_data_path = img_dir + f"idx/val_id_RGB_{fold_or_trial}.txt"
+        input_thermal_data_path = img_dir + f"idx/val_id_IR_{fold_or_trial}.txt"
+        input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
+        fold_or_trial_total_number=5
 
     with open(input_visible_data_path) as f:
         data_file_list = open(input_visible_data_path, 'rt').read().splitlines()
         # Get full list of image and labels
-        file_image_visible = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
+        ids_file_RGB = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
         file_label_visible = [int(s.split(' ')[1]) for s in data_file_list]
 
     with open(input_thermal_data_path) as f:
         data_file_list = open(input_thermal_data_path, 'rt').read().splitlines()
         # Get full list of image and labels
-        file_image_thermal = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
+        ids_file_IR = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
         file_label_thermal = [int(s.split(' ')[1]) for s in data_file_list]
+    ids = np.unique(file_label_visible)
+
+    # Get the saved query gallery repartition lists
+    positions_list = [[] for i in range(fold_or_trial_total_number)]
+    trial_number = 0
+    with open(input_query_gallery_path, 'r') as query_gallery_file:
+        for lines in query_gallery_file:
+            the_line = lines.strip()
+            positions = the_line.splitlines()
+            if positions[0] == "fold_or_trial":
+                trial_number += 1
+            else :
+                positions_list[trial_number].append([int(y) for y in positions[0].split(',')])
 
     img_query = []
-    label_query = []
     img_gallery = []
+    label_query = []
     label_gallery = []
 
-    # This loop separate 2 random selected img per modality for the gallery, and the rest goes for query (8 imgs)
-    for k in range(len(np.unique(file_label_visible))):
-        appeared = []
+    for id in range(len(ids)):
 
-        for i in range(2):
-            rand = randrange(10)
-            while rand in appeared:
-                rand = randrange(10)
-            appeared.append(rand)
-            # On récupère des images appairées
-            img_gallery.append([file_image_visible[k * 10 + rand], file_image_thermal[k * 10 + rand]])
-            # On récupère les labels associés (Les mêmes dans file_label_visible/thermal)
-            label_gallery.append(file_label_visible[k * 10 + rand])
+        files_ir = ids_file_IR[id*10:(id+1)*10]
+        files_rgb = ids_file_RGB[id*10:(id+1)*10]
+        # Here we have 10 images per id for this dataset
+        number_images_for_id_k = len(files_rgb)
 
-        for i in range(10):
-            if i not in appeared :
-                #On récupère les images appairées restantes
-                img_query.append([file_image_visible[k * 10 + i], file_image_thermal[k * 10 + i]])
+        img_query = []
+        img_gallery = []
+        labels = []
 
-                label_query.append(file_label_visible[k*10 + i])
+        for i in range(len(positions_list[fold_or_trial][id])):
+            #Get two images as gallery
+            if i < 2 :
+                img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
+            #Get the remaining as query :
+            else :
+                img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
+            labels.append(ids[id])
+
+        label_query = labels
+        label_gallery = labels
 
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 # Process SYSU data for test or validation
-def process_sysu(data_path, method, fold):
+def process_sysu(data_path, method, fold_or_trial):
     rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
     ir_cameras = ['cam3', 'cam6']
 
     if method == "test":
         print("Test set called")
-        file_path = os.path.join(data_path, 'exp/test_id.txt')
+        input_data_path = data_path + f'exp/test_id.txt'
+        input_query_gallery_path = data_path + f'exp/query_gallery_test.txt'
+        fold_or_trial_total_number=10
     elif method == "valid":
-        file_path = os.path.join(data_path, f'exp/val_id_{fold}.txt')
+        input_data_path = os.path.join(data_path, f'exp/val_id_{fold_or_trial}.txt')
+        input_query_gallery_path = data_path + f'exp/query_gallery_validation.txt'
+        fold_or_trial_total_number=5
 
 
-    with open(file_path, 'r') as file:
+
+    ### GET ids in a list
+    with open(input_data_path, 'r') as file:
         ids = file.read().splitlines()
         ids = [int(y) for y in ids[0].split(',')]
         ids = ["%04d" % x for x in ids]
+    ### Get the saved random position for query - gallery
+    positions_list_RGB = [[] for i in range(fold_or_trial_total_number)]
+    positions_list_IR = [[] for i in range(fold_or_trial_total_number)]
+    modality = 1
+    trial_number = 0
+    with open(input_query_gallery_path, 'r') as query_gallery_file:
+        for lines in query_gallery_file:
+            the_line = lines.strip()
+            positions = the_line.splitlines()
+            if positions[0] == "modality":
+                modality = 2
+            elif positions[0] == "trial":
+                trial_number += 1
+                modality = 1
+            if positions[0] != "fold_or_trial" and positions[0] != "modality":
+                if modality == 1:
+                    positions_list_RGB[trial_number].append([int(y) for y in positions[0].split(',')])
+                elif modality == 2:
+                    positions_list_IR[trial_number].append([int(y) for y in positions[0].split(',')])
 
-    files_query_visible = []
-    files_gallery_visible = []
-    files_query_thermal = []
-    files_gallery_thermal = []
-    minimum = 0
-
+    ids_file_RGB = []
+    ids_file_IR = []
+    ### Get list of list containing images per identity
     for id in sorted(ids):
-        # Instead of selecting 1 img per cam, we want the same amount of img for both modalities
-        # So we select randomly 2 img (no matter which cam) per id and per modality, the rest as query but with the same number
-
         files_ir, files_rgb = image_list_SYSU(id, data_path)
-        if files_ir != 0 and files_rgb != 0 :
-            temp_gallery_visible = []
-            temp_gallery_thermal = []
-            temp_query_visible = []
-            temp_query_thermal = []
-            #Selection of two IR images
-            rand_ir = [random.choice(files_ir)]
-            rand_ir2 = random.choice(files_ir)
-            while rand_ir2 in rand_ir:
-                rand_ir2 = random.choice(files_ir)
-            rand_ir.append(rand_ir2)
-            temp_gallery_thermal = [rand_ir[0], rand_ir[1]]
-            #Get all the other IR img in a temporary list
-            for w in files_ir:
-                if w not in rand_ir:
-                    temp_query_thermal.append(w)
-            #Selection of two RGB images
-            rand_rgb = [random.choice(files_rgb)]
-            rand_rgb2 = random.choice(files_rgb)
-            while rand_rgb2 in rand_rgb:
-                rand_rgb2 = random.choice(files_rgb)
-            rand_rgb.append(rand_rgb2)
-            temp_gallery_visible = [rand_rgb[0], rand_rgb[1]]
-            # Get all the other RGB img in a temporary list
-            for w in files_rgb:
-                if w not in rand_rgb:
-                    temp_query_visible.append(w)
+        ids_file_RGB.append(files_rgb)
+        ids_file_IR.append(files_ir)
 
-            # Get the same number of images for each modality => the minimal available images per id of each modality
+    img_query = []
+    img_gallery = []
+    label_query = []
+    label_gallery = []
+    # Get the wanted query-gallery with corresponding labels
+    for id in range(len(ids)):
+        files_ir = ids_file_IR[id]
+        files_rgb = ids_file_RGB[id]
+        # Same for RGB and IR due to preprocessed selection of positions
+        number_images_for_id_k = len(positions_list_RGB[fold_or_trial][id])
 
-            minimum_available_query = min(len(temp_query_visible), len(temp_query_thermal))
-            files_query_visible.extend(random.sample(temp_query_visible, minimum_available_query))
-            files_query_thermal.extend(random.sample(temp_query_thermal, minimum_available_query))
+        for i in range(number_images_for_id_k):
+            # Get two images as gallery
+            if i < 2:
+                img_gallery.append(
+                    [files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                label_gallery.append(ids[id])
+            # Get the remaining as query :
+            else:
+                img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                label_query.append(ids[id])
 
-            # Add the two randomly selected images to the gallery
-            files_gallery_visible.extend(temp_gallery_visible)
-            files_gallery_thermal.extend(temp_gallery_thermal)
+    # Just give different cam id to not have problem during SYSU evaluation
+    gall_cam = [4 for i in range(len(img_gallery))]
+    query_cam = [1 for i in range(len(img_query))]
 
-            # for k in range(min(len(temp_query_visible), len(temp_query_thermal))) :
-            #     files_query_visible.append(temp_query_visible[k])
-            #     files_query_thermal.append(temp_query_thermal[k])
-            # for k in range(min(len(temp_gallery_visible), len(temp_gallery_thermal))) :
-            #     files_gallery_visible.append(temp_gallery_visible[k])
-            #     files_gallery_thermal.append(temp_gallery_thermal[k])
-
-    query_img = []
-    query_id = []
-    query_cam = []
-    gall_img = []
-    gall_id = []
-    gall_cam = []
-
-    #Finally get the img, the corresponding ids. The cam doesn't matter.
-    for img_path in files_query_visible:
-        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-        query_img.append([img_path,img_path])
-        query_id.append(pid)
-        query_cam.append(1)
-    counter = 0
-    for img_path in files_query_thermal :
-        query_img[counter][1] = img_path
-        counter += 1
-
-    for img_path in files_gallery_visible :
-        camid, pid = int(img_path[-15]), int(img_path[-13:-9])
-        gall_img.append([img_path,img_path])
-        gall_id.append(pid)
-        gall_cam.append(4)
-    counter = 0
-    for img_path in files_gallery_thermal :
-        gall_img[counter][1] = img_path
-        counter += 1
-    # print(query_img)
-    return query_img, np.array(query_id), np.array(query_cam), gall_img, np.array(gall_id), np.array(gall_cam)
+    return img_query, np.array(label_query), np.array(query_cam), img_gallery, np.array(label_gallery), np.array(gall_cam)
 
 # Get all images concerning one id from the differents cameras in two distinct lists
 def image_list_SYSU(id, data_path) :

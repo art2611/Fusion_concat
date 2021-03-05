@@ -37,8 +37,7 @@ for k in range(10) :
 all_ids = file_label
 
 #PREPARE 5 FOLDS ids
-training_lists=[[],[],[],[],[]]
-
+training_lists= [[] for i in range(5)]
 
 for i in range(5):
     # Creation of files with image name and target
@@ -55,8 +54,8 @@ for i in range(5):
     g.close()
 
 ### GET imgs associated to ids
-files_rgb_train = [[], [], [], [], []]
-files_ir_train = [[], [], [], [], []]
+files_rgb_train = [[] for i in range(5)]
+files_ir_train = [[] for i in range(5)]
 
 for k in range(5) :
     for j in np.unique(training_lists[k]) :

@@ -33,12 +33,10 @@ from sklearn.preprocessing import MinMaxScaler
 #         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
 # print(data)
 
-random.seed(0)
-a = [2,3,4,5]
-c = [4,2,12,18]
-print(random.choice(a))
-print(random.choice(a))
-print(random.choice(c))
+training_lists = ["bonjour09,"]
+training_lists[0] = training_lists[0].rstrip(training_lists[0][-1])
+print(training_lists)
+
 
 sys.exit()
 w= []
@@ -73,9 +71,6 @@ sys.exit()
 #     train_img = np.array(train_img)
 # print(train_img.shape)
 # for i in range(len(files_rgb_train)):
-
-sys.exit()
-
 
 def read_imgs(train_image,k):
     train_img = []
