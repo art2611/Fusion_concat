@@ -5,7 +5,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import pdist
 import random
-from sklearn.preprocessing import minmax_scale
 from PIL import Image
 import os
 import math
