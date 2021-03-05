@@ -41,8 +41,8 @@ training_lists= [[] for i in range(5)]
 
 for i in range(5):
     # Creation of files with image name and target
-    f = open(data_path + f"idx/val_id_RGB_{i}.txt", "w+")
-    g = open(data_path + f"idx/val_id_IR_{i}.txt", "w+")
+    f = open(data_path + f"exp/val_id_RGB_{i}.txt", "w+")
+    g = open(data_path + f"exp/val_id_IR_{i}.txt", "w+")
     for j in range(1,len(all_ids)+1):
         if j >= 41*10*i + 1 and j <= (41*10*(i+1)) :
             f.write(raw_line_visible[j-1] + "\n")
