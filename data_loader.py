@@ -285,7 +285,8 @@ def process_regdb(img_dir, mode, fold_or_trial):
         img_query = []
         img_gallery = []
         labels = []
-
+        print(type(fold_or_trial))
+        print(type(id))
         for i in range(len(positions_list[fold_or_trial][id])):
             #Get two images as gallery
             if i < 2 :
