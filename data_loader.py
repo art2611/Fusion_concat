@@ -179,6 +179,8 @@ def process_tworld(img_dir, mode, fold_or_trial):
             if positions[0] == "fold_or_trial":
                 trial_number += 1
             else :
+                print(trial_number)
+                print(positions_list)
                 positions_list[trial_number].append([int(y) for y in positions[0].split(',')])
 
     # Get list of list, each sub list contain the images location for one identity
