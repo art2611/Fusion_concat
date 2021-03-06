@@ -11,4 +11,6 @@ python pre_process_regdb_clean.py
 python pre_process_sysu_clean.py
 python pre_process_thermalWORLD.py
 rm ../save_model/*
+rm -r results.txt
+rm -r runs
 
