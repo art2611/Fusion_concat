@@ -15,6 +15,7 @@ fi
 read -e -p "Enter the the fuse type (sum/cat/cat_channel/none) :" FUSE
 echo $FUSE
 
+# IF YOU WANT TO TRAIN UNIMODAL MODELS :
 
 for i in `seq 1 5`;
 do
