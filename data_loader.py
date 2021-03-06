@@ -219,15 +219,16 @@ def process_tworld(img_dir, mode, fold_or_trial):
 
         for i in range(len(positions_list[fold_or_trial][id])):
             #Get two images as gallery
-            print(positions_list[fold_or_trial][id][i])
-            print(len(files_rgb))
+
             if i < 2 :
                 img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
             #Get the remaining as query :
             else :
                 img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
             labels.append(ids[id])
-
+        print(labels)
+        print(len(img_gallery))
+        print(len(img_query))
         label_query = labels
         label_gallery = labels
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
