@@ -229,7 +229,7 @@ def process_tworld(img_dir, mode, fold_or_trial):
 
 # Process regDB data for test or validation
 def process_regdb(img_dir, mode, fold_or_trial):
-
+    fold_or_trial = int(fold_or_trial)
     if mode == "test" :
         input_visible_data_path = img_dir + f'exp/test_visible_{1}.txt'
         input_thermal_data_path = img_dir + f'exp/test_thermal_{1}.txt'
@@ -280,20 +280,17 @@ def process_regdb(img_dir, mode, fold_or_trial):
 
         img_query = []
         img_gallery = []
-        labels = []
-        print(type(fold_or_trial))
-        print(type(id))
+
         for i in range(len(positions_list[fold_or_trial][id])):
             #Get two images as gallery
             if i < 2 :
                 img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
+                label_gallery.append(ids[id])
+
             #Get the remaining as query :
             else :
                 img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
-            labels.append(ids[id])
-
-        label_query = labels
-        label_gallery = labels
+                label_query.append(ids[id])
 
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
@@ -301,7 +298,7 @@ def process_regdb(img_dir, mode, fold_or_trial):
 def process_sysu(data_path, method, fold_or_trial):
     rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
     ir_cameras = ['cam3', 'cam6']
-
+    fold_or_trial = int(fold_or_trial)
     if method == "test":
         print("Test set called")
         input_data_path = data_path + f'exp/test_id.txt'
