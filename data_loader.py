@@ -224,7 +224,7 @@ def process_tworld(img_dir, mode, fold_or_trial):
                 img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
             labels.append(ids[id])
     print(labels)
-    print(img_gallery[0])
+    print(img_gallery[10])
     label_query = labels
     label_gallery = labels
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
