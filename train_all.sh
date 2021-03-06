@@ -12,8 +12,11 @@ fi
 
 read -e -p "Enter the the fuse type (sum/cat/cat_channel/none) :" FUSE
 echo $FUSE
-
-python train.py --fusion="unimodal" --dataset=$DATASET --reid="VtoV" --fuse="none" --fold=0;
+for i in `seq 1 5`;
+do
+        echo "$i"
+done
+#python train.py --fusion="unimodal" --dataset=$DATASET --reid="VtoV" --fuse="none" --fold=1;
 #for i in `seq 1 5`;
 #do
 #        echo "BEGINING OF THE FIRST TRAINING : Unimodal RGB - Fold = $i"
