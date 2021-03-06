@@ -339,7 +339,7 @@ def process_sysu(data_path, method, fold_or_trial):
     ids_file_RGB = []
     ids_file_IR = []
     ### Get list of list containing images per identity
-    for id in sorted(ids):
+    for id in ids:
         files_ir, files_rgb = image_list_SYSU(id, data_path)
         ids_file_RGB.append(files_rgb)
         ids_file_IR.append(files_ir)
