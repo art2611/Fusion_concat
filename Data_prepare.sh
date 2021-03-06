@@ -13,3 +13,4 @@ rm ../save_model/*
 rm -r results.txt
 rm -r runs
 
+
