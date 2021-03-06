@@ -288,9 +288,6 @@ def process_regdb(img_dir, mode, fold_or_trial):
             else :
                 img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
                 label_query.append(ids[id])
-    print(label_query)
-    print(label_gallery)
-    print(img_gallery[0])
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 # Process SYSU data for test or validation
