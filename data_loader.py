@@ -277,11 +277,6 @@ def process_regdb(img_dir, mode, fold_or_trial):
         files_rgb = ids_file_RGB[id*10:(id+1)*10]
         # Here we have 10 images per id for this dataset
         number_images_for_id_k = len(files_rgb)
-        print(files_rgb)
-        print(number_images_for_id_k)
-        sys.exit()
-        img_query = []
-        img_gallery = []
 
         for i in range(len(positions_list[fold_or_trial][id])):
             #Get two images as gallery
