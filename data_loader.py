@@ -206,31 +206,26 @@ def process_tworld(img_dir, mode, fold_or_trial):
     # print(ids)
     # print(len(ids_file_IR[0]))
     #If not enough images (Identity 401 has only 1 img) :
+    img_query = []
+    img_gallery = []
+    labels = []
 
     for id in range(len(ids)):
 
         files_ir = ids_file_IR[id]
         files_rgb = ids_file_RGB[id]
         number_images_for_id_k = len(files_ir)
-
-        img_query = []
-        img_gallery = []
-        labels = []
-
         for i in range(len(positions_list[fold_or_trial][id])):
             #Get two images as gallery
-
             if i < 2 :
                 img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
             #Get the remaining as query :
             else :
                 img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
             labels.append(ids[id])
-        print(labels)
-        print(len(img_gallery))
-        print(len(img_query))
-        label_query = labels
-        label_gallery = labels
+
+    label_query = labels
+    label_gallery = labels
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 
