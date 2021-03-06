@@ -186,7 +186,7 @@ def process_tworld(img_dir, mode, fold_or_trial):
     ids_file_IR = []
     img_dir_init = img_dir
 
-    for id in sorted(ids):
+    for id in ids:
         img_dir = img_dir_init +  "/TV_FULL/" + str(id)
         if os.path.isdir(img_dir):
             #Since all images are in a same folder, we get all an id here
