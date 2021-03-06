@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
 parser.add_argument('--fusion', default='early', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
 parser.add_argument('--fuse', default='sum', help='Fusion type (cat / cat_channel / sum)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
-parser.add_argument('--dataset', default='TWorld', help='dataset name (RegDB / SYSU )')
+parser.add_argument('--dataset', default='SYSU', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / VtoV / TtoT)')
 args = parser.parse_args()
 
