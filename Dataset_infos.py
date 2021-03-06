@@ -203,7 +203,7 @@ if False :
 # Generate query gallery random positions for TWorld (first two positions will be used as query and the remaining as gallery)
 if True :
     img_dir = '../Datasets/TWorld/'
-    input_data_path = img_dir + f'testing.txt'
+    input_data_path = img_dir + f'exp/testing.txt'
 
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
@@ -244,11 +244,11 @@ if True :
                 f.write(f"{smpl[w]},")
             f.write(f"{smpl[number_images_for_id_k - 1]}\n")
         if j < 9 :
-            f.write(f"trial\n")
+            f.write(f"fold_or_trial\n")
 
     f = open(img_dir + "exp/" + 'query_gallery_validation.txt', 'w')
     for fold in range(5) :
-        input_data_path = img_dir + f'val_id_{fold}.txt'
+        input_data_path = img_dir + f'exp/val_id_{fold}.txt'
 
         ### GET ids in a list
         with open(input_data_path, 'r') as file:
@@ -287,10 +287,10 @@ if True :
                 f.write(f"{smpl[w]},")
             f.write(f"{smpl[number_images_for_id_k - 1]}\n")
         if fold < 4 :
-            f.write(f"trial\n")
+            f.write(f"fold_or_trial\n")
 
 # Generate query gallery random positions for SYSU (first two positions will be used as query and the remaining as gallery)
-if True :
+if False :
     # Test query gallery generation
     img_dir = '../Datasets/SYSU/'
     input_data_path = img_dir + f'exp/test_id.txt'
@@ -517,7 +517,7 @@ if False :
     print(img_gallery[0])
 
 #Generate RegDB query/ gallery repartition in file for RegDB test
-if True :
+if False :
     img_dir = '../Datasets/RegDB/'
     input_data_path = img_dir + f'idx/test_visible_{1}.txt'
 
