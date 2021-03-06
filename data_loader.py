@@ -154,7 +154,7 @@ def process_data(img_dir, mode, dataset, fold=0):
 
 # Process regDB data for test or validation
 def process_tworld(img_dir, mode, fold_or_trial):
-    fold_or_trial = str(fold_or_trial)
+    fold_or_trial = int(fold_or_trial)
     if mode == "test" :
         input_data_path = img_dir + f'exp/testing.txt'
         input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
