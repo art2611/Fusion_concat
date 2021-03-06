@@ -154,7 +154,7 @@ def process_data(img_dir, mode, dataset, fold=0):
 
 # Process regDB data for test or validation
 def process_tworld(img_dir, mode, fold_or_trial):
-
+    fold_or_trial = str(fold_or_trial)
     if mode == "test" :
         input_data_path = img_dir + f'exp/testing.txt'
         input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
@@ -179,8 +179,6 @@ def process_tworld(img_dir, mode, fold_or_trial):
             if positions[0] == "fold_or_trial":
                 trial_number += 1
             else :
-                print(trial_number)
-                print(positions_list)
                 positions_list[trial_number].append([int(y) for y in positions[0].split(',')])
 
     # Get list of list, each sub list contain the images location for one identity
