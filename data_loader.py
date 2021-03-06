@@ -219,6 +219,8 @@ def process_tworld(img_dir, mode, fold_or_trial):
 
         for i in range(len(positions_list[fold_or_trial][id])):
             #Get two images as gallery
+            print(positions_list[fold_or_trial][id][i])
+            print(len(files_rgb))
             if i < 2 :
                 img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
             #Get the remaining as query :
