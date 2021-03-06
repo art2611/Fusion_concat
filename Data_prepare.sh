@@ -1,8 +1,8 @@
 #!/bin/sh
 mkdir ../Datasets/RegDB/exp
-mv dataset_use/SYSU/*.txt ../Datasets/SYSU/exp
-#mv dataset_use/TWorld/*.txt ../Datasets/TWorld/exp
-mv dataset_use/RegDB/*.txt ../Datasets/RegDB/exp
+cp dataset_use/SYSU/*.txt ../Datasets/SYSU/exp
+#cp dataset_use/TWorld/*.txt ../Datasets/TWorld/exp
+cp dataset_use/RegDB/*.txt ../Datasets/RegDB/exp
 rm ../Datasets/SYSU/*.npy
 rm ../Datasets/RegDB/*.npy
 #rm ../Datasets/TWorld/*.npy
