@@ -156,11 +156,11 @@ def process_data(img_dir, mode, dataset, fold=0):
 def process_tworld(img_dir, mode, fold_or_trial):
 
     if mode == "test" :
-        input_data_path = img_dir + f'testing.txt'
+        input_data_path = img_dir + f'exp/testing.txt'
         input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
         fold_or_trial_total_number=10
     if mode == "valid" :
-        input_data_path = img_dir + f"val_id_{fold_or_trial}.txt"
+        input_data_path = img_dir + f"exp/val_id_{fold_or_trial}.txt"
         input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
         fold_or_trial_total_number=5
 
@@ -235,13 +235,13 @@ def process_tworld(img_dir, mode, fold_or_trial):
 def process_regdb(img_dir, mode, fold_or_trial):
 
     if mode == "test" :
-        input_visible_data_path = img_dir + f'idx/test_visible_{1}.txt'
-        input_thermal_data_path = img_dir + f'idx/test_thermal_{1}.txt'
+        input_visible_data_path = img_dir + f'exp/test_visible_{1}.txt'
+        input_thermal_data_path = img_dir + f'exp/test_thermal_{1}.txt'
         input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
         fold_or_trial_total_number=10
     if mode == "valid" :
-        input_visible_data_path = img_dir + f"idx/val_id_RGB_{fold_or_trial}.txt"
-        input_thermal_data_path = img_dir + f"idx/val_id_IR_{fold_or_trial}.txt"
+        input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold_or_trial}.txt"
+        input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold_or_trial}.txt"
         input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
         fold_or_trial_total_number=5
 

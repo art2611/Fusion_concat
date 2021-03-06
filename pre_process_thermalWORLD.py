@@ -59,7 +59,6 @@ for k in range(5):
 file_path_train_visible = '../Datasets/TWorld/TV_FULL'
 file_path_train_thermal = '../Datasets/TWorld/IR_8'
 
-print(training_lists[0])
 files_rgb_train = [[] for i in range(5)]
 files_ir_train = [[] for i in range(5)]
 pid2label_train = [[] for i in range(5)]
