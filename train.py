@@ -323,10 +323,10 @@ def valid(epoch):
     distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
     row, columns = distmat_fc.shape
-    # Remove diags of square matrix (diag => cosine distance for same features = for same images and identity)
-    for i in range(row) :
-        distmat_fc[i,i] = 0
-        distmat_pool[i,i] = 0
+    # # Remove diags of square matrix (diag => cosine distance for same features = for same images and identity)
+    # for i in range(row) :
+    #     distmat_fc[i,i] = 0
+    #     distmat_pool[i,i] = 0
 
 
     # evaluation
