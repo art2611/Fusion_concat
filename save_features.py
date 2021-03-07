@@ -182,15 +182,15 @@ for fold in range(folds):
     print(f"IR feature matrix shape : {IR_feature_matrix.shape}")
     feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
     np.save(f"../Datasets/{args.dataset}/exp/Features_validation_{fold}.npy", feature_matrix)
-    print(f"saved feature RGB : {RGB_feature_matrix[0]}")
-    print(f"saved feature RGB : {IR_feature_matrix[0]}")
+    print(f"saved feature RGB : {RGB_feature_matrix[0][0]}")
+    print(f"saved feature RGB : {IR_feature_matrix[0][0]}")
     print(f"feature matrix shape : {feature_matrix.shape}")
     if True:
         feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")
 
-        print(f"loaded matrix feature IR : {feature_matrix[0]}")
-        print(f"{int(feature_matrix.shape[0])}")
-        print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0])/2]}")
+        print(f"loaded matrix feature IR : {feature_matrix[0][0]}")
+        print(f"{int(feature_matrix.shape[0])/2}")
+        print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0])/2][0]}")
 
     # write_features(f, RGB_feature_matrix)
     # f.write('modality')
