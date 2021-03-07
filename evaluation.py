@@ -31,14 +31,16 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         order = indices[q_idx]
         print(f"indices dans l'ordre des positions de taille (premier indice = première prediction vraie) : {order}")
         remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
-        remove = (gallery_labels[order] == q_idx)
+        remove = (gallery_labels[order] == q_pid) & ()
+        remove = [False for i in range(q_idx)]
+        remove[]
         print(f"gallery_labels for corresponding indices : {gallery_labels[order]}")
         # print(remove)
         keep = np.invert(remove)
         # print(keep)
         # compute cmc curve
         raw_cmc = matches[q_idx][keep]  # binary vector, positions with value 1 are correct matches
-        print(raw_cmc)
+        print(matches[q_idx])
         sys.exit()
         if not np.any(raw_cmc):
             # this condition is true when query identity does not appear in gallery
