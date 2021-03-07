@@ -9,6 +9,7 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         max_rank = num_g
         print("Note: number of gallery samples is quite small, got {}".format(num_g))
     indices = np.argsort(distmat, axis=1)
+    print(indices[0])
     matches = (gallery_labels[indices] == query_labels[:, np.newaxis]).astype(np.int32)
     # print(f"Matches : {matches}")
     # compute cmc curve for each query
