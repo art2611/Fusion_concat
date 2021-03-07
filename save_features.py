@@ -182,14 +182,12 @@ for fold in range(folds):
     print(f"IR feature matrix shape : {IR_feature_matrix.shape}")
     feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
     np.save(f"../Datasets/{args.dataset}/exp/Features_validation_{fold}.npy", feature_matrix)
-    print(f"saved feature RGB : {RGB_feature_matrix[0][0]}")
-    print(f"saved feature RGB : {IR_feature_matrix[0][0]}")
-    print(f"feature matrix shape : {feature_matrix.shape}")
+
     if True:
         feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")
 
-        print(f"loaded matrix feature IR : {feature_matrix[0][0]}")
-        print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0]/2)][0]}")
+        # print(f"loaded matrix feature IR : {feature_matrix[0][0]}")
+        # print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0]/2)][0]}")
 
     # write_features(f, RGB_feature_matrix)
     # f.write('modality')
@@ -206,6 +204,7 @@ for fold in range(folds):
     #     train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
     #     train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
     elif args.dataset == "RegDB" :
+        print("TRUE")
         training_label = [int(i / 10) for i in range((204 - 40) * 10)]
 
     for k in range(len(train_color_image)):
@@ -214,7 +213,7 @@ for fold in range(folds):
     training_set = Prepare_set(training_image, training_label, transform=transform_test, img_size=(img_w, img_h))
 
     # Training data loader
-    data_loader= torch.utils.data.DataLoader(validation_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
+    data_loader= torch.utils.data.DataLoader(training_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
 
     n_images = len(training_label)
 
