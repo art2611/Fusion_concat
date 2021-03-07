@@ -322,7 +322,12 @@ def valid(epoch):
     # compute the similarity
     distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-    print(distmat_fc[0])
+    row, columns = distmat_fc.shape
+    print(row)
+    print(columns)
+    for i in range(row) :
+        distmat_fc[i,i] = -9.9e-03
+
     # evaluation
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == 'SYSU':
         cmc, mAP, mINP = eval_regdb(-distmat_pool, query_label, gall_label)
