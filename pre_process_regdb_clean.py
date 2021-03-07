@@ -43,15 +43,22 @@ for i in range(5):
     # Creation of files with image name and target
     f = open(data_path + f"exp/val_id_RGB_{i}.txt", "w+")
     g = open(data_path + f"exp/val_id_IR_{i}.txt", "w+")
+    h = open(data_path + f"exp/train_id_RGB_{i}.txt", "w+")
+    l = open(data_path + f"exp/train_id_IR_{i}.txt", "w+")
     for j in range(1,len(all_ids)+1):
         if j >= 41*10*i + 1 and j <= (41*10*(i+1)) :
             f.write(raw_line_visible[j-1] + "\n")
             g.write(raw_line_thermal[j-1] + "\n")
         else :
             # Training images preparation
+            h.write(raw_line_visible[j-1] + "\n")
+            l.write(raw_line_visible[j-1] + "\n")
             training_lists[i].append(all_ids[j-1])
     f.close()
     g.close()
+    h.close()
+    l.close()
+sys.exit()
 
 ### GET imgs associated to ids
 files_rgb_train = [[] for i in range(5)]
