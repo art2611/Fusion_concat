@@ -324,8 +324,8 @@ def valid(epoch):
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
     row, columns = distmat_fc.shape
     # Remove diags of square matrix (diag => cosine distance for same features = for same images and identity)
-    # for i in range(row) :
-    #     distmat_fc[i,i] = -9.9e-03
+    for i in range(row) :
+        distmat_fc[i,i] = -9.9e-03
 
 
     # evaluation
