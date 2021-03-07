@@ -22,23 +22,23 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
     q_camids = np.ones(num_q).astype(np.int32)
     g_camids = 2 * np.ones(num_g).astype(np.int32)
 
-    for q_idx in range(num_q):
-        print(q_idx)
+    for q_number in range(num_q):
         # get query pid and camid
-        q_pid = query_labels[q_idx]
-        q_camid = q_camids[q_idx]
+        q_pid = query_labels[q_number]
+        q_camid = q_camids[q_number]
 
         # remove gallery samples that have the same pid and camid with query
-        order = indices[q_idx]
-        # print(f"indices dans l'ordre des positions de taille (premier indice = première prediction vraie) : {order}")
-        remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
+        order = indices[q_number]
+
+        # remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
+        # We get rid of the match with the same person and same image => We supress matches for a specific query number q at position q in the line
         remove = [False for i in range(num_q)]
-        remove[q_idx] = True
+        remove[q_number] = True
         # print(f"gallery_labels for corresponding indices : {gallery_labels[order]}")
         # print(remove)
         keep = np.invert(remove)
         # compute cmc curve
-        raw_cmc = matches[q_idx][keep]  # binary vector, positions with value 1 are correct matches
+        raw_cmc = matches[q_number][keep]  # binary vector, positions with value 1 are correct matches
         # print(matches[q_idx])
         # print(matches[q_idx][keep] )
         if not np.any(raw_cmc):
