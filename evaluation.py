@@ -31,8 +31,8 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         order = indices[q_idx]
         print(f"indices dans l'ordre des positions de taille (premier indice = première prediction vraie) : {order}")
         remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
-        remove = (gallery_labels[order] == q_pid) & ()
-        remove = [False for i in range(q_idx)]
+        remove = [False for i in range(num_q)]
+        remove[q_idx] = True
         print(f"gallery_labels for corresponding indices : {gallery_labels[order]}")
         # print(remove)
         keep = np.invert(remove)
