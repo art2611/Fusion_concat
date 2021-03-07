@@ -322,15 +322,9 @@ def valid(epoch):
     # compute the similarity
     distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-    row, columns = distmat_fc.shape
-    # # Remove diags of square matrix (diag => cosine distance for same features = for same images and identity)
-    # for i in range(row) :
-    #     distmat_fc[i,i] = 0
-    #     distmat_pool[i,i] = 0
-
 
     # evaluation
-    if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == 'SYSU':
+    if args.dataset == 'RegDB'or args.dataset == 'TWorld' :
         cmc, mAP, mINP = eval_regdb(-distmat_fc, query_label, gall_label)
         cmc_att, mAP_att, mINP_att  = eval_regdb(-distmat_pool, query_label, gall_label)
 

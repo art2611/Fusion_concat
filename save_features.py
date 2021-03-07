@@ -126,8 +126,8 @@ nclass = {"RegDB" : 164, "SYSU" : 316, "TWorld" : 260}
 data_dir = f'../Datasets/{args.dataset}/'
 net = []
 net2 = [[] for i in range(folds)]
-f = open(f'Features_validation{args.dataset}.txt','w+')
-g = open(f'Features_training{args.dataset}.txt','w+')
+f = open(f'Features_validation_{args.dataset}.txt','w+')
+g = open(f'Features_training_{args.dataset}.txt','w+')
 # For the 5 folds :
 for fold in range(folds):
 
@@ -180,12 +180,20 @@ for fold in range(folds):
     # Extraction for the IR images with the model trained on IR modality
     IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
 
+    feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
+    np.save(f"../Dataset/{args.dataset}/ext/Features_validation_{fold}.npy", feature_matrix)
+    print(f"saved feature RGB : {RGB_feature_matrix[0]}")
+    print(f"saved feature RGB : {IR_feature_matrix[0]}")
+    if True:
+        feature_matrix = np.load(f"../Dataset/{args.dataset}/ext/Features_validation_{0}.npy")
 
+        print(f"loaded matrix feature IR : {feature_matrix[0]}")
+        print(f"loaded matrix feature IR : {feature_matrix[feature_matrix.shape[0] / 2]}")
 
-    write_features(f, RGB_feature_matrix)
-    f.write('modality')
-    write_features(f, IR_feature_matrix)
-    f.write('fold')
+    # write_features(f, RGB_feature_matrix)
+    # f.write('modality')
+    # write_features(f, IR_feature_matrix)
+    # f.write('fold')
 
     # Load training images
     train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
@@ -215,14 +223,42 @@ for fold in range(folds):
     # Extraction for the IR images with the model trained on IR modality
     IR_feature_matrix = extract_feat(data_loader, n_images, net=net2[fold], modality = "TtoT")
 
-    write_features(g, RGB_feature_matrix)
-    f.write('modality')
-    write_features(g, IR_feature_matrix)
-    f.write('fold')
+    feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
+    np.save(f"../Dataset/{args.dataset}/ext/Features_train_{fold}.npy", feature_matrix)
 
-f.close()
-g.close()
+#     write_features(g, RGB_feature_matrix)
+#     f.write('modality')
+#     write_features(g, IR_feature_matrix)
+#     f.write('fold')
+#
+# f.close()
+# g.close()
 
+
+
+if False :
+    feature_matrix = np.load(f"../Dataset/{args.dataset}/ext/Features_validation_{0}.npy")
+
+    print(f"loaded matrix feature  : {feature_matrix[0]}" )
+    print(f"loaded matrix feature  : {feature_matrix[feature_matrix.shape[0]/2]}" )
+    # Get the features in a list from file :
+    # fold = 0
+    # features_RGB = [[] for i in range(5)]
+    # feature_IR = [[] for i in range(5)]
+    # with open(f'Features_validation_{args.dataset}.txt', 'r') as Validation_features_file:
+    #     for lines in Validation_features_file:
+    #         the_line = lines.strip()
+    #         positions = the_line.splitlines()
+    #         if positions[0] == "modality":
+    #             modality = 2
+    #         elif positions[0] == "fold":
+    #             fold += 1
+    #             modality = 1
+    #         if positions[0] != "fold" and positions[0] != "modality":
+    #             if modality == 1:
+    #                 features_RGB[fold].append([int(y) for y in positions[0].split(',')])
+    #             elif modality == 2:
+    #                 feature_IR[fold].append([int(y) for y in positions[0].split(',')])
 
 #
 # # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(

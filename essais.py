@@ -34,15 +34,13 @@ from sklearn.preprocessing import MinMaxScaler
 # print(data)
 
 
-def remove_diag(x):
-    x_no_diag = np.ndarray.flatten(x)
-    x_no_diag = np.delete(x_no_diag, range(0, len(x_no_diag), len(x) + 1), 0)
-    x_no_diag = x_no_diag.reshape(len(x), len(x) - 1)
-    return x_no_diag
-x = np.random.randint(5, size=(4,4))
-print(x)
-x = remove_diag(x)
-print(x)
+a= np.random.randint(5, size=(4,4))
+b = np.random.randint(5, size=(4,4))
+print(a)
+print(b)
+print(np.concatenate((a,b), axis=0))
+print(12/2)
+
 
 sys.exit()
 w= []

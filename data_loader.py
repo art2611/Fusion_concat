@@ -186,7 +186,7 @@ def process_tworld(img_dir, mode, fold =  0):
     img_gallery = []
     label_query = []
     label_gallery = []
-
+    # Query and gallery are the same since we want to compare query to all gallery image
     for id in range(len(ids)):
         for i in range(len(ids_file_RGB[id])):
             img_gallery.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
@@ -205,9 +205,7 @@ def process_regdb(img_dir, mode, fold = 0 ):
     if mode == "valid" :
         input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold}.txt"
         input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold}.txt"
-    if mode == "train":
-        input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold}.txt"
-        input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold}.txt"
+
 
     with open(input_visible_data_path) as f:
         data_file_list = open(input_visible_data_path, 'rt').read().splitlines()
@@ -229,6 +227,8 @@ def process_regdb(img_dir, mode, fold = 0 ):
     label_gallery = []
 
     number_images_for_id_k = 10
+
+    # Query and gallery are the same since we want to compare query to all gallery image
     for id in range(len(ids)):
         files_ir = ids_file_IR[id*10:(id+1)*10]
         files_rgb = ids_file_RGB[id*10:(id+1)*10]
@@ -256,8 +256,6 @@ def process_sysu(data_path, method, fold = 0 ):
         input_data_path = os.path.join(data_path, f'exp/val_id_{fold}.txt')
         input_query_gallery_path = data_path + f'exp/query_gallery_validation.txt'
         fold_or_trial_total_number=5
-
-
 
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
@@ -304,16 +302,15 @@ def process_sysu(data_path, method, fold = 0 ):
         number_images_for_id_k = len(positions_list_RGB[fold_or_trial][id])
 
         for i in range(number_images_for_id_k):
-            # Get two images as gallery
-            if i < 2:
+            # Get one images as gallery
+            if i == 0:
+                img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                label_query.append(ids[id])
+            # Get the remaining as gallery :
+            else:
                 img_gallery.append(
                     [files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
                 label_gallery.append(ids[id])
-            # Get the remaining as query :
-            else:
-                img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
-                label_query.append(ids[id])
-
     # Just give different cam id to not have problem during SYSU evaluation
     gall_cam = [4 for i in range(len(img_gallery))]
     query_cam = [1 for i in range(len(img_query))]
