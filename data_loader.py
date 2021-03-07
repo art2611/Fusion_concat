@@ -187,7 +187,7 @@ def process_tworld(img_dir, mode, fold =  0):
     label_query = []
     label_gallery = []
 
-    for id in range(len(id)):
+    for id in range(len(ids)):
         for i in range(len(ids_file_RGB[id])):
             img_gallery.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
             img_query.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
