@@ -40,7 +40,7 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         cmc = raw_cmc.cumsum()
 
         # compute mINP
-        # refernece Deep Learning for Person Re-identification: A Survey and Outlook
+        # reference Deep Learning for Person Re-identification: A Survey and Outlook
         pos_idx = np.where(raw_cmc == 1)
         pos_max_idx = np.max(pos_idx)
         inp = cmc[pos_max_idx] / (pos_max_idx + 1.0)

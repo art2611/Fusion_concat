@@ -153,37 +153,22 @@ def process_data(img_dir, mode, dataset, fold=0):
     return (img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam)
 
 # Process regDB data for test or validation
-def process_tworld(img_dir, mode, fold_or_trial):
-    fold_or_trial = int(fold_or_trial)
+def process_tworld(img_dir, mode, fold =  0):
+
     if mode == "test" :
         input_data_path = img_dir + f'exp/testing.txt'
-        input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
-        fold_or_trial_total_number=10
     if mode == "valid" :
-        input_data_path = img_dir + f"exp/val_id_{fold_or_trial}.txt"
-        input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
-        fold_or_trial_total_number=5
+        input_data_path = img_dir + f"exp/val_id_{fold}.txt"
 
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
         ids = file.read().splitlines()
         ids = [int(y) for y in ids[0].split(',')]
 
-    # Get the saved query gallery repartition lists
-    positions_list = [[] for i in range(fold_or_trial_total_number)]
-    trial_number = 0
-    with open(input_query_gallery_path, 'r') as query_gallery_file:
-        for lines in query_gallery_file:
-            the_line = lines.strip()
-            positions = the_line.splitlines()
-            if positions[0] == "fold_or_trial":
-                trial_number += 1
-            else :
-                positions_list[trial_number].append([int(y) for y in positions[0].split(',')])
-
-    # Get list of list, each sub list contain the images location for one identity
+    # Get list of list, each sub list containing the images location for one identity
     ids_file_RGB = []
     ids_file_IR = []
+
     img_dir_init = img_dir
 
     for id in ids:
@@ -199,47 +184,27 @@ def process_tworld(img_dir, mode, fold_or_trial):
 
     img_query = []
     img_gallery = []
-
     label_query = []
     label_gallery = []
 
-    # print(ids)
-    # print(len(ids_file_IR[0]))
-    #If not enough images (Identity 401 has only 1 img) :
-    img_query = []
-    img_gallery = []
-
-    for id in range(len(ids)):
-
-        files_ir = ids_file_IR[id]
-        files_rgb = ids_file_RGB[id]
-        number_images_for_id_k = len(files_ir)
-        for i in range(len(positions_list[fold_or_trial][id])):
-            #Get two images as gallery
-            if i < 2 :
-                img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
-                label_gallery.append(ids[id])
-            #Get the remaining as query :
-            else :
-                img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
-                label_query.append(ids[id])
+    for id in range(len(id)):
+        for i in range(len(ids_file_RGB[id])):
+            img_gallery.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
+            img_query.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
+            label_query.append(ids[id])
+            label_gallery.append(ids[id])
 
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 
 # Process regDB data for test or validation
-def process_regdb(img_dir, mode, fold_or_trial):
-    fold_or_trial = int(fold_or_trial)
+def process_regdb(img_dir, mode, fold = 0 ):
     if mode == "test" :
         input_visible_data_path = img_dir + f'exp/test_visible_{1}.txt'
         input_thermal_data_path = img_dir + f'exp/test_thermal_{1}.txt'
-        input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
-        fold_or_trial_total_number=10
     if mode == "valid" :
-        input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold_or_trial}.txt"
-        input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold_or_trial}.txt"
-        input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
-        fold_or_trial_total_number=5
+        input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold}.txt"
+        input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold}.txt"
 
     with open(input_visible_data_path) as f:
         data_file_list = open(input_visible_data_path, 'rt').read().splitlines()
@@ -252,56 +217,40 @@ def process_regdb(img_dir, mode, fold_or_trial):
         # Get full list of image and labels
         ids_file_IR = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
         file_label_thermal = [int(s.split(' ')[1]) for s in data_file_list]
-    ids = np.unique(file_label_visible)
 
-    # Get the saved query gallery repartition lists
-    positions_list = [[] for i in range(fold_or_trial_total_number)]
-    trial_number = 0
-    with open(input_query_gallery_path, 'r') as query_gallery_file:
-        for lines in query_gallery_file:
-            the_line = lines.strip()
-            positions = the_line.splitlines()
-            if positions[0] == "fold_or_trial":
-                trial_number += 1
-            else :
-                positions_list[trial_number].append([int(y) for y in positions[0].split(',')])
+    ids = np.unique(file_label_visible)
 
     img_query = []
     img_gallery = []
     label_query = []
     label_gallery = []
 
+    number_images_for_id_k = 10
     for id in range(len(ids)):
-
         files_ir = ids_file_IR[id*10:(id+1)*10]
         files_rgb = ids_file_RGB[id*10:(id+1)*10]
         # Here we have 10 images per id for this dataset
-        number_images_for_id_k = len(files_rgb)
+        for i in range(10):
+            img_gallery.append([files_rgb[i], files_ir[i]])
+            img_query.append([files_rgb[i], files_ir[i]])
+            label_query.append(id)
+            label_gallery.append(id)
 
-        for i in range(len(positions_list[fold_or_trial][id])):
-            #Get two images as gallery
-            if i < 2 :
-                img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
-                label_gallery.append(ids[id])
-
-            #Get the remaining as query :
-            else :
-                img_query.append([files_rgb[positions_list[fold_or_trial][id][i]], files_ir[positions_list[fold_or_trial][id][i]]])
-                label_query.append(ids[id])
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 # Process SYSU data for test or validation
-def process_sysu(data_path, method, fold_or_trial):
-    rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
-    ir_cameras = ['cam3', 'cam6']
-    fold_or_trial = int(fold_or_trial)
+def process_sysu(data_path, method, fold = 0 ):
+
+    # rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
+    # ir_cameras = ['cam3', 'cam6']
+    fold_or_trial = int(fold)
     if method == "test":
         print("Test set called")
         input_data_path = data_path + f'exp/test_id.txt'
         input_query_gallery_path = data_path + f'exp/query_gallery_test.txt'
         fold_or_trial_total_number=10
     elif method == "valid":
-        input_data_path = os.path.join(data_path, f'exp/val_id_{fold_or_trial}.txt')
+        input_data_path = os.path.join(data_path, f'exp/val_id_{fold}.txt')
         input_query_gallery_path = data_path + f'exp/query_gallery_validation.txt'
         fold_or_trial_total_number=5
 

@@ -361,7 +361,7 @@ best_map = 0
 training_time = time.time()
 
 if args.dataset == "RegDB" :
-    epoch_number = 80
+    epoch_number = 81
 else :
     epoch_number = 41
 
