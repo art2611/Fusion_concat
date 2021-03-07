@@ -10,9 +10,7 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         print("Note: number of gallery samples is quite small, got {}".format(num_g))
     # Get the the matrix, which a row give the
     indices = np.argsort(distmat, axis=1)
-    print(indices[10])
     matches = (gallery_labels[indices] == query_labels[:, np.newaxis]).astype(np.int32)
-    print(matches[10])
     # print(f"Matches : {matches}")
     # compute cmc curve for each query
     all_cmc = []
@@ -31,10 +29,11 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
 
         # remove gallery samples that have the same pid and camid with query
         order = indices[q_idx]
-
+        print(f"indices dans l'ordre des positions de taille (premier indice = première prediction vraie) : {order}")
         remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
         remove = (gallery_labels[order] == q_idx)
-        print(remove)
+        print(f"gallery_labels for corresponding indices : {gallery_labels[order]}")
+        # print(remove)
         keep = np.invert(remove)
         # print(keep)
         # compute cmc curve
