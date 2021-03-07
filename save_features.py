@@ -181,11 +181,11 @@ for fold in range(folds):
     IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
 
     feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
-    np.save(f"../Dataset/{args.dataset}/exp/Features_validation_{fold}.npy", feature_matrix)
+    np.save(f"../Datasets/{args.dataset}/exp/Features_validation_{fold}.npy", feature_matrix)
     print(f"saved feature RGB : {RGB_feature_matrix[0]}")
     print(f"saved feature RGB : {IR_feature_matrix[0]}")
     if True:
-        feature_matrix = np.load(f"../Dataset/{args.dataset}/exp/Features_validation_{0}.npy")
+        feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")
 
         print(f"loaded matrix feature IR : {feature_matrix[0]}")
         print(f"loaded matrix feature IR : {feature_matrix[feature_matrix.shape[0] / 2]}")
@@ -224,7 +224,7 @@ for fold in range(folds):
     IR_feature_matrix = extract_feat(data_loader, n_images, net=net2[fold], modality = "TtoT")
 
     feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
-    np.save(f"../Dataset/{args.dataset}/exp/Features_train_{fold}.npy", feature_matrix)
+    np.save(f"../Datasets/{args.dataset}/exp/Features_train_{fold}.npy", feature_matrix)
 
 #     write_features(g, RGB_feature_matrix)
 #     f.write('modality')
