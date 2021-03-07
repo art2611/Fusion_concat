@@ -94,7 +94,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d")
-writer = SummaryWriter(f"runs/{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
+# writer = SummaryWriter(f"runs/{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
 ### Verify the fusion args is good
 fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'unimodal']
@@ -305,8 +305,8 @@ def train(epoch):
                   f'TLoss: {tri_loss.val:.4f} ({tri_loss.avg:.4f}) '
                   f'Accu: {100. * correct / total:.2f}')
     # For each batch, write in tensorBoard :
-    writer.add_scalar('Loss training', train_loss.avg, epoch)
-    writer.add_scalar('Accuracy training', 100. * correct / total, epoch)
+    # writer.add_scalar('Loss training', train_loss.avg, epoch)
+    # writer.add_scalar('Accuracy training', 100. * correct / total, epoch)
 
 def valid(epoch):
     # Get the timer
@@ -333,7 +333,7 @@ def valid(epoch):
         cmc_att, mAP_att, mINP_att = eval_sysu(-distmat_fc, query_label, gall_label, query_cam, gall_cam)
 
     print('Evaluation Time:\t {:.3f}'.format(time.time() - start))
-    writer.add_scalar('mAP validation', mAP, epoch)
+    # writer.add_scalar('mAP validation', mAP, epoch)
 
     return cmc, mAP, mINP, cmc_att, mAP_att, mINP_att
 
