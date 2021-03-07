@@ -38,7 +38,6 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         # compute cmc curve
         raw_cmc = matches[q_idx][keep]  # binary vector, positions with value 1 are correct matches
         print(raw_cmc)
-        sys.exit()
         if not np.any(raw_cmc):
             # this condition is true when query identity does not appear in gallery
             continue

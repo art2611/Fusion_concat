@@ -326,16 +326,17 @@ def valid(epoch):
     # Remove diags of square matrix (diag => cosine distance for same features = for same images and identity)
     for i in range(row) :
         distmat_fc[i,i] = 0
+        distmat_pool[i,i] = 0
 
 
     # evaluation
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == 'SYSU':
-        cmc, mAP, mINP = eval_regdb(-distmat_pool, query_label, gall_label)
-        cmc_att, mAP_att, mINP_att  = eval_regdb(-distmat_fc, query_label, gall_label)
+        cmc, mAP, mINP = eval_regdb(-distmat_fc, query_label, gall_label)
+        cmc_att, mAP_att, mINP_att  = eval_regdb(-distmat_pool, query_label, gall_label)
 
     elif args.dataset == 'SYSU':
-        cmc, mAP, mINP = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
-        cmc_att, mAP_att, mINP_att = eval_sysu(-distmat_fc, query_label, gall_label, query_cam, gall_cam)
+        cmc, mAP, mINP = eval_sysu(-distmat_fc, query_label, gall_label, query_cam, gall_cam)
+        cmc_att, mAP_att, mINP_att = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
 
     print('Evaluation Time:\t {:.3f}'.format(time.time() - start))
     # writer.add_scalar('mAP validation', mAP, epoch)
@@ -428,7 +429,8 @@ for epoch in range(epoch_number):
         # print(
         #     'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
         #         cmc_att[0], cmc_att[4], cmc_att[9], cmc_att[19], mAP_att, mINP_att))
-        print('Rank-1: {:.2%} | Rank-5: {:.2%} | mAP: {:.2%}| mINP: {:.2%}'.format(cmc[0], cmc[4], mAP, mINP))
+        print('fc : Rank-1: {:.2%} | Rank-5: {:.2%} | mAP: {:.2%}| mINP: {:.2%}'.format(cmc[0], cmc[4], mAP, mINP))
+        print('att : Rank-1: {:.2%} | Rank-5: {:.2%} | mAP: {:.2%}| mINP: {:.2%}'.format(cmc_att[0], cmc_att[4], mAP_att, mINP_att))
         print('Best Epoch [{}]'.format(best_epoch))
         if args.fusion =="unimodal" :
             print(f' Training {args.fusion} {args.reid} - {args.fuse} fusion - fold number ({args.fold})')
