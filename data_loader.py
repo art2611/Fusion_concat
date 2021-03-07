@@ -205,7 +205,9 @@ def process_regdb(img_dir, mode, fold = 0 ):
     if mode == "valid" :
         input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold}.txt"
         input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold}.txt"
-
+    if mode == "train" :
+        input_visible_data_path = img_dir + f"exp/train_id_RGB_{fold}.txt"
+        input_thermal_data_path = img_dir + f"exp/train_id_IR_{fold}.txt"
 
     with open(input_visible_data_path) as f:
         data_file_list = open(input_visible_data_path, 'rt').read().splitlines()

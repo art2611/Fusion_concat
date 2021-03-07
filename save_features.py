@@ -161,70 +161,70 @@ for fold in range(folds):
         print(f"Fold {fold} doesn't exist")
         print(f"==> Model ({model_path}) can't be loaded")
 
+    for mode in ["valid", "train"] :
+        #Get features from each folds
+        validation_img, validation_label, _, _, _, _ = process_data(data_dir, mode, args.dataset, fold)
 
-    #Get features from each folds
-    validation_img, validation_label, _, _, _, _ = process_data(data_dir, "test", args.dataset, fold)
+        # Get the data used for training and validation
+        validation_set = Prepare_set(validation_img, validation_label, transform=transform_test, img_size=(img_w, img_h))
+        # validation_data_set = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
 
-    # Get the data used for training and validation
-    validation_set = Prepare_set(validation_img, validation_label, transform=transform_test, img_size=(img_w, img_h))
-    # validation_data_set = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+        # Validation data loader
+        data_loader= torch.utils.data.DataLoader(validation_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
 
-    # Validation data loader
-    data_loader= torch.utils.data.DataLoader(validation_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
+        nimages = len(validation_label)
 
-    nimages = len(validation_label)
+        # Extraction for the RGB images with the model trained on RGB modality
+        _ , _ , RGB_feature_matrix = extract_feat(data_loader, nimages, net = net[fold], modality = "VtoV")
 
-    # Extraction for the RGB images with the model trained on RGB modality
-    _ , _ , RGB_feature_matrix = extract_feat(data_loader, nimages, net = net[fold], modality = "VtoV")
+        # Extraction for the IR images with the model trained on IR modality
+        _ , _ , IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
+        print(f"IR feature matrix shape : {IR_feature_matrix.shape}")
+        feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
+        np.save(f"../Datasets/{args.dataset}/exp/Features_{mode}_{fold}.npy", feature_matrix)
 
-    # Extraction for the IR images with the model trained on IR modality
-    _ , _ , IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
-    print(f"IR feature matrix shape : {IR_feature_matrix.shape}")
-    feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
-    np.save(f"../Datasets/{args.dataset}/exp/Features_validation_{fold}.npy", feature_matrix)
-
-    if True:
+    if False:
         feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")
 
         # print(f"loaded matrix feature IR : {feature_matrix[0][0]}")
         # print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0]/2)][0]}")
+    if False :
+        # write_features(f, RGB_feature_matrix)
+        # f.write('modality')
+        # write_features(f, IR_feature_matrix)
+        # f.write('fold')
 
-    # write_features(f, RGB_feature_matrix)
-    # f.write('modality')
-    # write_features(f, IR_feature_matrix)
-    # f.write('fold')
+        # Load training images
+        train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
+        train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
+        training_image = []
+        if args.dataset == "TWorld" :
+            training_label= np.load(data_dir + f'train_label_{fold}.npy')
+        # elif args.dataset == "SYSU" :
+        #     train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
+        #     train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
+        elif args.dataset == "RegDB" :
+            print("TRUE")
+            training_label = [int(i / 10) for i in range((204 - 40) * 10)]
 
-    # Load training images
-    train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
-    train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
-    training_image = []
-    if args.dataset == "TWorld" :
-        training_label= np.load(data_dir + f'train_label_{fold}.npy')
-    # elif args.dataset == "SYSU" :
-    #     train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
-    #     train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
-    elif args.dataset == "RegDB" :
-        print("TRUE")
-        training_label = [int(i / 10) for i in range((204 - 40) * 10)]
+        for k in range(len(train_color_image)):
+            training_image.append([train_color_image[k], train_thermal_image[k]])
 
-    for k in range(len(train_color_image)):
-        training_image.append([train_color_image[k], train_thermal_image[k]])
+        training_set = Prepare_set(training_image, training_label, transform=transform_test, img_size=(img_w, img_h))
 
-    training_set = Prepare_set(training_image, training_label, transform=transform_test, img_size=(img_w, img_h))
+        # Training data loader
+        data_loader= torch.utils.data.DataLoader(training_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
 
-    # Training data loader
-    data_loader= torch.utils.data.DataLoader(training_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
+        n_images = len(training_label)
 
-    n_images = len(training_label)
+        # Extraction for the RGB images with the model trained on RGB modality
+        RGB_feature_matrix = extract_feat(data_loader, n_images, net = net[fold], modality = "VtoV")
 
-    # Extraction for the RGB images with the model trained on RGB modality
-    RGB_feature_matrix = extract_feat(data_loader, n_images, net = net[fold], modality = "VtoV")
+        # Extraction for the IR images with the model trained on IR modality
+        IR_feature_matrix = extract_feat(data_loader, n_images, net=net2[fold], modality = "TtoT")
 
-    # Extraction for the IR images with the model trained on IR modality
-    IR_feature_matrix = extract_feat(data_loader, n_images, net=net2[fold], modality = "TtoT")
-
-    feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
-    np.save(f"../Datasets/{args.dataset}/exp/Features_train_{fold}.npy", feature_matrix)
+        feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
+        np.save(f"../Datasets/{args.dataset}/exp/Features_train_{fold}.npy", feature_matrix)
 
 #     write_features(g, RGB_feature_matrix)
 #     f.write('modality')
