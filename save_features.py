@@ -175,10 +175,10 @@ for fold in range(folds):
     nimages = len(validation_label)
 
     # Extraction for the RGB images with the model trained on RGB modality
-    RGB_feature_matrix = extract_feat(data_loader, nquery =nimages, net = net[fold], modality = "VtoV")
+    RGB_feature_matrix = extract_feat(data_loader, nimages, net = net[fold], modality = "VtoV")
 
     # Extraction for the IR images with the model trained on IR modality
-    IR_feature_matrix = extract_feat(data_loader, nquery=nimages, net=net2[fold], modality = "TtoT")
+    IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
 
 
 
@@ -210,10 +210,10 @@ for fold in range(folds):
     n_images = len(training_label)
 
     # Extraction for the RGB images with the model trained on RGB modality
-    RGB_feature_matrix = extract_feat(data_loader, nquery =n_images, net = net[fold], modality = "VtoV")
+    RGB_feature_matrix = extract_feat(data_loader, n_images, net = net[fold], modality = "VtoV")
 
     # Extraction for the IR images with the model trained on IR modality
-    IR_feature_matrix = extract_feat(data_loader, nquery=nimages, net=net2[fold], modality = "TtoT")
+    IR_feature_matrix = extract_feat(data_loader, n_images, net=net2[fold], modality = "TtoT")
 
     write_features(g, RGB_feature_matrix)
     f.write('modality')
