@@ -34,7 +34,7 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         remove = [False for i in range(num_q)]
         remove[q_idx]=True
         keep = np.invert(remove)
-        print(keep)
+        # print(keep)
         # compute cmc curve
         raw_cmc = matches[q_idx][keep]  # binary vector, positions with value 1 are correct matches
         if not np.any(raw_cmc):
