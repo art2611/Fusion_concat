@@ -58,7 +58,6 @@ for i in range(5):
     g.close()
     h.close()
     l.close()
-sys.exit()
 
 ### GET imgs associated to ids
 files_rgb_train = [[] for i in range(5)]
