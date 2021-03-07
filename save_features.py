@@ -185,6 +185,7 @@ for fold in range(folds):
     print(f"saved feature RGB : {RGB_feature_matrix[0]}")
     print(f"saved feature RGB : {IR_feature_matrix[0]}")
     print(f"feature matrix shape : {feature_matrix.shape}")
+    print(f"IR feature matrix shape : {IR_feature_matrix.shape}")
     if True:
         feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")
 
