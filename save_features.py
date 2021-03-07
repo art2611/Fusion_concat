@@ -161,7 +161,7 @@ for fold in range(folds):
         print(f"Fold {fold} doesn't exist")
         print(f"==> Model ({model_path}) can't be loaded")
 
-    for mode in ["valid", "train"] :
+    for mode in ["test", "valid", "train"] :
         #Get features from each folds
         validation_img, validation_label, _, _, _, _ = process_data(data_dir, mode, args.dataset, fold)
 
