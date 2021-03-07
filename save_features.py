@@ -47,9 +47,6 @@ today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d/%m/%Y")
 
-# writer = SummaryWriter(f"runs/{args.trained}_{args.fusion}_FusionModel_{args.reid}_fusiontype({args.fuse})_test_{args.dataset}_day{d1}_{time.time()}")
-
-
 # Function to extract gallery features
 def extract_feat(gall_loader, ngall, net, modality="VtoV"):
     net.eval()
@@ -129,7 +126,9 @@ nclass = {"RegDB" : 164, "SYSU" : 316, "TWorld" : 260}
 data_dir = f'../Datasets/{args.dataset}/'
 net = []
 net2 = [[] for i in range(folds)]
-# Since we are supposed to have 5 models (5 fold validation), this loop get an average result
+f = open(f'Features_validation{args.dataset}.txt','w+')
+g = open(f'Features_training{args.dataset}.txt','w+')
+# For the 5 folds :
 for fold in range(folds):
 
     suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
@@ -163,50 +162,66 @@ for fold in range(folds):
         print(f"==> Model ({model_path}) can't be loaded")
 
 
-    #Prepare query and gallery
-    query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_dir, "test", args.dataset, fold)
-
-    rgb_image, ir_image, labels = 0
-
-    # Load training images
-    train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
-    train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
-
-    # # TWORLD
-    # labels = np.load(data_dir + f'train_label_{fold}.npy')
-    #
-    # # SYSU
-    # train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
-    # train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
-    #
-    # # RegDB
-    # train_color_label = [int(i / 10) for i in range((204 - 40) * 10)]
+    #Get features from each folds
+    validation_img, validation_label, _, _, _, _ = process_data(data_dir, "test", args.dataset, fold)
 
     # Get the data used for training and validation
-    training_data_set_RGB = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
-    training_data_set_IR = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+    validation_set = Prepare_set(validation_img, validation_label, transform=transform_test, img_size=(img_w, img_h))
     # validation_data_set = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
 
     # Validation data loader
-    data_loader_RGB = torch.utils.data.DataLoader(training_data_set_RGB, batch_size=test_batch_size, shuffle=False, num_workers=workers)
-    data_loader_IR = torch.utils.data.DataLoader(training_data_set_IR, batch_size=test_batch_size, shuffle=False, num_workers=workers)
+    data_loader= torch.utils.data.DataLoader(validation_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
 
-    nquery = len(query_label)
+    nimages = len(validation_label)
 
     # Extraction for the RGB images with the model trained on RGB modality
-    RGB_feature_matrix = extract_feat(data_loader_RGB, nquery = nquery, net = net[fold], modality = "VtoV")
+    RGB_feature_matrix = extract_feat(data_loader, nquery =nimages, net = net[fold], modality = "VtoV")
 
     # Extraction for the IR images with the model trained on IR modality
-    IR_feature_matrix = extract_feat(data_loader_IR, nquery=nquery, net=net2[fold], modality = "TtoT")
+    IR_feature_matrix = extract_feat(data_loader, nquery=nimages, net=net2[fold], modality = "TtoT")
 
-    f = open(f'Features_{args.dataset}.txt','w+')
+
 
     write_features(f, RGB_feature_matrix)
     f.write('modality')
     write_features(f, IR_feature_matrix)
     f.write('fold')
 
-    f.close()
+    # Load training images
+    train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
+    train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
+    training_image = []
+    if args.dataset == "TWorld" :
+        training_label= np.load(data_dir + f'train_label_{fold}.npy')
+    # elif args.dataset == "SYSU" :
+    #     train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
+    #     train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
+    elif args.dataset == "RegDB" :
+        training_label = [int(i / 10) for i in range((204 - 40) * 10)]
+
+    for k in range(len(train_color_image)):
+        training_image.append([train_color_image[k], train_thermal_image[k]])
+
+    training_set = Prepare_set(training_image, training_label, transform=transform_test, img_size=(img_w, img_h))
+
+    # Training data loader
+    data_loader= torch.utils.data.DataLoader(validation_set, batch_size=test_batch_size, shuffle=False, num_workers=workers)
+
+    n_images = len(training_label)
+
+    # Extraction for the RGB images with the model trained on RGB modality
+    RGB_feature_matrix = extract_feat(data_loader, nquery =n_images, net = net[fold], modality = "VtoV")
+
+    # Extraction for the IR images with the model trained on IR modality
+    IR_feature_matrix = extract_feat(data_loader, nquery=nimages, net=net2[fold], modality = "TtoT")
+
+    write_features(g, RGB_feature_matrix)
+    f.write('modality')
+    write_features(g, IR_feature_matrix)
+    f.write('fold')
+
+f.close()
+g.close()
 
 
 #
