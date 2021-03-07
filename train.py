@@ -327,6 +327,7 @@ def valid(epoch):
     print(columns)
     for i in range(row) :
         distmat_fc[i,i] = -9.9e-03
+    print(distmat_fc[1])
 
     # evaluation
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == 'SYSU':
