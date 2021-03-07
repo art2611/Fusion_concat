@@ -50,7 +50,6 @@ d1 = today.strftime("%d/%m/%Y")
 # Function to extract gallery features
 def extract_feat(gall_loader, ngall, net, modality="VtoV"):
     net.eval()
-    print('Extracting Gallery Feature...')
     start = time.time()
     ptr = 0
 
@@ -175,11 +174,13 @@ for fold in range(folds):
         nimages = len(validation_label)
 
         # Extraction for the RGB images with the model trained on RGB modality
+        print(f'Extracting IR Feature - fold = {fold} - mode = {mode}...')
         _ , _ , RGB_feature_matrix = extract_feat(data_loader, nimages, net = net[fold], modality = "VtoV")
 
         # Extraction for the IR images with the model trained on IR modality
+        print('Extracting IR Feature...')
         _ , _ , IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
-        print(f"IR feature matrix shape : {IR_feature_matrix.shape}")
+
         feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
         np.save(f"../Datasets/{args.dataset}/exp/Features_{mode}_{fold}.npy", feature_matrix)
 

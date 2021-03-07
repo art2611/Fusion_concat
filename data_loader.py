@@ -159,7 +159,8 @@ def process_tworld(img_dir, mode, fold =  0):
         input_data_path = img_dir + f'exp/testing.txt'
     if mode == "valid" :
         input_data_path = img_dir + f"exp/val_id_{fold}.txt"
-
+    if mode == "train" :
+        input_data_path = img_dir + f"exp/train_id_{fold}.txt"
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
         ids = file.read().splitlines()
