@@ -30,7 +30,8 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         order = indices[q_idx]
 
         remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
-        print(len(remove))
+        remove = [False for i in range(num_q)]
+        remove[q_idx]=True
         keep = np.invert(remove)
         print(keep)
         # compute cmc curve
