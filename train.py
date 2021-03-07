@@ -369,7 +369,7 @@ training_time = time.time()
 if args.dataset == "RegDB" :
     epoch_number = 81
 else :
-    epoch_number = 41
+    epoch_number = 61
 
 for epoch in range(epoch_number):
 
