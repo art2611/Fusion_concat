@@ -28,10 +28,11 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
 
         # remove gallery samples that have the same pid and camid with query
         order = indices[q_idx]
+
         remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
         print(len(remove))
         keep = np.invert(remove)
-
+        print(print(keep))
         # compute cmc curve
         raw_cmc = matches[q_idx][keep]  # binary vector, positions with value 1 are correct matches
         if not np.any(raw_cmc):
