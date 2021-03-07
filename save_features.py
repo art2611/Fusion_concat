@@ -190,7 +190,7 @@ for fold in range(folds):
 
         print(f"loaded matrix feature IR : {feature_matrix[0]}")
         print(f"{int(feature_matrix.shape[0])}")
-        # print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0])/2]}")
+        print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0])/2]}")
 
     # write_features(f, RGB_feature_matrix)
     # f.write('modality')
