@@ -63,7 +63,7 @@ def extract_feat(gall_loader, ngall, net, modality="VtoV"):
             input1 = Variable(input1.cuda())
             input2 = Variable(input2.cuda())
 
-            feat_pool, feat_fc, feat = net(input1, input2, fuse=args.fuse, modality = modality)
+            feat_pool, feat_fc, feat = net(input1, input2, fuse="none", modality = modality)
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
