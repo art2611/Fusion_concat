@@ -331,7 +331,7 @@ def valid(epoch):
     # evaluation
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == 'SYSU':
         cmc, mAP, mINP = eval_regdb(-distmat_pool, query_label, gall_label)
-        cmc_att, mAP_att, mINP_att  = eval_regdb(-distmat_fc, query_label, gall_label)
+        # cmc_att, mAP_att, mINP_att  = eval_regdb(-distmat_fc, query_label, gall_label)
 
     elif args.dataset == 'SYSU':
         cmc, mAP, mINP = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
