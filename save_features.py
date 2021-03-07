@@ -180,9 +180,9 @@ for fold in range(folds):
         # Extraction for the IR images with the model trained on IR modality
         print('Extracting IR Feature...')
         _ , _ , IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
-
+        print(f"IR_feature_matrix : {IR_feature_matrix.shape}")
         feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
-        np.save(f"../Datasets/{args.dataset}/exp/Features_{mode}_{fold}.npy", feature_matrix)
+        # np.save(f"../Datasets/{args.dataset}/exp/Features_{mode}_{fold}.npy", feature_matrix)
 
     if False:
         feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")
