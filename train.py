@@ -323,11 +323,10 @@ def valid(epoch):
     distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
     row, columns = distmat_fc.shape
-    print(row)
-    print(columns)
+    # Remove diags of square matrix (diag => cosine distance for same features = for same images and identity)
     for i in range(row) :
         distmat_fc[i,i] = -9.9e-03
-    print(distmat_fc[1])
+
 
     # evaluation
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == 'SYSU':

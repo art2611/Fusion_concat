@@ -29,6 +29,7 @@ def eval_regdb(distmat, query_labels, gallery_labels, max_rank=20):
         # remove gallery samples that have the same pid and camid with query
         order = indices[q_idx]
         remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
+        print(remove)
         keep = np.invert(remove)
 
         # compute cmc curve
