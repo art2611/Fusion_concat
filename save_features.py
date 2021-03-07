@@ -189,8 +189,7 @@ for fold in range(folds):
         feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")
 
         print(f"loaded matrix feature IR : {feature_matrix[0][0]}")
-        print(f"{int(feature_matrix.shape[0])/2}")
-        print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0])/2][0]}")
+        print(f"loaded matrix feature IR : {feature_matrix[int(feature_matrix.shape[0]/2)][0]}")
 
     # write_features(f, RGB_feature_matrix)
     # f.write('modality')
