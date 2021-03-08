@@ -276,8 +276,8 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
 
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
-        cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
-        cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool, query_label, gall_label)
+        cmc, mAP, mINP = evaluation(-distmat,query_label ,gall_label)
+        cmc_pool, mAP_pool, mINP_pool = evaluation(-distmat_pool, query_label, gall_label)
 
         if fold == 0 :
             all_cmc = cmc
