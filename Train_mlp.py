@@ -61,10 +61,9 @@ for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
     labels = np.array((label1[:] == label2[:])).astype(np.int32)
     labels = torch.from_numpy(labels)
 
-    input1 = input1.float()
-    input2 = input2.float()
-    input1 = Variable(input1.cuda())
-    input2 = Variable(input2.cuda())
+
+    input1 = Variable(input1.cuda()).float()
+    input2 = Variable(input2.cuda()).float()
     labels = Variable(labels.cuda())
     print(input1)
     print(input2)
