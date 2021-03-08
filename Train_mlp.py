@@ -70,7 +70,7 @@ for epochs in range(num_epochs):
         # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1 :
 
         labels = np.array((label1[:] == label2[:]))
-        new_labels = []
+        new_labels = np.array([])
         for k in range(len(labels)) :
             if labels[k] :
                 new_labels.append([1])
