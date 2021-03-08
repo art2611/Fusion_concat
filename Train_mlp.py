@@ -84,7 +84,7 @@ for epochs in range(num_epochs):
         input2 = Variable(input2.cuda()).float()
         labels = Variable(labels.cuda())
 
-
+        print("COUCOU")
         output = net(input1, input2)
         print(type(output[0][0]))
         print(type(labels[0][0]))
