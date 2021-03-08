@@ -57,6 +57,8 @@ class IdentityFeatureSampler(Sampler):
         uni_label = np.unique(train_features_label)
         self.n_classes = len(uni_label)
         N = len(train_features_label)
+        index1 = np.array([])
+        index2 = np.array([])
         # Doing as much batch as we can divide the dataset in number of batch
         for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch)) + 1):
             # We choose randomly 8 identities
@@ -67,14 +69,13 @@ class IdentityFeatureSampler(Sampler):
                 # We choose randomly num_of_same_id_in_batch=4 concatenated features  for the i(batch_num_identities)=8 identitities
                 if dataset == "Tworld" or dataset == "RegDB":
                     sample_features = np.random.choice(features_pos[batch_idx[i]], num_of_same_id_in_batch)
-                if j == 0 and i == 0:
+                if i == 0:
                     # This way in a batch we compare first feature id with all 4*8 features (Need to verify the type of index 1 and 2 here.
-                    index1 = [sample_features[j%64] for w in range(num_of_same_id_in_batch)]
-
-                    index2 = sample_features
+                    index1 = np.hstack( index1, [sample_features[0] for w in range(num_of_same_id_in_batch)])
+                    index2 = np.hstack( index2, sample_features)
                 else:
-                    index1 = np.hstack((index1, [index1[0] for w in range(len(sample_features))]))
-                    index2 = np.hstack((index2, sample_features))
+                    index1 = np.hstack((index1, [index1[j * 32] for w in range(len(sample_features))]))
+                    index2 = np.hstack(index2, sample_features)
 
         print(f"index1 : {index1}")
         print(f"index2 : {index2}")
