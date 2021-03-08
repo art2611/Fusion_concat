@@ -78,13 +78,13 @@ for epochs in range(num_epochs):
                 new_labels[k][0] = 0
 
         print(new_labels)
+        new_labels = new_labels.astype(float())
         labels = torch.from_numpy(new_labels)
 
         input1 = Variable(input1.cuda()).float()
         input2 = Variable(input2.cuda()).float()
         labels = Variable(labels.cuda())
 
-        print("COUCOU")
         output = net(input1, input2)
         print(type(output[0][0]))
         print(type(labels[0][0]))
