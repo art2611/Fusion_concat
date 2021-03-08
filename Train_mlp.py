@@ -10,7 +10,7 @@ from torchvision import transforms
 from utils import IdentitySampler, AverageMeter, adjust_learning_rate
 from loss import BatchHardTripLoss
 from tensorboardX import SummaryWriter
-from model import Global_network
+from model import Global_network,  MLP
 from evaluation import *
 import argparse
 from datetime import date
@@ -36,5 +36,7 @@ data_path = f'../Datasets/{args.dataset}/'
 trainset = Features_Data(args.dataset, fold = args.fold)
 
 feature_pos, _ = GenIdx(trainset.train_label_features, trainset.train_label_features)
+feature_size = len(trainset.train_label_features[0])
 
-print(feature_pos)
+net = MLP().to(device)
+
