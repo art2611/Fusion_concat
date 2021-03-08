@@ -36,7 +36,7 @@ data_path = f'../Datasets/{args.dataset}/'
 trainset = Features_Data(args.dataset, fold = args.fold)
 
 feature_pos, _ = GenIdx(trainset.train_label_features, trainset.train_label_features)
-feature_size = len(trainset.train_label_features[0])
+feature_size = len(trainset.train_features[0])
 print(feature_size)
 net = MLP().to(device)
 
