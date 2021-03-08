@@ -77,7 +77,7 @@ for epochs in range(num_epochs):
             else :
                 new_labels[k][0] = 0
 
-
+        new_labels.astype(np.float)
         print(new_labels)
         labels = torch.from_numpy(new_labels)
 
