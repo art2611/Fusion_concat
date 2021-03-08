@@ -383,7 +383,7 @@ for epoch in range(epoch_number):
     # print(len(trainloader))
 
     # training
-    train(epoch)
+    # train(epoch)
 
     # Call the validation part every two epochs
     if epoch > 0 and epoch % 1 == 0  :
