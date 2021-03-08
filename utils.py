@@ -74,7 +74,7 @@ class IdentityFeatureSampler(Sampler):
                     index1 = np.hstack(( index1, [sample_features[0] for w in range(num_of_same_id_in_batch)]))
                     index2 = np.hstack(( index2, sample_features))
                 else:
-                    index1 = np.hstack((index1, [index1[j * 32] for w in range(len(sample_features))]))
+                    index1 = np.hstack((index1, [index1[0] for w in range(len(sample_features))]))
                     index2 = np.hstack((index2, sample_features))
 
         print(f"index1 : {index1}")
