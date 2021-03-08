@@ -29,7 +29,7 @@ test_batch_size = 64
 batch_num_identities = 8  # 8 different identities in a batch
 num_of_same_id_in_batch = 4  # Number of same identity in a batch
 workers = 4
-lr = 0.001
+lr = 0.1
 checkpoint_path = '../save_model/'
 #
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
