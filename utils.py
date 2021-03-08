@@ -13,6 +13,7 @@ class IdentitySampler(Sampler):
         self.n_classes = len(uni_label)
         N = np.maximum(len(train_color_label), len(train_thermal_label))
         # Doing as much batch as we can divide the dataset in number of batch
+        print(dataset)
         for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch)) + 1):
             # We choose randomly 8 identities
             batch_idx = np.random.choice(uni_label, batch_num_identities, replace=False)
