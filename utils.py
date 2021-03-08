@@ -71,6 +71,13 @@ class IdentityFeatureSampler(Sampler):
                     sample_features = np.random.choice(features_pos[batch_idx[i]], num_of_same_id_in_batch)
                 print(sample_features)
 
+                # This way in a batch we compare first feature id with all 4*8 features (Need to verify the type of index 1 and 2 here.
+                index1 = np.hstack((index1, [sample_features[0] for w in range(num_of_same_id_in_batch)]))
+
+                index2 = np.hstack(( index2, int(sample_features)))
+                print(index1)
+                print(index2)
+
         print(f"index1 : {index1}")
         print(f"index2 : {index2}")
 
