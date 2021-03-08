@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import os
 from random import randrange
 import random
+import torch
+
 import sys
 
 def TrainingData(data_path, dataset, transform, fold):
@@ -140,7 +142,7 @@ class Features_Data(data.Dataset):
         feat1, target1 = self.train_features[self.cIndex[index]], self.train_label_features[self.cIndex[index]]
         feat2, target2 = self.train_features[self.tIndex[index]], self.train_label_features[self.tIndex[index]]
 
-        return transforms.ToTensor(feat1), transforms.ToTensor(feat2), target1, target2
+        return torch.from_numpy(feat1), torch.from_numpy(feat2), target1, target2
 
     def __len__(self):
         return len(self.train_features)
