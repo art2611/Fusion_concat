@@ -69,7 +69,7 @@ for epochs in range(num_epochs):
     for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
         # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1 :
 
-        labels = np.array((label1[:] == label2[:])).astype(np.float)
+        labels = np.array((label1[:] == label2[:])).astype(np.long)
         print(labels)
         # new_labels = new_labels.astype(float())
         labels = torch.from_numpy(labels)
