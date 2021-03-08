@@ -140,7 +140,7 @@ class Features_Data(data.Dataset):
         feat1, target1 = self.train_features[self.cIndex[index]], self.label_features[self.cIndex[index]]
         feat2, target2 = self.train_features[self.tIndex[index]], self.label_features[self.tIndex[index]]
 
-        return feat1, feat2, target1, target2
+        return transforms.ToTensor(feat1), transforms.ToTensor(feat2), target1, target2
 
     def __len__(self):
         return len(self.train_features)
