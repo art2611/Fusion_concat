@@ -78,8 +78,8 @@ class IdentityFeatureSampler(Sampler):
 
         print(f"index1 : {index1}")
         print(f"index2 : {index2}")
-        print(f"index1 info: {index1[3]}")
-        print(f"index2 info: {index2[3]}")
+        print(f"index1 info: {index1[:4]}")
+        print(f"index2 info: {index2[:4]}")
         self.index1 = index1
         self.index2 = index2
         self.N = N
