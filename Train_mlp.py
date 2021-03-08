@@ -1,6 +1,7 @@
 import torch
 import sys
 import torch.optim as optim
+from torch.optim.lr_scheduler import StepLR
 import torch.utils.data
 import torch.nn as nn
 from torch.autograd import Variable
@@ -53,26 +54,45 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
                                           sampler=sampler, num_workers=workers, drop_last=True)
 # print(len(trainloader))
 
+gamma = 0.7
+epochs = 14
+optimizer = optim.Adam(net.parameters(), lr=lr)
+
+criterion_id = nn.CrossEntropyLoss().to(device)
+scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
+num_epochs= 10
 # training
-net.train()
-for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
-#     # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1
 
-    labels = np.array((label1[:] == label2[:])).astype(np.int32)
-    labels = torch.from_numpy(labels)
+for epochs in range(num_epochs):
+    net.train()
+    for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
+    #     # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1
+
+        labels = np.array((label1[:] == label2[:])).astype(np.int32)
+        labels = torch.from_numpy(labels)
+
+        input1 = Variable(input1.cuda()).float()
+        input2 = Variable(input2.cuda()).float()
+        labels = Variable(labels.cuda())
+
+        optimizer.zero_grad()
+        output = net(input1, input2)
+
+        loss = criterion_id(output, labels)
+        loss.backward()
+
+        optimizer.step()
+        scheduler.step()
+
+    if (batch_idx + 1) % 5 == 0:
+        print(f'epochs {epochs + 1} / {num_epochs}, step {batch_idx + 1}/{batch_idx}, loss = {loss.item():.4f}')
+    # print(labels)
+        #
+        # input1 = Variable(input1.cuda())
+        # input2 = Variable(input2.cuda())
+        # labels = Variable(labels.cuda())
 
 
-    input1 = Variable(input1.cuda()).float()
-    input2 = Variable(input2.cuda()).float()
-    labels = Variable(labels.cuda())
-    print(input1)
-    print(input2)
-    output = net(input1, input2)
-    print(output)
 
-# print(labels)
-    #
-    # input1 = Variable(input1.cuda())
-    # input2 = Variable(input2.cuda())
-    # labels = Variable(labels.cuda())
+
 
