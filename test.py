@@ -306,7 +306,7 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
                 cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
 
-if False:
+if args.dataset == "SYSU" :
 
     data_path = f'../Datasets/{args.dataset}/'
     net = []
@@ -402,8 +402,8 @@ if False:
 
                     distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
-            cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
-            cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool, query_label, gall_label)
+            cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
+            cmc_pool, mAP_pool, mINP_pool = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
 
             if trial == 0 and fold == 0 :
                 all_cmc = cmc
