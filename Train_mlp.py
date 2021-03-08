@@ -80,7 +80,9 @@ for epochs in range(num_epochs):
 
         output = net(input1, input2)
         print(output)
-        print(labels)
+        for k in range(len(labels)) :
+            labels[k] = [k]
+
         loss = criterion_id(output, labels)
         print(loss)
         optimizer.zero_grad()
