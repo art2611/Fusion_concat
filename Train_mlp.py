@@ -76,14 +76,15 @@ for epochs in range(num_epochs):
         input2 = Variable(input2.cuda()).float()
         labels = Variable(labels.cuda())
 
-        optimizer.zero_grad()
+
         output = net(input1, input2)
 
         loss = criterion_id(output, labels)
-        loss.backward()
 
+        optimizer.zero_grad()
+        loss.backward()
         optimizer.step()
-        scheduler.step()
+
 
         if (batch_idx + 1) % 5 == 0:
             print(f'epochs {epochs + 1} / {num_epochs}, step {batch_idx + 1}/{batch_idx}, loss = {loss.item():.4f}')
