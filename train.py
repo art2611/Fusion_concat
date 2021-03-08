@@ -315,7 +315,8 @@ def valid(epoch):
     #Get all normalized distance
     gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader, n_gall, net = net)
     query_feat_pool, query_feat_fc = extract_query_feat(query_loader, n_query, net = net)
-
+    print(len(gall_feat_fc))
+    print(len(query_feat_fc))
     print(f"Feature extraction time : {time.time() - end}")
     start = time.time()
 
