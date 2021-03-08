@@ -351,7 +351,8 @@ def process_sysu(data_path, method, fold = 0 ):
     # Just give different cam id to not have problem during SYSU evaluation
     gall_cam = [4 for i in range(len(img_gallery))]
     query_cam = [1 for i in range(len(img_query))]
-
+    print(len(img_query))
+    print(len(img_gallery))
     return img_query, np.array(label_query), np.array(query_cam), img_gallery, np.array(label_gallery), np.array(gall_cam)
 
 # Get all images concerning one id from the differents cameras in two distinct lists
