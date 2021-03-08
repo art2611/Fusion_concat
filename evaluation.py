@@ -35,7 +35,7 @@ def evaluation(distmat, query_labels, gallery_labels, max_rank=20, dataset = "Re
 
         # remove = (gallery_labels[order] == q_pid) & (g_camids[order] == q_camid)
         # We get rid of the match with the same person and  image => We supress matches for a specific query number q at position q in the line
-        remove = [False for i in range(num_q)]
+        remove = [False for i in range(num_g)]
         if dataset != "SYSU" :
             remove[q_number] = True
         # print(f"gallery_labels for corresponding indices : {gallery_labels[order]}")
