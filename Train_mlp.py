@@ -66,6 +66,8 @@ num_epochs= 10
 
 for epochs in range(num_epochs):
     net.train()
+    correct = 0
+    total = 0
     for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
         # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1 :
 
@@ -80,13 +82,18 @@ for epochs in range(num_epochs):
         output = net(input1, input2)
         loss = criterion_id(output, labels)
         print(loss.item())
+
+        _, predicted = output.max(1)
+        correct = predicted.eq(labels).sum().item()
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
+        print(f"Label size : {labels.size(0)}")
+        total += labels.size(0)
 
         if (batch_idx + 1) % 5 == 0:
             print(f'epochs {epochs + 1} / {num_epochs}, step {batch_idx + 1}/{batch_idx}, loss = {loss.item():.4f}')
+            print(f'Accu: {100. * correct / total:.2f')
     # print(labels)
         # input1 = Variable(input1.cuda())
         # input2 = Variable(input2.cuda())
