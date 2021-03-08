@@ -73,11 +73,10 @@ for epochs in range(num_epochs):
         new_labels = np.array([[0] for i in range(len(labels))])
         for k in range(len(labels)) :
             if labels[k] :
-                new_labels[k][0] = 1
+                new_labels[k][0] = 1.0
             else :
-                new_labels[k][0] = 0
+                new_labels[k][0] = 0.0
 
-        new_labels.astype(np.float)
         print(new_labels)
         labels = torch.from_numpy(new_labels)
 
