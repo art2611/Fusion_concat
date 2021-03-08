@@ -88,7 +88,7 @@ for epochs in range(num_epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        print(f"Label size : {labels.size(0)}")
+        # print(f"Label size : {labels.size(0)}")
         total += labels.size(0)
 
         if (batch_idx + 1) % 5 == 0:
