@@ -79,8 +79,8 @@ for epochs in range(num_epochs):
 
 
         output = net(input1, input2)
-        print(output.size)
-        print(labels.size)
+        print(torch.Size(output))
+        print(torch.Size(labels))
         loss = criterion_id(output, labels)
         print(loss)
         optimizer.zero_grad()
