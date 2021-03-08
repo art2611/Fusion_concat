@@ -54,13 +54,12 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
                                           sampler=sampler, num_workers=workers, drop_last=True)
 # print(len(trainloader))
 
-gamma = 0.7
+
 epochs = 14
 optimizer = optim.Adam(net.parameters(), lr=lr)
 
 criterion_id = nn.CrossEntropyLoss().to(device)
 # criterion_id = nn.BCELoss().to(device)
-scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 num_epochs= 10
 # training
 
@@ -81,7 +80,6 @@ for epochs in range(num_epochs):
 
         output = net(input1, input2)
         loss = criterion_id(output, labels)
-        print(loss.item())
 
         _, predicted = output.max(1)
         correct = predicted.eq(labels).sum().item()
