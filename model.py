@@ -155,6 +155,20 @@ class Global_network(nn.Module):
         else:
             return self.l2norm(x_pool), self.l2norm(feat), feat
 
+class MLP(nn.Module):
+    def __init__(self):
+        super(MLP, self).__init__()
+        self.layers = nn.Sequential(
+            nn.Linear(1024, 100),
+            nn.ReLU(),
+            nn.Linear(100, 1)
+        )
+    def forward(self, x):
+        # convert tensor (128, 1, 28, 28) --> (128, 1*28*28)
+        x = x.view(x.size(0), -1)
+        x = self.layers(x)
+        return x
+
 # from torchsummary import summary
 # model = Global_network(250, arch='resnet50', fusion_layer=5)
 # summary(model, [(3, 288, 144),(3, 288, 144)] , batch_size=32)

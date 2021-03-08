@@ -182,7 +182,8 @@ for fold in range(folds):
         _ , _ , IR_feature_matrix = extract_feat(data_loader, nimages, net=net2[fold], modality = "TtoT")
         print(f" Extracted feature number for RGB + IR : {IR_feature_matrix.shape[0]*2}")
         feature_matrix = np.concatenate((RGB_feature_matrix, IR_feature_matrix), axis = 0)
-        # np.save(f"../Datasets/{args.dataset}/exp/Features_{mode}_{fold}.npy", feature_matrix)
+
+        np.save(f"../Datasets/{args.dataset}/exp/Features_{mode}_{fold}.npy", feature_matrix)
 
     if False:
         feature_matrix = np.load(f"../Datasets/{args.dataset}/exp/Features_validation_{0}.npy")

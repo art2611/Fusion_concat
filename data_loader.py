@@ -16,6 +16,7 @@ def TrainingData(data_path, dataset, transform, fold):
     elif dataset == "TWorld":
         return(TWorldDATA(data_path, transform=transform, fold = fold))
 
+
 class RegDBData(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         # Load training images (path) and labels
@@ -113,6 +114,36 @@ class SYSUData(data.Dataset):
 
     def __len__(self):
         return len(self.train_color_label)
+
+class Features_Data(data.Dataset):
+    def __init__(self, dataset, featureIndex1=None, featureIndex2=None, fold = 0):
+        # Load training images (path) and labels
+        data_dir = f'../Datasets/{dataset}/'
+        #Load color and thermal images + labels
+        #Initial images
+        train_features= np.load( data_dir + f'exp/Features_train_{fold}.npy')
+
+        if dataset == "RegDB" :
+            label_features = [int(i/10) for i in range((204-40)*10)]
+        elif dataset == "TWorld" :
+            label_features = np.load(data_dir + f'train_label_{fold}.npy')
+
+        self.train_features = train_features
+        self.train_label_features = label_features
+
+        # Prepare index
+        self.cIndex = featureIndex1
+        self.tIndex = featureIndex2
+
+    def __getitem__(self, index):
+        #Dataset[i] return features from both modal and the corresponding labels
+        feat1, target1 = self.train_features[self.cIndex[index]], self.label_features[self.cIndex[index]]
+        feat2, target2 = self.train_features[self.tIndex[index]], self.label_features[self.tIndex[index]]
+
+        return feat1, feat2, target1, target2
+
+    def __len__(self):
+        return len(self.train_features)
 
 def load_data(input_data_path):
     with open(input_data_path) as f:
