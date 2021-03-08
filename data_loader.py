@@ -137,8 +137,8 @@ class Features_Data(data.Dataset):
 
     def __getitem__(self, index):
         #Dataset[i] return features from both modal and the corresponding labels
-        feat1, target1 = self.train_features[self.cIndex[index]], self.label_features[self.cIndex[index]]
-        feat2, target2 = self.train_features[self.tIndex[index]], self.label_features[self.tIndex[index]]
+        feat1, target1 = self.train_features[self.cIndex[index]], self.train_label_features[self.cIndex[index]]
+        feat2, target2 = self.train_features[self.tIndex[index]], self.train_label_features[self.tIndex[index]]
 
         return transforms.ToTensor(feat1), transforms.ToTensor(feat2), target1, target2
 
