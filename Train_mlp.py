@@ -48,11 +48,12 @@ sampler = IdentityFeatureSampler(trainset.train_label_features, feature_pos, num
 trainset.cIndex = sampler.index1  # color index
 trainset.tIndex = sampler.index2  # thermal index
 # print(epoch)
-print(trainset.cIndex)
-print(trainset.tIndex)
+print(trainset.cIndex[0])
+print(trainset.tIndex[4])
 
 print(trainset.train_label_features[27])
 print(trainset.train_label_features[21])
+
 print(trainset.train_label_features[trainset.cIndex[0]])
 print(trainset.train_label_features[trainset.tIndex[4]])
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
