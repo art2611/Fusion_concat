@@ -87,6 +87,7 @@ class IdentityFeatureSampler(Sampler):
         self.N = N
 
     def __iter__(self):
+        print("COUCOU")
         return iter(np.arange(len(self.index1)))
 
     def __len__(self):
