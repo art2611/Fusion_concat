@@ -100,7 +100,7 @@ def eval_sysu(distmat, q_pids, g_pids, q_camids, g_camids, max_rank=20):
         q_pid = q_pids[q_idx]
         q_camid = q_camids[q_idx]
 
-        # remove gallery samples that have the same pid and camid with query (same position for cam3 and 2)
+        # remove gallery samples that have the same pid and camid with query
         order = indices[q_idx]
         remove = (q_camid == 3) & (g_camids[order] == 2)
         keep = np.invert(remove)
@@ -111,9 +111,7 @@ def eval_sysu(distmat, q_pids, g_pids, q_camids, g_camids, max_rank=20):
         new_cmc = pred_label[q_idx][keep]
         new_index = np.unique(new_cmc, return_index=True)[1]
         new_cmc = [new_cmc[index] for index in sorted(new_index)]
-        print(f"new cmc : {new_cmc}")
-        print(f"new cmc : {q_pid}")
-        print(f"new_cmc == q_pid : {(new_cmc == q_pid)}")
+
         new_match = (new_cmc == q_pid).astype(np.int32)
         new_cmc = new_match.cumsum()
         new_all_cmc.append(new_cmc[:max_rank])
