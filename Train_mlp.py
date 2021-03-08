@@ -73,9 +73,9 @@ for epochs in range(num_epochs):
         new_labels = np.array([[0] for i in range(len(labels))])
         for k in range(len(labels)) :
             if labels[k] :
-                new_labels[k][0] = 1.0
+                new_labels[k][0] = 1
             else :
-                new_labels[k][0] = 0.0
+                new_labels[k][0] = 0
 
         print(new_labels)
         labels = torch.from_numpy(new_labels)
@@ -88,7 +88,7 @@ for epochs in range(num_epochs):
         output = net(input1, input2)
         print(output)
         print(labels.size())
-        loss = criterion_id(output, labels)
+        loss = criterion_id(output.float(), labels)
         print(loss)
         optimizer.zero_grad()
         loss.backward()
