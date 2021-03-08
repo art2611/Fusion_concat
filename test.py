@@ -595,7 +595,7 @@ print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP_model, standard_deviation_mINP_model))
 
 if os.path.isdir("results.txt") :
-    f = open('results.txt','a')
+    f = open('results.txt','w')
 else :
     f = open('results.txt','w+')
     f.write(' , Rank-1, Rank-5, mAP, mINP, stdmAP, stdmINP\n')
