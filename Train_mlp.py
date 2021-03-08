@@ -40,7 +40,6 @@ feature_pos, _ = GenIdx(trainset.train_label_features, trainset.train_label_feat
 feature_size = len(trainset.train_features[0])
 print(feature_size)
 net = MLP().to(device)
-print(net(trainset.train_features[0], trainset.train_features[1]))
 
 print('==> Preparing Data Loader...')
 # identity sampler - Give iteratively index from a randomized list of color index and thermal index
