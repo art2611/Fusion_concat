@@ -21,7 +21,7 @@ class IdentitySampler(Sampler):
 
             for i in range(batch_num_identities):
                 # We choose randomly 4 images (num_of_same_id_in_batch) for the i=8 identitities
-                if dataset == "Tworld" or dataset == "RegDB":
+                if dataset == "TWorld" or dataset == "RegDB":
                     sample_color = np.random.choice(color_pos[batch_idx[i]], num_of_same_id_in_batch)
                     sample_thermal = sample_color
                 elif dataset == "SYSU" :
