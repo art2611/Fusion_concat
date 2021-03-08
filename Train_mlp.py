@@ -48,15 +48,20 @@ sampler = IdentityFeatureSampler(trainset.train_label_features, feature_pos, num
 trainset.cIndex = sampler.index1  # color index
 trainset.tIndex = sampler.index2  # thermal index
 # print(epoch)
-# print(trainset.cIndex)
-# print(trainset.tIndex)
+print(trainset.cIndex)
+print(trainset.tIndex)
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
                                           sampler=sampler, num_workers=workers, drop_last=True)
 # print(len(trainloader))
 
 # training
-
+# for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
+#     # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1
+#     print(label1)
+#     print(label2)
+#     print(len(label1))
+#     print(len(label2))
     # if label1 == label2 :
     #     labels = 1
     # else :
