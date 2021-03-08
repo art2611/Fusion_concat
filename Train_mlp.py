@@ -66,7 +66,7 @@ for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
 #     # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1
 
     print((label1[:] == label2[:]))
-    labels = (label1 == label2).astype(np.int32)
+    labels = np.array((label1[:] == label2[:]))
     print(labels)
     if label1 == label2 :
         labels = 1
