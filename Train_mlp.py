@@ -61,6 +61,7 @@ for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
     print(label1)
     print(label2)
     print(len(label1))
+    print(len(label2))
     # if label1 == label2 :
     #     labels = 1
     # else :
