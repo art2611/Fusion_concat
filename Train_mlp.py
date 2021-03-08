@@ -73,12 +73,12 @@ for epochs in range(num_epochs):
         new_labels = np.array([[0] for i in range(len(labels))])
         for k in range(len(labels)) :
             if labels[k] :
-                new_labels[k][0] = 1
+                new_labels[k][0] = float(1)
             else :
-                new_labels[k][0] = 0
+                new_labels[k][0] = float(0)
 
         print(new_labels)
-        new_labels = new_labels.astype(float())
+        # new_labels = new_labels.astype(float())
         labels = torch.from_numpy(new_labels)
 
         input1 = Variable(input1.cuda()).float()
