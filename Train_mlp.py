@@ -70,7 +70,6 @@ for epochs in range(num_epochs):
         # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1 :
 
         labels = np.array((label1[:] == label2[:])).astype(np.long)
-        print(labels)
         # new_labels = new_labels.astype(float())
         labels = torch.from_numpy(labels)
 
@@ -79,7 +78,6 @@ for epochs in range(num_epochs):
         labels = Variable(labels.cuda())
 
         output = net(input1, input2)
-        print(output)
         loss = criterion_id(output, labels)
         print(loss)
         optimizer.zero_grad()
