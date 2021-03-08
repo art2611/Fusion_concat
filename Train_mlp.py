@@ -60,6 +60,7 @@ for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
     # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1
     print(label1)
     print(label2)
+    print(len(label1))
     # if label1 == label2 :
     #     labels = 1
     # else :
