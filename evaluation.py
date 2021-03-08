@@ -112,6 +112,7 @@ def eval_sysu(distmat, q_pids, g_pids, q_camids, g_camids, max_rank=20):
         new_index = np.unique(new_cmc, return_index=True)[1]
         new_cmc = [new_cmc[index] for index in sorted(new_index)]
         print(f"new cmc : {new_cmc}")
+        print(f"new cmc : {q_pid}")
         print(f"new_cmc == q_pid : {(new_cmc == q_pid)}")
         new_match = (new_cmc == q_pid).astype(np.int32)
         new_cmc = new_match.cumsum()
