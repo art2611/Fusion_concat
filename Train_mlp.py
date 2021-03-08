@@ -58,7 +58,8 @@ gamma = 0.7
 epochs = 14
 optimizer = optim.Adam(net.parameters(), lr=lr)
 
-criterion_id = nn.CrossEntropyLoss().to(device)
+# criterion_id = nn.CrossEntropyLoss().to(device)
+criterion_id = nn.BCELoss().to(device)
 scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 num_epochs= 10
 # training
