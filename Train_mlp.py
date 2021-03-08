@@ -62,17 +62,21 @@ trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
 # print(len(trainloader))
 
 # training
+net.train()
 for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
 #     # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1
 
-    print((label1[:] == label2[:]))
     labels = np.array((label1[:] == label2[:])).astype(np.int32)
-    print(labels)
-    if label1 == label2 :
-        labels = 1
-    else :
-        labels = 2
-    # print(labels)
+    labels = torch.from_numpy(labels)
+
+    input1 = Variable(input1.cuda())
+    input2 = Variable(input2.cuda())
+    labels = Variable(labels.cuda())
+
+    output = net(input1, input2)
+    print(output)
+
+# print(labels)
     #
     # input1 = Variable(input1.cuda())
     # input2 = Variable(input2.cuda())
