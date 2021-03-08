@@ -315,15 +315,14 @@ def valid(epoch):
     #Get all normalized distance
     gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader, n_gall, net = net)
     query_feat_pool, query_feat_fc = extract_query_feat(query_loader, n_query, net = net)
-    print(len(gall_feat_fc))
-    print(len(query_feat_fc))
+
     print(f"Feature extraction time : {time.time() - end}")
     start = time.time()
 
-    # compute the similarity
+    # compute the similarity (cosine)
     distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-
+    print()
     # evaluation
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' :
         cmc, mAP, mINP = eval_regdb(-distmat_fc, query_label, gall_label)

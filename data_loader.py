@@ -340,14 +340,15 @@ def process_sysu(data_path, method, fold = 0 ):
 
         for i in range(number_images_for_id_k):
             # Get one images as query
-            if i == 0:
-                img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
-                label_query.append(ids[id])
-            # Get the remaining as gallery :
-            else:
+            if i <2 :
                 img_gallery.append(
                     [files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
                 label_gallery.append(ids[id])
+            # Get the remaining as gallery :
+            else:
+                img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                label_query.append(ids[id])
+
     # Just give different cam id to not have problem during SYSU evaluation
     gall_cam = [4 for i in range(len(img_gallery))]
     query_cam = [1 for i in range(len(img_query))]
