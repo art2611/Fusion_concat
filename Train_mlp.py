@@ -93,7 +93,7 @@ for epochs in range(num_epochs):
 
         if (batch_idx + 1) % 5 == 0:
             print(f'epochs {epochs + 1} / {num_epochs}, step {batch_idx + 1}/{batch_idx}, loss = {loss.item():.4f}')
-            print(f'Accu: {100. * correct / total:.2f')
+            print(f'Accu: {100. * correct / total:.2f}')
     # print(labels)
         # input1 = Variable(input1.cuda())
         # input2 = Variable(input2.cuda())
