@@ -322,10 +322,10 @@ def valid(epoch):
     # compute the similarity (cosine)
     distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
     distmat_fc = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-    print(len(query_label))
-    print(len(gall_label))
-    print(len(query_feat_fc))
-    print(len(gall_feat_fc))
+    print(query_label)
+    print(gall_label)
+    print(query_feat_fc)
+    print(gall_feat_fc)
     # evaluation
     # if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == "SYSU" :
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' :
@@ -333,6 +333,7 @@ def valid(epoch):
         cmc_att, mAP_att, mINP_att  = evaluation(-distmat_pool, query_label, gall_label, dataset = args.dataset)
 
     elif args.dataset == 'SYSU':
+        print()
         cmc, mAP, mINP = eval_sysu(-distmat_fc, query_label, gall_label, query_cam, gall_cam)
         cmc_att, mAP_att, mINP_att = eval_sysu(-distmat_pool, query_label, gall_label, query_cam, gall_cam)
 
