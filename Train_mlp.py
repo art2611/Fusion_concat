@@ -48,6 +48,8 @@ sampler = IdentityFeatureSampler(trainset.train_label_features, feature_pos, num
 trainset.cIndex = sampler.index1  # color index
 trainset.tIndex = sampler.index2  # thermal index
 # print(epoch)
+print(sampler.index1[0])
+print(sampler.index2[4])
 print(trainset.cIndex[0])
 print(trainset.tIndex[4])
 
