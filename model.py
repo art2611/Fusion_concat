@@ -163,9 +163,8 @@ class MLP(nn.Module):
             nn.ReLU(),
             nn.Linear(100, 1)
         )
-    def forward(self, x):
-        # convert tensor (128, 1, 28, 28) --> (128, 1*28*28)
-        x = x.view(x.size(0), -1)
+    def forward(self, x1, x2):
+        x = torch.cat((x1, x2), 1)
         x = self.layers(x)
         return x
 
