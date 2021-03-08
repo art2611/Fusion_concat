@@ -49,14 +49,6 @@ trainset.cIndex = sampler.index1  # color index
 trainset.tIndex = sampler.index2  # thermal index
 # print(epoch)
 
-print(trainset.cIndex[0])
-print(trainset.tIndex[3])
-
-print(trainset.train_label_features[27])
-print(trainset.train_label_features[21])
-
-print(trainset.train_label_features[trainset.cIndex[0]])
-print(trainset.train_label_features[trainset.tIndex[3]])
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
                                           sampler=sampler, num_workers=workers, drop_last=True)
 # print(len(trainloader))
@@ -72,7 +64,8 @@ for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
     input1 = Variable(input1.cuda())
     input2 = Variable(input2.cuda())
     labels = Variable(labels.cuda())
-
+    print(input1)
+    print(input2)
     output = net(input1, input2)
     print(output)
 
