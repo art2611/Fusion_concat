@@ -77,8 +77,8 @@ class IdentityFeatureSampler(Sampler):
                     print(index1)
                     print(index2)
                 else:
-                    index1 = np.hstack((index1, [index1[0] for w in range(len(sample_features))]))
-                    index2 = np.hstack((index2, sample_features))
+                    index1 = np.hstack((index1, int([index1[0] for w in range(len(sample_features))])))
+                    index2 = np.hstack((index2, int(sample_features)))
 
         print(f"index1 : {index1}")
         print(f"index2 : {index2}")
