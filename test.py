@@ -8,7 +8,7 @@ from data_loader import *
 import numpy as np
 from model import Global_network
 import math
-from evaluation import eval_regdb, eval_sysu
+from evaluation import *
 from torchvision import transforms
 import torch.utils.data
 from multiprocessing import freeze_support
@@ -178,6 +178,7 @@ Need_two_trained_unimodals = {"early": False,"layer1":False, "layer2":False, \
 
 
 if args.dataset == "TWorld" or args.dataset == "RegDB" :
+    trials = 0
     data_path = f'../Datasets/{args.dataset}/'
     net = []
     net2 = [[] for i in range(folds)]
