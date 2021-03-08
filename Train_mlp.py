@@ -51,8 +51,8 @@ trainset.tIndex = sampler.index2  # thermal index
 print(trainset.cIndex)
 print(trainset.tIndex)
 
-print(trainset.train_label_features[500])
-print(trainset.train_label_features[509])
+print(trainset.train_label_features[trainset.cIndex[0]])
+print(trainset.train_label_features[trainset.tIndex[0]])
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=loader_batch, \
                                           sampler=sampler, num_workers=workers, drop_last=True)
 # print(len(trainloader))
