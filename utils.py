@@ -80,14 +80,13 @@ class IdentityFeatureSampler(Sampler):
         print(f"index2 : {index2}")
         print(f"index1 info: {index1[:4]}")
         print(f"index2 info: {index2[:4]}")
-        print(f"index1 info: {index1[0]}")
+        print(f"index1 info: {type(index1)}")
         print(f"index2 info: {index2[4]}")
         self.index1 = index1
         self.index2 = index2
         self.N = N
 
     def __iter__(self):
-        print("COUCOU")
         return iter(np.arange(len(self.index1)))
 
     def __len__(self):
