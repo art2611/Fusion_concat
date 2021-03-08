@@ -32,14 +32,12 @@ from sklearn.preprocessing import MinMaxScaler
 #     for i in range(data.shape[1]):
 #         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
 # print(data)
-
-
-a= np.random.randint(5, size=(4,4))
-b = np.random.randint(5, size=(4,4))
+a= np.array([1])
 print(a)
-print(b)
-print(np.concatenate((a,b), axis=0))
-print(12/2)
+print(np.random.choice(a,5))
+
+
+
 
 
 sys.exit()

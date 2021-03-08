@@ -175,7 +175,137 @@ Need_two_trained_unimodals = {"early": False,"layer1":False, "layer2":False, \
                               "layer3":False, "layer4":False, "layer5":False, \
                               "unimodal":False, "score" : True, "fc" : True}
 
-if True:
+
+
+if args.dataset == "TWorld" or args.dataset == "RegDB" :
+    data_path = f'../Datasets/{args.dataset}/'
+    net = []
+    net2 = [[] for i in range(folds)]
+    # Since we are supposed to have 5 models (5 fold validation), this loop get an average result
+    # no map per trial for these datasets :
+    mAP_mINP_per_trial["mAP"][:] = [0 for i in range(trials)]
+    mAP_mINP_per_trial["mINP"][:] = [0 for i in range(trials)]
+    for fold in range(folds):
+        suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+        print('==> Resuming from checkpoint..')
+        model_path = checkpoint_path + suffix + '_best.t'
+
+        if Need_two_trained_unimodals[args.fusion] :
+            suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+            model_path = checkpoint_path + suffix + '_best.t'
+            model_path2 = checkpoint_path + suffix2 + '_best.t'
+            print(f"model path2 : {model_path2}")
+
+        print(f"model path : {model_path}")
+        if os.path.isfile(model_path):
+            print('==> loading checkpoint')
+            checkpoint = torch.load(model_path)
+
+            net.append(Global_network(nclass[args.dataset], fusion_layer=Fusion_layer[args.fusion]).to(device))
+            net[fold].load_state_dict(checkpoint['net'])
+            print(f"Fold {fold} loaded")
+            if Need_two_trained_unimodals[args.fusion]:
+                if os.path.isfile(model_path2) :
+                    print('==> loading checkpoint 2')
+                    checkpoint2 = torch.load(model_path2)
+                    net2[fold] = Global_network(nclass[args.dataset], fusion_layer=Fusion_layer[args.fusion]).to(device)
+                    net2[fold].load_state_dict(checkpoint2['net'])
+                    print(f"Fold {fold} loaded")
+        else:
+            print(f"Fold {fold} doesn't exist")
+            print(f"==> Model ({model_path}) can't be loaded")
+
+
+
+        #Prepare query and gallery
+        query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "test", args.dataset, fold)
+
+        # Gallery and query set
+        gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
+        queryset = Prepare_set(query_img, query_label, transform=transform_test, img_size=(img_w, img_h))
+
+        # Validation data loader
+        gall_loader = torch.utils.data.DataLoader(gallset, batch_size=test_batch_size, shuffle=False,
+                                                  num_workers=workers)
+        query_loader = torch.utils.data.DataLoader(queryset, batch_size=test_batch_size, shuffle=False,
+                                                   num_workers=workers)
+        nquery = len(query_label)
+        ngall = len(gall_label)
+
+        print('Data Loading Time:\t {:.3f}'.format(time.time() - end))
+        if Need_two_trained_unimodals[args.fusion] :
+            #In this case, extraction for the RGB images with the model trained on RGB modality first
+            args.reid = "VtoV"
+        query_feat_pool, query_feat_fc, query_final_fc = extract_query_feat(query_loader, nquery = nquery, net = net[fold], modality = args.reid)
+        gall_feat_pool,  gall_feat_fc, gall_final_fc = extract_gall_feat(gall_loader, ngall = ngall, net = net[fold], modality = args.reid)
+
+        # pool5 feature
+        distmat_pool = np.matmul(query_feat_pool, np.transpose(gall_feat_pool))
+        # fc feature
+        distmat = np.matmul( query_feat_fc, np.transpose(gall_feat_fc))
+
+        if Need_two_trained_unimodals[args.fusion] :
+            # In this case, extraction for the IR images with the model trained on IR modality
+            query_feat_pool2, query_feat_fc2, query_final_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[fold], modality = "TtoT")
+            gall_feat_pool2, gall_feat_fc2, gall_final_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[fold], modality = "TtoT")
+
+            if args.fusion == "score" :
+                # Proceed to 2nd matching and aggregate matching matrix
+                # print(query_final_fc[0])
+                query_final_fc = tanh_norm(query_final_fc)
+                query_final_fc2 = tanh_norm(query_final_fc2)
+                gall_final_fc = tanh_norm(gall_final_fc)
+                gall_final_fc2 = tanh_norm(gall_final_fc2)
+                distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
+                distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
+                # distmat = tanh_norm(distmat)
+                # distmat2 = tanh_norm(distmat2)
+                distmat = (distmat + distmat2)/2
+            elif args.fusion == "fc":
+                # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
+                #First do a norm :
+                query_final_fc = tanh_norm(query_final_fc)
+                query_final_fc2 = tanh_norm(query_final_fc2)
+                gall_final_fc = tanh_norm(gall_final_fc)
+                gall_final_fc2 = tanh_norm(gall_final_fc2)
+                #then aggregate all features
+                query_feat_fc = (query_final_fc + query_final_fc2) / 2
+                gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
+
+                distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
+
+        cmc, mAP, mINP = eval_regdb(-distmat,query_label ,gall_label)
+        cmc_pool, mAP_pool, mINP_pool = eval_regdb(-distmat_pool, query_label, gall_label)
+
+        if fold == 0 :
+            all_cmc = cmc
+            all_mAP = mAP
+            all_mINP = mINP
+            all_cmc_pool = cmc_pool
+            all_mAP_pool = mAP_pool
+            all_mINP_pool = mINP_pool
+        else:
+            all_cmc = all_cmc + cmc
+            all_mAP = all_mAP + mAP
+            all_mINP = all_mINP + mINP
+            all_cmc_pool = all_cmc_pool + cmc_pool
+            all_mAP_pool = all_mAP_pool + mAP_pool
+            all_mINP_pool = all_mINP_pool + mINP_pool
+
+        mAP_mINP_per_model["mAP"][fold] += mAP
+        mAP_mINP_per_model["mINP"][fold] += mINP
+
+        print(f'Test fold: {fold}')
+        print(
+            'FC:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+                cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP))
+        print(
+            'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
+                cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
+
+
+if False:
 
     data_path = f'../Datasets/{args.dataset}/'
     net = []
@@ -301,7 +431,8 @@ if True:
                 'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                     cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-if args.dataset == 'SYSU':
+# if args.dataset == 'SYSU':
+if False :
     nclass = 316
     data_path = '../Datasets/SYSU/'
     net = []

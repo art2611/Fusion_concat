@@ -339,7 +339,7 @@ def process_sysu(data_path, method, fold = 0 ):
         number_images_for_id_k = len(positions_list_RGB[fold_or_trial][id])
 
         for i in range(number_images_for_id_k):
-            # Get one images as gallery
+            # Get one images as query
             if i == 0:
                 img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
                 label_query.append(ids[id])
