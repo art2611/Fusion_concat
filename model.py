@@ -161,7 +161,7 @@ class MLP(nn.Module):
         self.layers = nn.Sequential(
             nn.Linear(1024, 100),
             nn.ReLU(),
-            nn.Linear(100, 1)
+            nn.Linear(100, 2)
         )
     def forward(self, x1, x2):
         x = torch.cat((x1, x2), 1)

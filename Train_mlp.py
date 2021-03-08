@@ -58,8 +58,8 @@ gamma = 0.7
 epochs = 14
 optimizer = optim.Adam(net.parameters(), lr=lr)
 
-# criterion_id = nn.CrossEntropyLoss().to(device)
-criterion_id = nn.BCELoss().to(device)
+criterion_id = nn.CrossEntropyLoss().to(device)
+# criterion_id = nn.BCELoss().to(device)
 scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 num_epochs= 10
 # training
@@ -70,24 +70,16 @@ for epochs in range(num_epochs):
         # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1 :
 
         labels = np.array((label1[:] == label2[:]))
-        new_labels = np.array([[0] for i in range(len(labels))])
-        for k in range(len(labels)) :
-            if labels[k] :
-                new_labels[k][0] = float(1)
-            else :
-                new_labels[k][0] = float(0)
-
-        print(new_labels)
+        labels = labels.astype(float())
         # new_labels = new_labels.astype(float())
-        labels = torch.from_numpy(new_labels)
+        labels = torch.from_numpy(labels)
 
         input1 = Variable(input1.cuda()).float()
         input2 = Variable(input2.cuda()).float()
         labels = Variable(labels.cuda())
 
         output = net(input1, input2)
-        print(type(output[0][0]))
-        print(type(labels[0][0]))
+        print(output)
         loss = criterion_id(output, labels)
         print(loss)
         optimizer.zero_grad()
