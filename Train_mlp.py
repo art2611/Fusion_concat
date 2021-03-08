@@ -85,8 +85,8 @@ for epochs in range(num_epochs):
         optimizer.step()
         scheduler.step()
 
-    if (batch_idx + 1) % 5 == 0:
-        print(f'epochs {epochs + 1} / {num_epochs}, step {batch_idx + 1}/{batch_idx}, loss = {loss.item():.4f}')
+        if (batch_idx + 1) % 5 == 0:
+            print(f'epochs {epochs + 1} / {num_epochs}, step {batch_idx + 1}/{batch_idx}, loss = {loss.item():.4f}')
     # print(labels)
         #
         # input1 = Variable(input1.cuda())
