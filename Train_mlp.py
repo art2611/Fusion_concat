@@ -69,8 +69,16 @@ for epochs in range(num_epochs):
     for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
         # Labels 1 and 2 could be the same or not. If not : label = 0 If yes : label =  1 :
 
-        labels = np.array((label1[:] == label2[:])).astype(np.long)
-        print(labels)
+        labels = np.array((label1[:] == label2[:]))
+        new_labels = []
+        for k in range(len(labels)) :
+            if labels[k] :
+                new_labels.append([1])
+            else :
+                new_labels.append([0])
+
+        new_labels.astype(np.long)
+        print(new_labels)
         labels = torch.from_numpy(labels)
 
         input1 = Variable(input1.cuda()).float()
@@ -80,6 +88,7 @@ for epochs in range(num_epochs):
 
         output = net(input1, input2)
         print(output)
+        print(new_labels.size())
         for k in range(len(labels)) :
             labels[k] = [k]
 
