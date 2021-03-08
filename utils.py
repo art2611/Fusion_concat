@@ -57,8 +57,8 @@ class IdentityFeatureSampler(Sampler):
         uni_label = np.unique(train_features_label)
         self.n_classes = len(uni_label)
         N = len(train_features_label)
-        index1 = np.array([])
-        index2 = np.array([])
+        index1 = np.array([int()])
+        index2 = np.array([int()])
         # Doing as much batch as we can divide the dataset in number of batch
         for j in range(int(N / (batch_num_identities * num_of_same_id_in_batch)) + 1):
             # We choose randomly 8 identities
