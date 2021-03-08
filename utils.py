@@ -70,6 +70,7 @@ class IdentityFeatureSampler(Sampler):
                 if j == 0 and i == 0:
                     # This way in a batch we compare first feature id with all 4*8 features (Need to verify the type of index 1 and 2 here.
                     index1 = [sample_features[0] for w in range(len(sample_features))]
+                    print(sample_features[0])
                     index2 = sample_features
                 else:
                     index1 = np.hstack((index1, [sample_features[0] for w in range(len(sample_features))]))
