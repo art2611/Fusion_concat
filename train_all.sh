@@ -27,7 +27,7 @@ fi
 #done
 
 #for w in 'sum' 'cat' 'cat_channel';
-for w in 'sum';
+for w in 'cat';
 do
   for j in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5';
   do
