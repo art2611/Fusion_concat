@@ -42,7 +42,7 @@ def Normalize_func(query, gallery, norm) :
         return(minmax_norm(query), minmax_norm(gallery))
     elif norm == "tanh" :
         return(tanh_norm(query), tanh_norm(gallery))
-    elif norm == "l2" :
+    elif norm == "l2norm" :
         return(l2_norm(query), l2_norm(gallery))
     elif norm == "zscore" :
         return(Z_score(query), Z_score(gallery))
