@@ -45,4 +45,6 @@ def Normalize(query, gallery, norm) :
         return(l2_norm(query), l2_norm(gallery))
     elif norm == "zscore" :
         return(Z_score(query), Z_score(gallery))
+    elif norm == "none" :
+        return(query, gallery)
 

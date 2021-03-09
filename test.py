@@ -219,26 +219,25 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
             query_feat_pool2, query_feat_fc2, query_final_fc2 = extract_query_feat(query_loader, nquery=nquery, net=net2[fold], modality = "TtoT")
             gall_feat_pool2, gall_feat_fc2, gall_final_fc2 = extract_gall_feat(gall_loader, ngall=ngall, net=net2[fold], modality = "TtoT")
 
-            if args.fusion == "score" :
+            if args.fusion == "score":
                 # Proceed to 2nd matching and aggregate matching matrix
                 # print(query_final_fc[0])
-                query_final_fc = tanh_norm(query_final_fc)
-                query_final_fc2 = tanh_norm(query_final_fc2)
-                gall_final_fc = tanh_norm(gall_final_fc)
-                gall_final_fc2 = tanh_norm(gall_final_fc2)
+
+                query_final_fc, gall_final_fc = Normalize(query_final_fc, gall_final_fc, args.norm)
+                query_final_fc2, gall_final_fc2 = Normalize(query_final_fc2, gall_final_fc2, args.norm)
+
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                # distmat = tanh_norm(distmat)
-                # distmat2 = tanh_norm(distmat2)
-                distmat = (distmat + distmat2)/2
+
+                distmat, distmat2 = gall_final_fc2 = Normalize(query_final_fc2, gall_final_fc2, args.norm)
+
+                distmat = (distmat + distmat2) / 2
             elif args.fusion == "fc":
                 # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
-                #First do a norm :
-                query_final_fc = tanh_norm(query_final_fc)
-                query_final_fc2 = tanh_norm(query_final_fc2)
-                gall_final_fc = tanh_norm(gall_final_fc)
-                gall_final_fc2 = tanh_norm(gall_final_fc2)
-                #then aggregate all features
+                # First do a norm :
+                query_final_fc, gall_final_fc = Normalize(query_final_fc, gall_final_fc, args.norm)
+                query_final_fc2, gall_final_fc2 = Normalize(query_final_fc2, gall_final_fc2, args.norm)
+                # then aggregate all features
                 query_feat_fc = (query_final_fc + query_final_fc2) / 2
                 gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
 
