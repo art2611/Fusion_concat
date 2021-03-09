@@ -550,13 +550,17 @@ standard_deviation_mINP_model = np.std(mAP_mINP_per_model["mINP"])
 standard_deviation_mAP_trial = np.std(mAP_mINP_per_trial["mAP"])
 standard_deviation_mINP_trial = np.std(mAP_mINP_per_trial["mINP"])
 # Means
-cmc = all_cmc / (folds + trials)
-mAP = all_mAP / (folds + trials)
-mINP = all_mINP / (folds + trials)
+if args.dataset == "TWorld" or args.dataset == "RegDB" :
+    trials = 1
+else :
+    trials = 10
+cmc = all_cmc / (folds * trials)
+mAP = all_mAP / (folds * trials)
+mINP = all_mINP / (folds * trials)
 
-cmc_pool = all_cmc_pool / (folds + trials)
-mAP_pool = all_mAP_pool / (folds + trials)
-mINP_pool = all_mINP_pool / (folds + trials)
+cmc_pool = all_cmc_pool / (folds * trials)
+mAP_pool = all_mAP_pool / (folds * trials)
+mINP_pool = all_mINP_pool / (folds * trials)
 print('All Average:')
 print('FC:     Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%} | stdmAP: {:.2%} | stdmINP {:.2%}'.format(
         cmc[0], cmc[4], cmc[9], cmc[19], mAP, mINP, standard_deviation_mAP_model, standard_deviation_mINP_model))
