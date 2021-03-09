@@ -37,6 +37,7 @@ def l2_norm(data):
     return(data)
 
 def Normalize(query, gallery, norm) :
+    print(f" NORM WHICH IS USED : {norm}")
     if norm == "minmax" :
         return(minmax_norm(query), minmax_norm(gallery))
     elif norm == "tanh" :
