@@ -315,7 +315,6 @@ def process_sysu(data_path, method, fold = 0 ):
                 modality = 1
             if positions[0] != "fold_or_trial" and positions[0] != "trial" and positions[0] != "modality":
                 if modality == 1:
-                    [print(y) for y in positions[0].split(',')]
                     positions_list_RGB[trial_number].append([int(y) for y in positions[0].split(',')])
                 elif modality == 2:
                     positions_list_IR[trial_number].append([int(y) for y in positions[0].split(',')])
