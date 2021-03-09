@@ -33,8 +33,8 @@ lr = 0.1
 checkpoint_path = '../save_model/'
 #
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
-parser.add_argument('--fusion', default='layer1', help='Which layer fusion to test (early, layer1, layer2 .., layer5, unimodal, score, fc)')
-parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
+parser.add_argument('--fusion', default='score', help='Which layer fusion to test (early, layer1, layer2 .., layer5, unimodal, score, fc)')
+parser.add_argument('--fuse', default='none', help='Fusion type (cat / sum)')
 parser.add_argument('--dataset', default='RegDB', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
 parser.add_argument('--trained', default='BtoB', help='Trained model (BtoB / VtoV / TtoT)')
@@ -229,7 +229,7 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
 
-                distmat, distmat2 = Normalize_func(distmat, distmat2, args.norm)
+                # distmat, distmat2 = Normalize_func(distmat, distmat2, args.norm)
 
                 distmat = (distmat + distmat2) / 2
             elif args.fusion == "fc":
@@ -583,7 +583,7 @@ else :
     data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}"
 
 f.write(f'  {data_info}, {cmc[0]:.2%}, {cmc[4]:.2%}, {mAP:.2%}±{standard_deviation_mAP_model:.2%},\
-    {mINP:.2%}±{standard_deviation_mINP_model:.2%}, std_mAP_trial{standard_deviation_mAP_trial:.2%}, std_mINP_trial{standard_deviation_mINP_trial:.2%}\n\n')
+    {mINP:.2%}±{standard_deviation_mINP_model:.2%}, std_mAP_trial{standard_deviation_mAP_trial:.2%}, std_mINP_trial{standard_deviation_mINP_trial:.2%}\n')
 f.close()
 #
 # # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
