@@ -1,5 +1,5 @@
 #!/bin/sh
-read -e -p "Enter the dataset name (SYSU/RegDB) :" DATASET
+read -e -p "Enter the dataset name (SYSU/RegDB/TWorld) :" DATASET
 echo $DATASET
 if [ "$DATASET" =  "regdb" ]
 then
@@ -9,12 +9,24 @@ then
   DATASET="SYSU"
 fi
 
-read -e -p "Enter the fuse type (sum/cat/cat_channel/none) of the trained model :" FUSE
-echo $FUSE
+read -e -p "Enter the fuse type (sum/cat/cat_channel/none / ALL) of the trained model :" FUSE
+if [ "$FUSE" =  "ALL" ]
+then
+  # In this case do test of sum cat and cat channel at all position
+    for fuse in 'sum' 'cat' 'cat_channel';
+  do
+    for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
+    do
+      python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fuse ;
+    done
+  done
+else
+      for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
+    do
+      python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
+    done
 
-python test.py --fusion="early" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
-python test.py --fusion="layer1" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
-python test.py --fusion="layer2" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
-python test.py --fusion="layer3" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
-python test.py --fusion="layer4" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
-python test.py --fusion="layer5" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
+fi
+
+
+

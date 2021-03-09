@@ -551,6 +551,8 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
     trials = 1
     standard_deviation_mAP_model = np.std(mAP_mINP_per_model["mAP"])
     standard_deviation_mINP_model = np.std(mAP_mINP_per_model["mINP"])
+    standard_deviation_mAP_trial = 0
+    standard_deviation_mINP_trial = 0
 else :
     standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k] / 10 for k in range(5)])
     standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k] / 10 for k in range(5)])
