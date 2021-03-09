@@ -545,10 +545,10 @@ if False :
         mINP_list.append(mINP)
 
 #Standard Deviation :
-standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k]/10 for k in range(10)])
-standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k]/10 for k in range(10)])
-standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mAP"][k]/5 for k in range(5)])
-standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mINP"][k]/5 for k in range(5)])
+standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k]/10 for k in range(5)])
+standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k]/10 for k in range(5)])
+standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mAP"][k]/5 for k in range(10)])
+standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mINP"][k]/5 for k in range(10)])
 # Means
 if args.dataset == "TWorld" or args.dataset == "RegDB" :
     trials = 1
