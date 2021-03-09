@@ -310,10 +310,10 @@ def process_sysu(data_path, method, fold = 0 ):
             positions = the_line.splitlines()
             if positions[0] == "modality":
                 modality = 2
-            elif positions[0] == "fold_or_trial":
+            elif positions[0] == "fold_or_trial" or positions[0] == "trial":
                 trial_number += 1
                 modality = 1
-            if positions[0] != "fold_or_trial" and positions[0] != "modality":
+            if positions[0] != "fold_or_trial" and positions[0] != "trial" and positions[0] != "modality":
                 if modality == 1:
                     [print(y) for y in positions[0].split(',')]
                     positions_list_RGB[trial_number].append([int(y) for y in positions[0].split(',')])
