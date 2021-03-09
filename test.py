@@ -229,7 +229,7 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
                 distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                 distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
 
-                distmat, distmat2 = gall_final_fc2 = Normalize_func(query_final_fc2, gall_final_fc2, args.norm)
+                distmat, distmat2 = Normalize_func(distmat, distmat2, args.norm)
 
                 distmat = (distmat + distmat2) / 2
             elif args.fusion == "fc":
@@ -354,7 +354,7 @@ if args.dataset == "SYSU" :
                     distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                     distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
 
-                    distmat, distmat2 = gall_final_fc2 = Normalize_func(query_final_fc2, gall_final_fc2, args.norm)
+                    distmat, distmat2 = Normalize_func(distmat, distmat2, args.norm)
 
                     distmat = (distmat + distmat2)/2
                 elif args.fusion == "fc":
