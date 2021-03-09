@@ -3,7 +3,7 @@ read -e -p "Enter the dataset name (SYSU/RegDB/TWorld) :" DATASET
 echo $DATASET
 
 
-for i in 'score' 'fc';
+for i in 'score';
 do
   for j in 'l2norm' 'minmax' 'tanh' 'zscore' 'none';
   do
