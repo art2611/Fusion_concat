@@ -33,16 +33,11 @@ from sklearn.preprocessing import MinMaxScaler
 #         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
 # print(data)
 
-if os.path.isfile("results.txt") :
-    f = open('results.txt','a')
-    f.write('coucou\n')
-    print('cdocoe')
-else :
-    f = open('results.txt','w+')
-    f.write(' , Rank-1, Rank-5, mAP, mINP, stdmAP, stdmINP\n')
-
-
-
+trials = 10
+folds = 5
+mAP_mINP_per_trial = {"mAP" : [10 for i in range(trials)], "mINP" : [20 for i in range(trials)]}
+mean_mAP = [mAP_mINP_per_trial["mAP"][k]/10 for k in range(10)]
+print(mean_mAP)
 
 
 sys.exit()
