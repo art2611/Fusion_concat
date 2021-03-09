@@ -26,7 +26,8 @@ fi
 #        python train.py --fusion="unimodal" --dataset=$DATASET --reid="TtoT" --fuse="none" --fold=$i;
 #done
 
-for w in 'sum' 'cat' 'cat_channel';
+#for w in 'sum' 'cat' 'cat_channel';
+for w in 'sum';
 do
   for j in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5';
   do
