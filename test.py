@@ -152,8 +152,8 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
     net2 = [[] for i in range(folds)]
     # Since we are supposed to have 5 models (5 fold validation), this loop get an average result
     # no map per trial for these datasets :
-    mAP_mINP_per_trial["mAP"][:] = [0 for i in range(trials)]
-    mAP_mINP_per_trial["mINP"][:] = [0 for i in range(trials)]
+    mAP_mINP_per_trial["mAP"][:] = [0 for i in range(10)]
+    mAP_mINP_per_trial["mINP"][:] = [0 for i in range(10)]
     for fold in range(folds):
         suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
         print('==> Resuming from checkpoint..')
@@ -545,14 +545,17 @@ if False :
         mINP_list.append(mINP)
 
 #Standard Deviation :
-standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k]/10 for k in range(5)])
-standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k]/10 for k in range(5)])
-standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mAP"][k]/5 for k in range(10)])
-standard_deviation_mINP_trial = np.std([mAP_mINP_per_trial["mINP"][k]/5 for k in range(10)])
+
 # Means
 if args.dataset == "TWorld" or args.dataset == "RegDB" :
     trials = 1
+    standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k] for k in range(5)])
+    standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k] for k in range(5)])
 else :
+    standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k] / 10 for k in range(5)])
+    standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k] / 10 for k in range(5)])
+    standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mAP"][k] / 5 for k in range(10)])
+    standard_deviation_mINP_trial = np.std([mAP_mINP_per_trial["mINP"][k] / 5 for k in range(10)])
     trials = 10
 
 cmc = all_cmc / (folds * trials)
