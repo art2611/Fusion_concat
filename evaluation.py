@@ -5,7 +5,8 @@ import sys
 """Cross-Modality ReID"""
 def evaluation(distmat, query_labels, gallery_labels, max_rank=20, dataset = "RegDB"):
     num_q, num_g = distmat.shape
-
+    print(num_q)
+    print(num_g)
     if num_g < max_rank:
         max_rank = num_g
         print("Note: number of gallery samples is quite small, got {}".format(num_g))
