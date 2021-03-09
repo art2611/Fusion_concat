@@ -36,7 +36,7 @@ def l2_norm(data):
             data[k][i] = data[k][i] / norm_l2[k]
     return(data)
 
-def Normalize(query, gallery, norm) :
+def Normalize_func(query, gallery, norm) :
     print(f" NORM WHICH IS USED : {norm}")
     if norm == "minmax" :
         return(minmax_norm(query), minmax_norm(gallery))
