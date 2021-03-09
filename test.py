@@ -545,15 +545,16 @@ if False :
         mINP_list.append(mINP)
 
 #Standard Deviation :
-standard_deviation_mAP_model = np.std(mAP_mINP_per_model["mAP"])
-standard_deviation_mINP_model = np.std(mAP_mINP_per_model["mINP"])
-standard_deviation_mAP_trial = np.std(mAP_mINP_per_trial["mAP"])
-standard_deviation_mINP_trial = np.std(mAP_mINP_per_trial["mINP"])
+standard_deviation_mAP_model = np.std(mAP_mINP_per_model["mAP"]/10)
+standard_deviation_mINP_model = np.std(mAP_mINP_per_model["mINP"]/10)
+standard_deviation_mAP_trial = np.std(mAP_mINP_per_trial["mAP"]/5)
+standard_deviation_mINP_trial = np.std(mAP_mINP_per_trial["mINP"]/5)
 # Means
 if args.dataset == "TWorld" or args.dataset == "RegDB" :
     trials = 1
 else :
     trials = 10
+
 cmc = all_cmc / (folds * trials)
 mAP = all_mAP / (folds * trials)
 mINP = all_mINP / (folds * trials)
@@ -578,7 +579,7 @@ else :
     data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}"
 
 f.write(f'  {data_info}, {cmc[0]:.2%}, {cmc[4]:.2%}, {mAP:.2%}±{standard_deviation_mAP_model:.2%},\
-    {mINP:.2%}±{standard_deviation_mINP_model:.2%}, std_mAP_trial{standard_deviation_mAP_trial}, std_mINP_trial{standard_deviation_mINP_trial}\n\n')
+    {mINP:.2%}±{standard_deviation_mINP_model:.2%}, std_mAP_trial{standard_deviation_mAP_trial:.2%}, std_mINP_trial{standard_deviation_mINP_trial:.2%}\n\n')
 f.close()
 #
 # # print('POOL:   Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
