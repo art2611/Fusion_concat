@@ -18,4 +18,3 @@ python test.py --fusion="layer2" --dataset=$DATASET --reid="BtoB" --trained="Bto
 python test.py --fusion="layer3" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
 python test.py --fusion="layer4" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
 python test.py --fusion="layer5" --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$FUSE ;
-

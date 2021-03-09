@@ -15,7 +15,7 @@ from multiprocessing import freeze_support
 from tensorboardX import SummaryWriter
 import argparse
 from datetime import date
-
+from Normalization_func import *
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -38,6 +38,8 @@ parser.add_argument('--fuse', default='cat', help='Fusion type (cat / sum)')
 parser.add_argument('--dataset', default='RegDB', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
 parser.add_argument('--trained', default='BtoB', help='Trained model (BtoB / VtoV / TtoT)')
+parser.add_argument('--norm', default='l2norm', help='Normalization for feat or score (l2norm, zscore, minmax, tanh)')
+
 args = parser.parse_args()
 
 normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -126,40 +128,6 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
 
     return query_feat_pool, query_feat_fc, query_final_fc
 
-def minmax_norm(data):
-    min = np.amin(data, axis=1)
-    max = np.amax(data, axis=1)
-
-    for k in range(data.shape[0]):
-        for i in range(data.shape[1]):
-            data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
-    return(data)
-
-def Z_mean(data):
-    std = np.std(data, axis=1)
-    mean = np.mean(data, axis=1)
-
-    for k in range(data.shape[0]):
-        for i in range(data.shape[1]):
-            data[k][i] = (data[k][i] - mean[k])/ std[k]
-    return(data)
-
-def tanh_norm(data):
-    std = np.std(data, axis=1)
-    mean = np.mean(data, axis=1)
-
-    for k in range(data.shape[0]):
-        for i in range(data.shape[1]):
-            data[k][i] = 0.5*math.tanh(0.01*(data[k][i] - mean[k])/ std[k])
-    return(data)
-
-def l2_norm(data):
-
-    norm_l2 = np.linalg.norm(data, ord=2, axis=1)
-    for k in range(data.shape[0]):
-        for i in range(data.shape[1]):
-            data[k][i] = data[k][i] / norm_l2[k]
-    return(data)
 
 # Init Var
 mAP_list = []
@@ -380,22 +348,21 @@ if args.dataset == "SYSU" :
                 if args.fusion == "score" :
                     # Proceed to 2nd matching and aggregate matching matrix
                     # print(query_final_fc[0])
-                    query_final_fc = tanh_norm(query_final_fc)
-                    query_final_fc2 = tanh_norm(query_final_fc2)
-                    gall_final_fc = tanh_norm(gall_final_fc)
-                    gall_final_fc2 = tanh_norm(gall_final_fc2)
+
+                    query_final_fc, gall_final_fc = Normalize(query_final_fc, gall_final_fc, args.norm)
+                    query_final_fc2, gall_final_fc2 = Normalize(query_final_fc2, gall_final_fc2, args.norm)
+
                     distmat = np.matmul(query_final_fc, np.transpose(gall_final_fc))
                     distmat2 = np.matmul(query_final_fc2, np.transpose(gall_final_fc2))
-                    # distmat = tanh_norm(distmat)
-                    # distmat2 = tanh_norm(distmat2)
+
+                    distmat, distmat2 = gall_final_fc2 = Normalize(query_final_fc2, gall_final_fc2, args.norm)
+
                     distmat = (distmat + distmat2)/2
                 elif args.fusion == "fc":
                     # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                     #First do a norm :
-                    query_final_fc = tanh_norm(query_final_fc)
-                    query_final_fc2 = tanh_norm(query_final_fc2)
-                    gall_final_fc = tanh_norm(gall_final_fc)
-                    gall_final_fc2 = tanh_norm(gall_final_fc2)
+                    query_final_fc, gall_final_fc = Normalize(query_final_fc, gall_final_fc, args.norm)
+                    query_final_fc2, gall_final_fc2 = Normalize(query_final_fc2, gall_final_fc2, args.norm)
                     #then aggregate all features
                     query_feat_fc = (query_final_fc + query_final_fc2) / 2
                     gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
@@ -601,7 +568,10 @@ else :
     f = open('results.txt','w+')
     f.write(' , Rank-1, Rank-5, mAP, mINP, stdmAP, stdmINP\n')
 
-data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}"
+if args.fusion == "score" or args.fusion == "fc" :
+    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}_{args.norm}"
+else :
+    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}"
 
 f.write(f'  {data_info}, {cmc[0]:.2%}, {cmc[4]:.2%}, {mAP:.2%}±{standard_deviation_mAP_model:.2%},\
     {mINP:.2%}±{standard_deviation_mINP_model:.2%}, std_mAP_trial{standard_deviation_mAP_trial}, std_mINP_trial{standard_deviation_mINP_trial}\n\n')
