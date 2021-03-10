@@ -207,7 +207,6 @@ class Global_network(nn.Module):
                 x = self.visible_module(x2)
 
         x = self.shared_resnet(x)
-        print(x.shape)
 
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
