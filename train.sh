@@ -24,6 +24,6 @@ echo $FUSE
 
 for i in `seq 0 4`;
   do
-          echo "BEGINING OF THE TRAINING : $j - Fold = $i fuse = $w"
+          echo "BEGINING OF THE TRAINING : $j - Fold = $i fuse = $FUSE"
           python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=$i;
   done
