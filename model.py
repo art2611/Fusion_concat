@@ -207,13 +207,14 @@ class Global_network(nn.Module):
                 x = self.visible_module(x2)
 
         x = self.shared_resnet(x)
+        if fuse == "fc_fuse":
+            x = self.fc_fuse(x)
 
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
 
         if fuse == "fc_fuse" :
-            feat = self.fc_fuse(x_pool)
-            feat = self.bottleneck_fc(feat)  # torch.Size([32, 512])
+            feat = self.bottleneck_fc(x_pool)  # torch.Size([32, 512])
 
         else :
             feat = self.bottleneck(x_pool)  # torch.Size([64, 2048])
