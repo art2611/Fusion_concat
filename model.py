@@ -216,6 +216,8 @@ class Global_network(nn.Module):
         if self.training:
             return x_pool, self.fc(feat)
         else:
+            if fuse == "fc_fuse" :
+                return self.l2norm(feat), self.l2norm(feat), feat
             return self.l2norm(x_pool), self.l2norm(feat), feat
 
 class MLP(nn.Module):
