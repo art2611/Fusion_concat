@@ -207,7 +207,7 @@ class Global_network(nn.Module):
 
         x = self.shared_resnet(x)
         if fuse == "fc_fuse" :
-            feat = self.fc_fuse(x)
+            x = self.fc_fuse(x)
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1))
 
