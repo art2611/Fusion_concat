@@ -206,12 +206,15 @@ class Global_network(nn.Module):
                 x = self.visible_module(x2)
 
         x = self.shared_resnet(x)
-        if fuse == "fc_fuse" :
-            x = self.fc_fuse(x)
+        print(x.shape)
+
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1))
-
+        print(x_pool.shape)
         feat = self.bottleneck(x_pool) #torch.Size([64, 2048])
+        print(feat.shape)
+        if fuse == "fc_fuse" :
+            x = self.fc_fuse(x)
         # if fuse == "fc_fuse" :
         #     feat = self.fc_fuse(feat)
         if self.training:
