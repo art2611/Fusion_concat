@@ -210,14 +210,11 @@ class Global_network(nn.Module):
         print(x.shape)
 
         x_pool = self.avgpool(x)
-        x_pool = x_pool.view(x_pool.size(0), x_pool.size(1))
-        print(x_pool.shape)
-
+        x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
 
         if fuse == "fc_fuse" :
-            feat = self.bottleneck_fc(x_pool)  # torch.Size([64, 2048])
-            print(feat.shape)
-            x = self.fc_fuse(x)
+            feat = self.bottleneck_fc(x_pool)  # torch.Size([32, 512])
+            feat = self.fc_fuse(feat)
         else :
             feat = self.bottleneck(x_pool)  # torch.Size([64, 2048])
         # if fuse == "fc_fuse" :
