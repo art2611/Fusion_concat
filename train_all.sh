@@ -29,7 +29,7 @@ fi
 #for w in 'sum' 'cat' 'cat_channel';
 for w in 'cat_channel';
 do
-  for j in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5';
+  for j in 'layer3' 'layer4' 'layer5';
   do
     for i in `seq 0 4`;
       do
