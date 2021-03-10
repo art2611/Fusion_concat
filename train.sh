@@ -1,5 +1,5 @@
 #!/bin/sh
-read -e -p "Enter the fusion type (early/layerX/unimodal) : " FUSION
+read -e -p "Enter the fusion type (early/layerX/fc_fuse/unimodal) : " FUSION
 echo $FUSION
 echo "BONJOUR"
 if [ "$FUSION" =  "unimodal" ]
@@ -19,15 +19,11 @@ then
   DATASET="SYSU"
 fi
 
-read -e -p "Enter the the fuse type (sum/cat/cat_channel/none) :" FUSE
+read -e -p "Enter the the fuse type (sum/cat/cat_channel/fc_fuse/none) :" FUSE
 echo $FUSE
-echo \############################### START FOLD 1 \###############################
-python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=0;
-echo \############################### START FOLD 2 \###############################
-python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=1;
-echo \############################### START FOLD 3 \###############################
-python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=2;
-echo \############################### START FOLD 4 \###############################
-python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=3;
-echo \############################### START FOLD 5 \###############################
-python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=4;
+
+for i in `seq 0 4`;
+  do
+          echo "BEGINING OF THE TRAINING : $j - Fold = $i fuse = $w"
+          python train.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --fuse=$FUSE --fold=$i;
+  done

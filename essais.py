@@ -1,4 +1,5 @@
 import numpy as np
+import torch.nn as nn
 import torch
 import sys
 import matplotlib
@@ -10,7 +11,7 @@ from PIL import Image
 import os
 import math
 from random import shuffle
-
+import torch.nn.functional as F
 # example of a normalization
 from numpy import asarray
 from sklearn.preprocessing import MinMaxScaler
@@ -33,12 +34,77 @@ from sklearn.preprocessing import MinMaxScaler
 #         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
 # print(data)
 
-trials = 10
-folds = 5
-mAP_mINP_per_trial = {"mAP" : [10 for i in range(trials)], "mINP" : [20 for i in range(trials)]}
-mean_mAP = [mAP_mINP_per_trial["mAP"][k]/10 for k in range(10)]
-print(mean_mAP)
+class GatedBimodal(nn.Module):
 
+    u"""Gated Bimodal neural network.
+    Parameters
+    ----------
+    dim : int
+        The dimension of the hidden state.
+    activation : :class:`~.bricks.Brick` or None
+        The brick to apply as activation. If ``None`` a
+        :class:`.Tanh` brick is used.
+    gate_activation : :class:`~.bricks.Brick` or None
+        The brick to apply as activation for gates. If ``None`` a
+        :class:`.Logistic` brick is used.
+    Notes
+    -----
+    See :class:`.Initializable` for initialization parameters.
+    """
+    def __init__(self, dim, activation=None, gate_activation=None):
+        super(GatedBimodal, self).__init__()
+        self.dim = dim
+        if not activation:
+            activation = nn.Tanh()
+        if not gate_activation:
+            gate_activation = nn.Sigmoid()
+        self.activation = activation
+        self.gate_activation = gate_activation
+        self.W = nn.parameter.Parameter(torch.rand(2*dim, dim))
+
+        # self.initialize()
+    # def _allocate(self):
+    #     self.W = shared_floatx_nans(
+    #         (2 * self.dim, self.dim), name='input_to_gate')
+    #     add_role(self.W, WEIGHT)
+    #     self.parameters.append(self.W)
+    def initialize(self):
+        self.weights_init.initialize(self.W, self.rng)
+
+    def forward(self, x1, x2):
+        x = torch.cat((x1, x2), 1)
+        print(f"x : {x}")
+        print(f" x_shape : {x.shape}")
+
+        h = self.activation()(x)
+        # h = F.tanh(x)
+        print(f" h : {h}")
+        print(f" h_shape : {h.shape}")
+        # print(x.dot(self.W))
+        print(torch.mm(x, self.W))
+        # z = self.gate_activation(x.dot(self.W))
+
+        out = torch.rand(510)
+        z = self.gate_activation(torch.mm(x, self.W))
+
+        out[k] = z * h[:, :self.dim] + (1 - z) * h[:, self.dim:]
+
+        return out, z
+        # return z * h[:, :self.dim] + (1 - z) * h[:, self.dim:], z
+
+
+a = torch.rand((64,500))
+b = torch.rand((64,500))
+net = GatedBimodal(a.shape[1])
+# a = torch.tensor([[1,2],[3,4]])
+# b = torch.tensor([[1,2],[3,4]])
+print(a)
+print(b)
+# print(a.shape[1])
+# print(torch.dot(a[0], b))
+# print(a[0]*b[0])
+# print(a[1]*b[1])
+print(net(a,b))
 
 sys.exit()
 w= []

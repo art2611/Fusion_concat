@@ -5,6 +5,15 @@ from torch.nn import init
 from torchvision.models import resnet18 as resnet50
 # from torchsummary import summary
 
+# import theano
+# from blocks import initialization
+# from blocks.bricks import (Initializable, FeedforwardSequence, LinearMaxout,
+#                            Tanh, lazy, application, BatchNormalization, Linear,
+#                            NDimensionalSoftmax, Logistic, Softmax, Sequence, Rectifier)
+# from blocks.bricks.parallel import Fork
+# from blocks.utils import shared_floatx_nans
+# from blocks.roles import add_role, WEIGHT
+
 class Identity(nn.Module):
     def __init__(self):
         super(Identity, self).__init__()
@@ -98,6 +107,50 @@ class fusion_function_concat(nn.Module): # concat the features and
         x = self.fusionBlock(x)
         return x
 
+# class GatedBimodal(nn.Module):
+#
+#     u"""Gated Bimodal neural network.
+#     Parameters
+#     ----------
+#     dim : int
+#         The dimension of the hidden state.
+#     activation : :class:`~.bricks.Brick` or None
+#         The brick to apply as activation. If ``None`` a
+#         :class:`.Tanh` brick is used.
+#     gate_activation : :class:`~.bricks.Brick` or None
+#         The brick to apply as activation for gates. If ``None`` a
+#         :class:`.Logistic` brick is used.
+#     Notes
+#     -----
+#     See :class:`.Initializable` for initialization parameters.
+#     """
+#     def __init__(self, dim, activation=None, gate_activation=None):
+#         super(GatedBimodal, self).__init__()
+#         self.dim = dim
+#         if not activation:
+#             activation = nn.Tanh()
+#         if not gate_activation:
+#             gate_activation = nn.Sigmoid()
+#         self.activation = activation
+#         self.gate_activation = gate_activation
+#         self.W = nn.Parameter()
+#
+#
+#     def _allocate(self):
+#         self.W = shared_floatx_nans(
+#             (2 * self.dim, self.dim), name='input_to_gate')
+#         add_role(self.W, WEIGHT)
+#         self.parameters.append(self.W)
+#
+#     def _initialize(self):
+#         self.weights_init.initialize(self.W, self.rng)
+#
+#     def forward(self, x1, x2):
+#         x = torch.cat((x1, x2), 1)
+#         h = self.activation.apply(x)
+#         z = self.gate_activation.apply(x.dot(self.W))
+#         return z * h[:, :self.dim] + (1 - z) * h[:, self.dim:], z
+
 class Global_network(nn.Module):
     def __init__(self,  class_num, arch='resnet50', fusion_layer=4):
         super(Global_network, self).__init__()
@@ -109,19 +162,23 @@ class Global_network(nn.Module):
         resnet18_layer_size = [3, 64, 64, 128, 256, 512]
 
         self.fusion_function_concat = fusion_function_concat(resnet18_layer_size[fusion_layer])
+        # pool_dim = 2048
+        #Resnet18 pool dim
+        pool_dim = 512
+
+        # self.gbu = GatedBimodal(pool_dim, weights_init=initialization.Uniform(width=gbu_init_range))
 
         self.shared_resnet = shared_resnet(arch=arch, fusion_layer=fusion_layer)
 
 
-        # pool_dim = 2048
-        #Resnet18 pool dim
-        pool_dim = 512
+
 
         # self.bottleneck.apply(weights_init_kaiming)
         # self.classifier.apply(weights_init_classifier)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.bottleneck = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
+        self.fc_fuse = nn.Linear(2*pool_dim, pool_dim)
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
@@ -130,12 +187,16 @@ class Global_network(nn.Module):
             x1 = self.visible_module(x1)
             x2 = self.thermal_module(x2)
             # Multiple fusion definitions
-            if fuse == "cat":
+            if fuse == "cat" :
                 x = torch.cat((x1, x2), -1)
             elif fuse == "sum":
                 x = x1.add(x2)
             elif fuse == "cat_channel" :
                 x = self.fusion_function_concat(x1, x2)
+            elif fuse == "fc_fuse":
+                x = torch.cat((x1, x2), 1)
+            # elif fuse == "GBU" :
+            #     x, z = self.gbu.apply(x1, x2)
         # If fuse == none : we train a unimodal model => RGB or IR ? Refer to modality
         else :
             if modality=="VtoV" :
@@ -150,6 +211,8 @@ class Global_network(nn.Module):
 
         feat = self.bottleneck(x_pool) #torch.Size([64, 2048])
 
+        if fuse == "fc_fuse" :
+            feat = self.fc_fuse(feat)
         if self.training:
             return x_pool, self.fc(feat)
         else:

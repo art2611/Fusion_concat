@@ -17,8 +17,8 @@ import argparse
 from datetime import date
 
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
-parser.add_argument('--fusion', default='unimodal', help='Which layer to fuse (early, layer1, layer2 .., layer5, unimodal)')
-parser.add_argument('--fuse', default='none', help='Fusion type (cat / cat_channel / sum)')
+parser.add_argument('--fusion', default='unimodal', help='Which layer to fuse (early, layer1, layer2 .., layer5, fc_fuse, unimodal)')
+parser.add_argument('--fuse', default='none', help='Fusion type (cat / cat_channel / sum / fc_fuse)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='SYSU', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='VtoV', help='Type of ReID (BtoB / VtoV / TtoT)')
@@ -97,8 +97,8 @@ d1 = today.strftime("%d")
 writer = SummaryWriter(f"runs/{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
 ### Verify the fusion args is good
-fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'unimodal']
-fuse_list=['cat', 'cat_channel', 'sum', 'none']
+fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'fc_fuse', 'unimodal']
+fuse_list=['cat', 'cat_channel', 'sum', 'fc_fuse', 'none']
 if args.fusion not in fusion_list :
     sys.exit(f'--fusion should be in {fusion_list}')
 if args.fuse not in fuse_list :
@@ -238,7 +238,7 @@ print('==> Building model..')
 
 # Just call the network needed - Two distinct model if the fusion is at scores position
 # net = Networks[args.fusion]
-Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "unimodal":0}
+Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "fc_fuse":5, "unimodal":0}
 # New global model
 net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
 
@@ -269,10 +269,10 @@ def train(epoch):
         labels = Variable(labels.cuda())
 
         data_time.update(time.time() - end)
-        # If the reid is unimodal, the network use only the first input
-        # So if the reid is TtoT (Thermal to Thermal), the first input has to be the IR image
-        # If the reid is VtoV (Visible to visible), the first input is already the RGB image
-        # If the reid is using both images (BtoB), there is nothing to do too, network use the two inputs
+
+        # If the reid is unimodal VtoV (Visible to Visible), the network use only the first input
+        # If the reid is unimodal TtoT (Thermal to Thermal), the network use only the second input
+        # If the reid is using both images (BtoB), the network uses the two inputs
 
         feat, out0, = net(input1, input2, fuse = args.fuse, modality=args.reid)
 
