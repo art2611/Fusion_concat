@@ -177,6 +177,7 @@ class Global_network(nn.Module):
         # self.classifier.apply(weights_init_classifier)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.bottleneck = nn.BatchNorm1d(pool_dim)
+        self.bottleneck_fc = nn.BatchNorm1d(2*pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
         # self.fc_fuse = nn.Linear(2*pool_dim, pool_dim)
         self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias=True), nn.ReLU(inplace=True))
@@ -211,10 +212,14 @@ class Global_network(nn.Module):
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1))
         print(x_pool.shape)
-        feat = self.bottleneck(x_pool) #torch.Size([64, 2048])
-        print(feat.shape)
+
+
         if fuse == "fc_fuse" :
+            feat = self.bottleneck_fc(x_pool)  # torch.Size([64, 2048])
+            print(feat.shape)
             x = self.fc_fuse(x)
+        else :
+            feat = self.bottleneck(x_pool)  # torch.Size([64, 2048])
         # if fuse == "fc_fuse" :
         #     feat = self.fc_fuse(feat)
         if self.training:
