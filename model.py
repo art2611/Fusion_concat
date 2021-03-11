@@ -130,7 +130,7 @@ class GatedBimodal(nn.Module):
         x = torch.cat((x1, x2), 1) # torch.Size([batch size, 2 * dim of input features])
         # Get the batch size
         batch_size = x.shape[0]
-
+        print(self.Wz)
         # Get vector of scalar. One scalar for each feature from the batch
         hv = self.activation(torch.mm(self.Wv, torch.transpose(x1, 0, 1))) # torch.Size([1, batch size])
         ht = self.activation(torch.mm(self.Wt, torch.transpose(x2, 0, 1))) # torch.Size([1, batch size])
@@ -178,8 +178,8 @@ class Global_network(nn.Module):
         self.bottleneck2 = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
         self.bottleneck2.bias.requires_grad_(False)  # no shift
-        self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = True)
         self.gmu = GatedBimodal(pool_dim)
+        self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = False), nn.ReLu())
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
@@ -195,7 +195,7 @@ class Global_network(nn.Module):
             elif fuse == "cat_channel" :
                 x = self.fusion_function_concat(x1, x2)
                 #The fc can't be used here since the dim is not already [32,1024] but [32,1024,7,2]
-            elif fuse == "fc_fuse":
+            elif fuse == "fc_fuse" or fuse == "gmu":
                 x = x1
             # elif fuse == "GBU" :
             #     x, z = self.gbu.apply(x1, x2)
@@ -213,7 +213,7 @@ class Global_network(nn.Module):
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
         # The fc can be used here since the dim is ok but it is less working than after the batch norm
         feat = self.bottleneck(x_pool)
-        if fuse == "fc_fuse" :
+        if fuse == "fc_fuse" or fuse == "gmu":
             x_pool2 = self.avgpool2(x2)
             x_pool2 = x_pool.view(x_pool2.size(0), x_pool2.size(1))  # torch.Size([32, 512, 9, 5])
 
@@ -221,20 +221,16 @@ class Global_network(nn.Module):
 
             feat2 = self.bottleneck2(x_pool2)  # torch.Size([32, 512])
 
-            feat = torch.cat((feat, feat2), 1)
-            feat = self.fc_fuse(feat)
-            # print(f"After Batch norm shape : {feat.shape}")
-            # The fc is best used here, but still decrease
-        elif fuse == "gmu" :
-            feat, z = self.gmu(x1,x2)
-        else :
-            feat= self.bottleneck(x_pool)  # torch.Size([64, 2048])
-        # if fuse == "fc_fuse" :
-        #     feat = self.fc_fuse(feat)
+            if fuse == "gmu":
+                feat, z = self.gmu(x1, x2)
+            elif fuse == "fc_fuse" :
+                feat = torch.cat((feat, feat2), 1)
+                feat = self.fc_fuse(feat)
+
         if self.training:
             return x_pool, self.fc(feat)
         else:
-            if fuse == "fc_fuse" :
+            if fuse == "fc_fuse" or fuse =="gmu" :
                 return self.l2norm(feat), self.l2norm(feat), feat
             return self.l2norm(x_pool), self.l2norm(feat), feat
 

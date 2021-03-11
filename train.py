@@ -17,8 +17,8 @@ import argparse
 from datetime import date
 
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
-parser.add_argument('--fusion', default='fc_fuse', help='Which layer to fuse (early, layer1, layer2 .., layer5, fc_fuse, unimodal)')
-parser.add_argument('--fuse', default='fc_fuse', help='Fusion type (cat / cat_channel / sum / fc_fuse)')
+parser.add_argument('--fusion', default='fc_fuse', help='Which layer to fuse (early, layer1, layer2 .., layer5, fc_fuse, gmu, unimodal)')
+parser.add_argument('--fuse', default='fc_fuse', help='Fusion type (cat / cat_channel / sum / fc_fuse / gmu)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='TWorld', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / VtoV / TtoT)')
@@ -97,8 +97,8 @@ d1 = today.strftime("%d")
 writer = SummaryWriter(f"runs/{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
 ### Verify the fusion args is good
-fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'fc_fuse', 'unimodal']
-fuse_list=['cat', 'cat_channel', 'sum', 'fc_fuse', 'none']
+fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'fc_fuse', 'gmu', 'unimodal']
+fuse_list=['cat', 'cat_channel', 'sum', 'fc_fuse', 'gmu', 'none']
 if args.fusion not in fusion_list :
     sys.exit(f'--fusion should be in {fusion_list}')
 if args.fuse not in fuse_list :
@@ -238,7 +238,8 @@ print('==> Building model..')
 
 # Just call the network needed - Two distinct model if the fusion is at scores position
 # net = Networks[args.fusion]
-Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "fc_fuse":5, "unimodal":0}
+Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "fc_fuse":5, "gmu" : 5, "unimodal":0}
+
 # New global model
 net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
 
@@ -343,13 +344,14 @@ def valid(epoch):
 print('==> Start Training...')
 #Train function
 ignored_params = list(map(id, net.bottleneck.parameters())) \
-                 + list(map(id, net.fc.parameters()))
+                 + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters()))
 
 base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
 
 optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * lr},
     {'params': net.bottleneck.parameters(), 'lr': lr},
+    {'params': net.fc_fuse, 'lr': lr},
     {'params': net.fc.parameters(), 'lr': lr}],
     weight_decay=5e-4, momentum=0.9, nesterov=True)
 
