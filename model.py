@@ -221,7 +221,7 @@ class Global_network(nn.Module):
             elif fuse == "fc_fuse" :
                 x_pool = torch.cat((x_pool, x_pool2), 1)
                 x_pool = self.fc_fuse(x_pool)
-                x_pool = F.ReLU(x_pool)
+                x_pool = F.relu(x_pool)
 
         feat = self.bottleneck(x_pool)
 
