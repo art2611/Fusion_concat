@@ -132,7 +132,7 @@ def extract_query_feat(query_loader, nquery, net, modality="VtoV"):
 # Init Var
 mAP_list = []
 mINP_list = []
-trials = 10
+trials = 30
 folds = 5
 mAP_mINP_per_trial = {"mAP" : [0 for i in range(trials)], "mINP" : [0 for i in range(trials)]}
 mAP_mINP_per_model = {"mAP" : [0 for i in range(folds)], "mINP" : [0 for i in range(folds)]}
@@ -146,14 +146,13 @@ Need_two_trained_unimodals = {"early": False,"layer1":False, "layer2":False, \
 
 
 if args.dataset == "TWorld" or args.dataset == "RegDB" :
-    trials = 0
     data_path = f'../Datasets/{args.dataset}/'
     net = []
     net2 = [[] for i in range(folds)]
     # Since we are supposed to have 5 models (5 fold validation), this loop get an average result
     # no map per trial for these datasets :
-    mAP_mINP_per_trial["mAP"][:] = [0 for i in range(10)]
-    mAP_mINP_per_trial["mINP"][:] = [0 for i in range(10)]
+    mAP_mINP_per_trial["mAP"][:] = [0 for i in range(trials)]
+    mAP_mINP_per_trial["mINP"][:] = [0 for i in range(trials)]
     for fold in range(folds):
         suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
         print('==> Resuming from checkpoint..')
@@ -553,11 +552,10 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
     standard_deviation_mAP_trial = 0
     standard_deviation_mINP_trial = 0
 else :
-    standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k] / 10 for k in range(5)])
-    standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k] / 10 for k in range(5)])
-    standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mAP"][k] / 5 for k in range(10)])
-    standard_deviation_mINP_trial = np.std([mAP_mINP_per_trial["mINP"][k] / 5 for k in range(10)])
-    trials = 10
+    standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k] / trials for k in range(folds)])
+    standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k] / trials for k in range(folds)])
+    standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mAP"][k] / folds for k in range(trials)])
+    standard_deviation_mINP_trial = np.std([mAP_mINP_per_trial["mINP"][k] / folds for k in range(trials)])
 
 cmc = all_cmc / (folds * trials)
 mAP = all_mAP / (folds * trials)

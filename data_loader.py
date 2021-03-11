@@ -288,7 +288,7 @@ def process_sysu(data_path, method, fold = 0 ):
         print("Test set called")
         input_data_path = data_path + f'exp/test_id.txt'
         input_query_gallery_path = data_path + f'exp/query_gallery_test.txt'
-        fold_or_trial_total_number=10
+        fold_or_trial_total_number=30
     elif method == "valid":
         input_data_path = os.path.join(data_path, f'exp/val_id_{fold}.txt')
         input_query_gallery_path = data_path + f'exp/query_gallery_validation.txt'
