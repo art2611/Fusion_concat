@@ -209,16 +209,16 @@ class Global_network(nn.Module):
                 x = self.visible_module(x2)
 
         x = self.shared_resnet(x)
-        print(f"Before pool shape : {x.shape}")
+        # print(f"Before pool shape : {x.shape}")
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
-        print(f"After pool shape : {x_pool.shape}")
+        # print(f"After pool shape : {x_pool.shape}")
 
         if fuse == "fc_fuse" :
             feat = self.bottleneck_fc(x_pool)  # torch.Size([32, 512])
-            print(f"After Batch norm shape : {feat.shape}")
+            # print(f"After Batch norm shape : {feat.shape}")
             feat = self.fc_fuse(feat)
-            print(f"FC fuse shape : {feat.shape}")
+            # print(f"FC fuse shape : {feat.shape}")
         else :
             feat = self.bottleneck(x_pool)  # torch.Size([64, 2048])
         # if fuse == "fc_fuse" :
