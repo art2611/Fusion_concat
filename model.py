@@ -179,7 +179,7 @@ class Global_network(nn.Module):
         self.bottleneck = nn.BatchNorm1d(pool_dim)
         self.bottleneck_fc = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
-        self.fc_fuse = nn.Linear(2*pool_dim, pool_dim)
+        self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = False)
         # self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias=False), nn.ReLU())
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
