@@ -224,7 +224,7 @@ class Global_network(nn.Module):
             feat2 = self.bottleneck2(x_pool2)  # torch.Size([32, 512])
 
             if fuse == "gmu":
-                feat, z = self.gmu(x1, x2)
+                feat, z = self.gmu(feat, feat2)
             elif fuse == "fc_fuse" :
                 feat = torch.cat((feat, feat2), 1)
                 feat = self.fc_fuse(feat)
