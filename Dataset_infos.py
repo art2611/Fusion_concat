@@ -290,7 +290,7 @@ if True :
     #         f.write(f"fold_or_trial\n")
 
 # Generate query gallery random positions for SYSU (first two positions will be used as query and the remaining as gallery)
-if False :
+if True :
     # Test query gallery generation
     img_dir = '../Datasets/SYSU/'
     input_data_path = img_dir + f'exp/test_id.txt'
@@ -368,42 +368,42 @@ if False :
         if i < trials :
             f.write(f"fold_or_trial\n")
 
-    # Validation query gallery generation
-    img_dir = '../Datasets/SYSU/'
-    f = open(img_dir + "exp/" + 'query_gallery_validation.txt', 'w')
-    for fold in range(5):
-        input_data_path = img_dir + f'exp/val_id_{fold}.txt'
-
-        ### GET ids in a list
-        with open(input_data_path, 'r') as file:
-            ids = file.read().splitlines()
-            ids = [int(y) for y in ids[0].split(',')]
-            ids = ["%04d" % x for x in ids]
-
-        ids_file_RGB = []
-        ids_file_IR = []
-        img_dir_init = img_dir
-        # For all ids :
-        for id in ids :
-            files_ir = 0
-            for k in [3,6]:
-                img_dire = os.path.join(img_dir_init, f'cam{k}', id)
-                if os.path.isdir(img_dire):
-                    if files_ir == 0:
-                        files_ir = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
-                    else:
-                        files_ir.extend(sorted([img_dire + '/' + i for i in os.listdir(img_dire)]))
-
-            files_rgb = 0
-            for k in [1,2,4,5]:
-                img_dire = os.path.join(img_dir_init, f'cam{k}', id)
-                if os.path.isdir(img_dire) :
-                    if files_rgb == 0:
-                        files_rgb = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
-                    else:
-                        files_rgb.extend(sorted([img_dire + '/' + i for i in os.listdir(img_dire)]))
-            ids_file_RGB.append(files_rgb)
-            ids_file_IR.append(files_ir)
+    # # Validation query gallery generation
+    # img_dir = '../Datasets/SYSU/'
+    # f = open(img_dir + "exp/" + 'query_gallery_validation.txt', 'w')
+    # for fold in range(5):
+    #     input_data_path = img_dir + f'exp/val_id_{fold}.txt'
+    #
+    #     ### GET ids in a list
+    #     with open(input_data_path, 'r') as file:
+    #         ids = file.read().splitlines()
+    #         ids = [int(y) for y in ids[0].split(',')]
+    #         ids = ["%04d" % x for x in ids]
+    #
+    #     ids_file_RGB = []
+    #     ids_file_IR = []
+    #     img_dir_init = img_dir
+    #     # For all ids :
+    #     for id in ids :
+    #         files_ir = 0
+    #         for k in [3,6]:
+    #             img_dire = os.path.join(img_dir_init, f'cam{k}', id)
+    #             if os.path.isdir(img_dire):
+    #                 if files_ir == 0:
+    #                     files_ir = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
+    #                 else:
+    #                     files_ir.extend(sorted([img_dire + '/' + i for i in os.listdir(img_dire)]))
+    #
+    #         files_rgb = 0
+    #         for k in [1,2,4,5]:
+    #             img_dire = os.path.join(img_dir_init, f'cam{k}', id)
+    #             if os.path.isdir(img_dire) :
+    #                 if files_rgb == 0:
+    #                     files_rgb = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
+    #                 else:
+    #                     files_rgb.extend(sorted([img_dire + '/' + i for i in os.listdir(img_dire)]))
+    #         ids_file_RGB.append(files_rgb)
+    #         ids_file_IR.append(files_ir)
 
 
         # random.seed(fold)
