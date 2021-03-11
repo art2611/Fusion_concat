@@ -216,7 +216,7 @@ class Global_network(nn.Module):
         # The fc can be used here since the dim is ok but it is less working than after the batch norm
 
         if fuse == "fc_fuse" :
-            feat = self.bottleneck_fc(x_pool)  # torch.Size([32, 512])
+            feat = self.bottleneck2(x_pool)  # torch.Size([32, 512])
             feat = self.fc_fuse
             # print(f"After Batch norm shape : {feat.shape}")
             # The fc is best used here, but still decrease
