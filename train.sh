@@ -1,5 +1,5 @@
 #!/bin/sh
-read -e -p "Enter the fusion type (early/layerX/fc_fuse/unimodal) : " FUSION
+read -e -p "Enter the fusion type (early/layerX/fc_fuse/gmu/unimodal) : " FUSION
 echo $FUSION
 echo "BONJOUR"
 if [ "$FUSION" =  "unimodal" ]
@@ -19,7 +19,7 @@ then
   DATASET="SYSU"
 fi
 
-read -e -p "Enter the the fuse type (sum/cat/cat_channel/fc_fuse/none) :" FUSE
+read -e -p "Enter the the fuse type (sum/cat/cat_channel/fc_fuse/gmu/none) :" FUSE
 echo $FUSE
 
 for i in `seq 0 4`;
