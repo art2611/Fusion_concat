@@ -141,7 +141,7 @@ class GatedBimodal(nn.Module):
         z = self.gate_activation(torch.mm(x, self.Wz)) # torch.Size([batch size, dim of input features])
 
         # Prepare the fused feature tensor of size [batch size , dim input feature)
-        fused_feat = torch.rand(batch_size, self.dim)
+        fused_feat = torch.rand(batch_size, self.dim).cuda()
 
         # For each feature from batch, return the weighted sum
         for k in range(batch_size) :
