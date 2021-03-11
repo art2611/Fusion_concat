@@ -217,7 +217,7 @@ class Global_network(nn.Module):
 
         if fuse == "fc_fuse" :
             feat = self.bottleneck2(x_pool)  # torch.Size([32, 512])
-            feat = self.fc_fuse
+            feat = self.fc_fuse(feat)
             # print(f"After Batch norm shape : {feat.shape}")
             # The fc is best used here, but still decrease
         elif fuse == "gmu" :
