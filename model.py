@@ -177,11 +177,10 @@ class Global_network(nn.Module):
         # self.classifier.apply(weights_init_classifier)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.bottleneck = nn.BatchNorm1d(pool_dim)
-        self.bottleneck_fc = nn.BatchNorm1d(pool_dim)
+        self.bottleneck_fc = nn.BatchNorm1d(2*pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
         # self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = False)
-        self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias=False), nn.ReLU())
-        self.fc = nn.Linear(pool_dim, class_num, bias=False)
+        self.fc = nn.Linear(2*pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
 
     def forward(self, x1, x2, modal=0, fuse="cat_channel", modality = "BtoB"):
@@ -209,9 +208,6 @@ class Global_network(nn.Module):
                 x = self.visible_module(x2)
 
         x = self.shared_resnet(x)
-
-        x = self.fc_fuse(x)
-        print(f"FC fuse shape : {x.shape}")
 
         # print(f"Before pool shape : {x.shape}")
         x_pool = self.avgpool(x)
