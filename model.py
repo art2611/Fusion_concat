@@ -132,8 +132,6 @@ class GatedBimodal(nn.Module):
         batch_size = x.shape[0]
         # print(self.Wz)
         # Get vector of scalar. One scalar for each feature from the batch
-        print(self.Wv.shape)
-        print(x1.shape)
         hv = self.activation(torch.mm(self.Wv, torch.transpose(x1, 0, 1))) # torch.Size([1, batch size])
         ht = self.activation(torch.mm(self.Wt, torch.transpose(x2, 0, 1))) # torch.Size([1, batch size])
 
