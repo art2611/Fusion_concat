@@ -35,71 +35,55 @@ from sklearn.preprocessing import MinMaxScaler
 # print(data)
 
 class GatedBimodal(nn.Module):
-
-    u"""Gated Bimodal neural network.
-    Parameters
-    ----------
-    dim : int
-        The dimension of the hidden state.
-    activation : :class:`~.bricks.Brick` or None
-        The brick to apply as activation. If ``None`` a
-        :class:`.Tanh` brick is used.
-    gate_activation : :class:`~.bricks.Brick` or None
-        The brick to apply as activation for gates. If ``None`` a
-        :class:`.Logistic` brick is used.
-    Notes
-    -----
-    See :class:`.Initializable` for initialization parameters.
-    """
-    def __init__(self, dim, activation=None, gate_activation=None):
+    u"""Gated Multimodal Unit neural network - Bimodal use"""
+    def __init__(self, dim):
         super(GatedBimodal, self).__init__()
+
         self.dim = dim
-        if not activation:
-            activation = nn.Tanh()
-        if not gate_activation:
-            gate_activation = nn.Sigmoid()
-        self.activation = activation
-        self.gate_activation = gate_activation
-        self.W = nn.parameter.Parameter(torch.rand(2*dim, dim))
+        self.activation = nn.Tanh()
+        self.gate_activation = nn.Sigmoid()
 
-        # self.initialize()
-    # def _allocate(self):
-    #     self.W = shared_floatx_nans(
-    #         (2 * self.dim, self.dim), name='input_to_gate')
-    #     add_role(self.W, WEIGHT)
-    #     self.parameters.append(self.W)
-    def initialize(self):
-        self.weights_init.initialize(self.W, self.rng)
+        # Learnable weights definition - As describe in the paper
+        self.Wz = nn.parameter.Parameter(torch.rand(2*dim, dim))
+        self.Wt = nn.parameter.Parameter(torch.rand(1, dim))
+        self.Wv = nn.parameter.Parameter(torch.rand(1, dim))
+        self.Wz.requires_grad = True
+        self.Wt.requires_grad = True
+        self.Wv.requires_grad = True
 
+    # x1 and x2 will respectively be RGB input and IR thermal input.
     def forward(self, x1, x2):
-        x = torch.cat((x1, x2), 1)
-        print(f"x : {x}")
-        print(f" x_shape : {x.shape}")
+        # Prepare the cat tensor for incoming z calcul
+        x = torch.cat((x1, x2), 1) # torch.Size([batch size, 2 * dim of input features])
+        # Get the batch size
+        batch_size = x.shape[0]
 
-        h = self.activation()(x)
-        # h = F.tanh(x)
-        print(f" h : {h}")
-        print(f" h_shape : {h.shape}")
-        # print(x.dot(self.W))
-        print(torch.mm(x, self.W))
-        # z = self.gate_activation(x.dot(self.W))
+        # Get vector of scalar. One scalar for each feature from the batch
+        hv = self.activation(torch.mm(self.Wv, torch.transpose(x1, 0, 1))) # torch.Size([1, batch size])
+        ht = self.activation(torch.mm(self.Wt, torch.transpose(x2, 0, 1))) # torch.Size([1, batch size])
 
-        out = torch.rand(510)
-        z = self.gate_activation(torch.mm(x, self.W))
+        # Get the weights for weighted sum fusion of the two modalities
+        z = self.gate_activation(torch.mm(x, self.Wz)) # torch.Size([batch size, dim of input features])
 
-        out[k] = z * h[:, :self.dim] + (1 - z) * h[:, self.dim:]
+        # Prepare the fused feature tensor of size [batch size , dim input feature)
+        fused_feat = torch.rand(batch_size, self.dim)
 
-        return out, z
-        # return z * h[:, :self.dim] + (1 - z) * h[:, self.dim:], z
+        # For each feature from batch, return the weighted sum
+        for k in range(batch_size) :
+            fused_feat[k] = z[k][:]*hv[0][k] + (1-z[k][:])*ht[0][k]  # torch.Size([1, dim of input feature])
+
+        # Get the fused features and the matrix of weight, in a way to see which modality contributed the most further
+        return fused_feat, z
 
 
 a = torch.rand((64,500))
 b = torch.rand((64,500))
+
 net = GatedBimodal(a.shape[1])
 # a = torch.tensor([[1,2],[3,4]])
 # b = torch.tensor([[1,2],[3,4]])
-print(a)
-print(b)
+# print(a)
+# print(b)
 # print(a.shape[1])
 # print(torch.dot(a[0], b))
 # print(a[0]*b[0])
