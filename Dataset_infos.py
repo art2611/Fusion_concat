@@ -201,10 +201,10 @@ if False :
 
 
 # Generate query gallery random positions for TWorld (first two positions will be used as query and the remaining as gallery)
-if False :
+if True :
     img_dir = '../Datasets/TWorld/'
     input_data_path = img_dir + f'exp/testing.txt'
-
+    trials = 30
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
         ids = file.read().splitlines()
@@ -230,7 +230,7 @@ if False :
     query_random_selection = [[] for i in range(10)]
     gallery_random_selection = [[] for i in range(10)]
 
-    for j in range(10):
+    for j in range(trials):
         random.seed(j)
         for k in range(len(ids)):
             files_ir = ids_file_IR[k]
@@ -243,54 +243,54 @@ if False :
             for w in range(number_images_for_id_k - 1) :
                 f.write(f"{smpl[w]},")
             f.write(f"{smpl[number_images_for_id_k - 1]}\n")
-        if j < 9 :
+        if j < trials - 1 :
             f.write(f"fold_or_trial\n")
 
-    f = open(img_dir + "exp/" + 'query_gallery_validation.txt', 'w')
-    for fold in range(5) :
-        input_data_path = img_dir + f'exp/val_id_{fold}.txt'
-
-        ### GET ids in a list
-        with open(input_data_path, 'r') as file:
-            ids = file.read().splitlines()
-            ids = [int(y) for y in ids[0].split(',')]
-
-        ids_file_RGB = []
-        ids_file_IR = []
-        img_dir_init = img_dir
-        # For all ids :
-        for id in ids :
-            img_dire = img_dir_init + "/TV_FULL/" + str(id)
-            if os.path.isdir(img_dire):
-                # Get the list of images for one id
-                new_files = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
-                # Get the list of list, containing RGB images per identity
-                ids_file_RGB.append(new_files)
-            img_dire = img_dir_init + "/IR_8/" + str(id)
-            if os.path.isdir(img_dire):
-                new_files = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
-                ids_file_IR.append(new_files)
-
-        query_random_selection = [[] for i in range(10)]
-        gallery_random_selection = [[] for i in range(10)]
-
-        random.seed(fold)
-        for k in range(len(ids)):
-            files_ir = ids_file_IR[k]
-            files_rgb = ids_file_RGB[k]
-            number_images_for_id_k = len(files_rgb)
-            images_position_list = [ i for i in range(number_images_for_id_k)]
-
-            smpl = random.sample(images_position_list, number_images_for_id_k)
-
-            for w in range(number_images_for_id_k - 1) :
-                f.write(f"{smpl[w]},")
-            f.write(f"{smpl[number_images_for_id_k - 1]}\n")
-        if fold < 4 :
-            f.write(f"fold_or_trial\n")
+    # f = open(img_dir + "exp/" + 'query_gallery_validation.txt', 'w')
+    # for fold in range(5) :
+    #     input_data_path = img_dir + f'exp/val_id_{fold}.txt'
+    #
+    #     ### GET ids in a list
+    #     with open(input_data_path, 'r') as file:
+    #         ids = file.read().splitlines()
+    #         ids = [int(y) for y in ids[0].split(',')]
+    #
+    #     ids_file_RGB = []
+    #     ids_file_IR = []
+    #     img_dir_init = img_dir
+    #     # For all ids :
+    #     for id in ids :
+    #         img_dire = img_dir_init + "/TV_FULL/" + str(id)
+    #         if os.path.isdir(img_dire):
+    #             # Get the list of images for one id
+    #             new_files = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
+    #             # Get the list of list, containing RGB images per identity
+    #             ids_file_RGB.append(new_files)
+    #         img_dire = img_dir_init + "/IR_8/" + str(id)
+    #         if os.path.isdir(img_dire):
+    #             new_files = sorted([img_dire + '/' + i for i in os.listdir(img_dire)])
+    #             ids_file_IR.append(new_files)
+    #
+    #     query_random_selection = [[] for i in range(10)]
+    #     gallery_random_selection = [[] for i in range(10)]
+    #
+    #     random.seed(fold)
+    #     for k in range(len(ids)):
+    #         files_ir = ids_file_IR[k]
+    #         files_rgb = ids_file_RGB[k]
+    #         number_images_for_id_k = len(files_rgb)
+    #         images_position_list = [ i for i in range(number_images_for_id_k)]
+    #
+    #         smpl = random.sample(images_position_list, number_images_for_id_k)
+    #
+    #         for w in range(number_images_for_id_k - 1) :
+    #             f.write(f"{smpl[w]},")
+    #         f.write(f"{smpl[number_images_for_id_k - 1]}\n")
+    #     if fold < 4 :
+    #         f.write(f"fold_or_trial\n")
 
 # Generate query gallery random positions for SYSU (first two positions will be used as query and the remaining as gallery)
-if True :
+if False :
     # Test query gallery generation
     img_dir = '../Datasets/SYSU/'
     input_data_path = img_dir + f'exp/test_id.txt'
@@ -517,10 +517,10 @@ if False :
     print(img_gallery[0])
 
 #Generate RegDB query/ gallery repartition in file for RegDB test
-if False :
+if True :
     img_dir = '../Datasets/RegDB/'
     input_data_path = img_dir + f'idx/test_visible_{1}.txt'
-
+    trials = 30
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
         data_file_list = open(input_data_path, 'rt').read().splitlines()
@@ -530,7 +530,7 @@ if False :
     ids = np.unique(file_label_visible)
 
     f = open(img_dir + "exp/" + 'query_gallery_test.txt', 'w')
-    for i in range(10):
+    for i in range(trials):
         random.seed(i)
         for k in range(len(ids)):
             files_rgb = ids_file_RGB[k*10:(k+1)*10]
@@ -539,39 +539,39 @@ if False :
 
             smpl = random.sample(images_position_list, number_images_for_id_k)
 
-
             for w in range(number_images_for_id_k - 1) :
                 f.write(f"{smpl[w]},")
             f.write(f"{smpl[number_images_for_id_k - 1]}\n")
-        f.write(f"fold_or_trial\n")
-
-    #Generate for validation folds
-    img_dir = '../Datasets/RegDB/'
-    f = open(img_dir + "exp/" + 'query_gallery_validation.txt', 'w')
-    for i in range(5) :
-
-        input_data_path = img_dir + f'idx/val_id_RGB_{i}.txt'
-
-        ### GET ids in a list
-        with open(input_data_path, 'r') as file:
-            data_file_list = open(input_data_path, 'rt').read().splitlines()
-            # Get full list of image and labels
-            ids_file_RGB = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
-            file_label_visible = [int(s.split(' ')[1]) for s in data_file_list]
-        ids = np.unique(file_label_visible)
-
-        random.seed(w)
-        for k in range(len(ids)):
-            files_rgb = ids_file_RGB[k*10:(k+1)*10]
-            number_images_for_id_k = len(files_rgb)
-            images_position_list = [ i for i in range(number_images_for_id_k)]
-
-            smpl = random.sample(images_position_list, number_images_for_id_k)
-
-
-            for w in range(number_images_for_id_k - 1) :
-                f.write(f"{smpl[w]},")
-            f.write(f"{smpl[number_images_for_id_k - 1]}\n")
-        print(i)
-        if i<4 :
+        if i < trials - 1 :
             f.write(f"fold_or_trial\n")
+
+    # #Generate for validation folds
+    # img_dir = '../Datasets/RegDB/'
+    # f = open(img_dir + "exp/" + 'query_gallery_validation.txt', 'w')
+    # for i in range(5) :
+    #
+    #     input_data_path = img_dir + f'idx/val_id_RGB_{i}.txt'
+    #
+    #     ### GET ids in a list
+    #     with open(input_data_path, 'r') as file:
+    #         data_file_list = open(input_data_path, 'rt').read().splitlines()
+    #         # Get full list of image and labels
+    #         ids_file_RGB = [img_dir + '/' + s.split(' ')[0] for s in data_file_list]
+    #         file_label_visible = [int(s.split(' ')[1]) for s in data_file_list]
+    #     ids = np.unique(file_label_visible)
+    #
+    #     random.seed(w)
+    #     for k in range(len(ids)):
+    #         files_rgb = ids_file_RGB[k*10:(k+1)*10]
+    #         number_images_for_id_k = len(files_rgb)
+    #         images_position_list = [ i for i in range(number_images_for_id_k)]
+    #
+    #         smpl = random.sample(images_position_list, number_images_for_id_k)
+    #
+    #
+    #         for w in range(number_images_for_id_k - 1) :
+    #             f.write(f"{smpl[w]},")
+    #         f.write(f"{smpl[number_images_for_id_k - 1]}\n")
+    #     print(i)
+    #     if i<4 :
+    #         f.write(f"fold_or_trial\n")

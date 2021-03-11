@@ -22,6 +22,8 @@ parser.add_argument('--fuse', default='gmu', help='Fusion type (cat / cat_channe
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='TWorld', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / VtoV / TtoT)')
+parser.add_argument('--LOO', default='query', help='Leave one out (query / gallery)')
+
 args = parser.parse_args()
 
 # Function to extract gallery features
@@ -94,7 +96,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 today = date.today()
 # dd/mm/YY
 d1 = today.strftime("%d")
-writer = SummaryWriter(f"runs/{args.dataset}_{args.reid}_{args.fusion}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
+writer = SummaryWriter(f"runs/{args.dataset}_{args.reid}_{args.fusion}_LOO_{args.LOO}_Fusion_train_fusiontype({args.fuse})_{args.dataset}_day{d1}_{time.time()}")
 
 ### Verify the fusion args is good
 fusion_list=['early', 'layer1', 'layer2', 'layer3', 'layer4', 'layer5', 'fc_fuse', 'gmu', 'unimodal']
@@ -170,7 +172,11 @@ Timer1 = time.time()
 ######################################### TRAINING SET
 
 data_path = f'../Datasets/{args.dataset}/'
-suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+if args.LOO == "query" :
+    suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+else :
+    suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}_LOO_{args.LOO}'
+
 trainset = TrainingData(data_path, args.dataset, transform_train, args.fold)
 
 # if args.dataset == 'sysu':
@@ -202,7 +208,8 @@ color_pos, thermal_pos = GenIdx(trainset.train_color_label, trainset.train_therm
 ######################################### VALIDATION SET
 
 # Validation imgs and labels, depending of the cross validation fold
-query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "valid", args.dataset, args.fold)
+query_img, query_label, query_cam,\
+    gall_img, gall_label, gall_cam = process_data(data_path, "valid", args.dataset, LOO = args.LOO, fold =args.fold)
 
 # Gallery and query set
 gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
@@ -327,8 +334,8 @@ def valid(epoch):
     # evaluation
     # if args.dataset == 'RegDB'or args.dataset == 'TWorld' or args.dataset == "SYSU" :
     if args.dataset == 'RegDB'or args.dataset == 'TWorld' :
-        cmc, mAP, mINP = evaluation(-distmat_fc, query_label, gall_label, dataset = args.dataset)
-        cmc_att, mAP_att, mINP_att  = evaluation(-distmat_pool, query_label, gall_label, dataset = args.dataset)
+        cmc, mAP, mINP = evaluation(-distmat_fc, query_label, gall_label, dataset = args.dataset, LOO = args.LOO)
+        cmc_att, mAP_att, mINP_att  = evaluation(-distmat_pool, query_label, gall_label, dataset = args.dataset, LOO = args.LOO)
 
     elif args.dataset == 'SYSU':
         cmc, mAP, mINP = eval_sysu(-distmat_fc, query_label, gall_label, query_cam, gall_cam)

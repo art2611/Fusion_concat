@@ -39,6 +39,7 @@ parser.add_argument('--dataset', default='RegDB', help='dataset name (RegDB / SY
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / TtoT)')
 parser.add_argument('--trained', default='BtoB', help='Trained model (BtoB / VtoV / TtoT)')
 parser.add_argument('--norm', default='l2norm', help='Normalization for feat or score (l2norm, zscore, minmax, tanh)')
+parser.add_argument('--LOO', default='query', help='Leave one out (query / gallery)')
 
 args = parser.parse_args()
 
@@ -154,13 +155,22 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
     mAP_mINP_per_trial["mAP"][:] = [0 for i in range(trials)]
     mAP_mINP_per_trial["mINP"][:] = [0 for i in range(trials)]
     for fold in range(folds):
-        suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+        if args.LOO == "query":
+            suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+        else:
+            suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}_LOO_{args.LOO}'
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
 
         if Need_two_trained_unimodals[args.fusion] :
-            suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
-            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+            if args.LOO == "query":
+                suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+                suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+
+            else:
+                suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}_LOO_{args.LOO}'
+                suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}_LOO_{args.LOO}'
+
             model_path = checkpoint_path + suffix + '_best.t'
             model_path2 = checkpoint_path + suffix2 + '_best.t'
             print(f"model path2 : {model_path2}")
@@ -187,7 +197,7 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
 
 
         #Prepare query and gallery
-        query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "test", args.dataset, fold)
+        query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "test", args.dataset, args.LOO, fold)
 
         # Gallery and query set
         gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))
@@ -271,7 +281,11 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
             'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                 cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-
+# def load_saved_networks(data_path, folds, Need_two_trained_unimodals, ) :
+#     net = []
+#     net2 = [[] for i in range(folds)]
+#
+#     return(net, net2)
 if args.dataset == "SYSU" :
 
     data_path = f'../Datasets/{args.dataset}/'
@@ -279,13 +293,22 @@ if args.dataset == "SYSU" :
     net2 = [[] for i in range(folds)]
     # Since we are supposed to have 5 models (5 fold validation), this loop get an average result
     for fold in range(folds):
-        suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+        if args.LOO == "query":
+            suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+        else:
+            suffix = f'{args.dataset}_{args.reid}_fuseType({args.fuse})_{args.fusion}person_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}_LOO_{args.LOO}'
         print('==> Resuming from checkpoint..')
         model_path = checkpoint_path + suffix + '_best.t'
 
         if Need_two_trained_unimodals[args.fusion] :
-            suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
-            suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+            if args.LOO == "query":
+                suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+                suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}'
+
+            else:
+                suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}_LOO_{args.LOO}'
+                suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{fold}_LOO_{args.LOO}'
+
             model_path = checkpoint_path + suffix + '_best.t'
             model_path2 = checkpoint_path + suffix2 + '_best.t'
             print(f"model path2 : {model_path2}")
@@ -312,7 +335,7 @@ if args.dataset == "SYSU" :
         for trial in range(trials):
 
             #Prepare query and gallery
-            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "test", args.dataset, trial)
+            query_img, query_label, query_cam, gall_img, gall_label, gall_cam = process_data(data_path, "test", args.dataset, args.LOO, trial)
 
             # Gallery and query set
             gallset = Prepare_set(gall_img, gall_label, transform=transform_test, img_size=(img_w, img_h))

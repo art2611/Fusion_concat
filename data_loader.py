@@ -174,26 +174,30 @@ def GenIdx(train_color_label, train_thermal_label):
     return color_pos, thermal_pos
 
 # Call the corresponding dataset function to process data for the validation or the test phase
-def process_data(img_dir, mode, dataset, fold=0):
+def process_data(img_dir, mode, dataset, LOO = "query", fold=0):
     if dataset=="SYSU":
-        img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam= process_sysu(img_dir, mode, fold)
+        img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam= process_sysu(img_dir, mode, LOO, fold)
     elif dataset == "RegDB" :
         query_cam, gall_cam = None, None
-        img_query, label_query, img_gallery, label_gallery = process_regdb(img_dir, mode, fold)
+        img_query, label_query, img_gallery, label_gallery = process_regdb(img_dir, mode, LOO, fold)
     elif dataset == "TWorld" :
         query_cam, gall_cam = None, None
-        img_query, label_query, img_gallery, label_gallery = process_tworld(img_dir, mode, fold)
+        img_query, label_query, img_gallery, label_gallery = process_tworld(img_dir, mode, LOO, fold)
     return (img_query, label_query, query_cam, img_gallery, label_gallery, gall_cam)
 
 # Process regDB data for test or validation
-def process_tworld(img_dir, mode, fold =  0):
+def process_tworld(img_dir, mode, LOO = "query", fold_or_trial=0):
 
     if mode == "test" :
         input_data_path = img_dir + f'exp/testing.txt'
+        input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
+        fold_or_trial_total_number = 30
     if mode == "valid" :
-        input_data_path = img_dir + f"exp/val_id_{fold}.txt"
+        input_data_path = img_dir + f"exp/val_id_{fold_or_trial}.txt"
+        input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
+        fold_or_trial_total_number = 5
     if mode == "train" :
-        input_data_path = img_dir + f"exp/train_id_{fold}.txt"
+        input_data_path = img_dir + f"exp/train_id_{fold_or_trial}.txt"
 
     ### GET ids in a list
     with open(input_data_path, 'r') as file:
@@ -221,28 +225,56 @@ def process_tworld(img_dir, mode, fold =  0):
     img_gallery = []
     label_query = []
     label_gallery = []
-    # Query and gallery are the same since we want to compare query to all gallery image
-    for id in range(len(ids)):
-        for i in range(len(ids_file_RGB[id])):
-            img_gallery.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
-            img_query.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
-            label_query.append(ids[id])
-            label_gallery.append(ids[id])
+
+    if LOO == "query" :
+    # Query and gallery are the same since we want to compare query to all gallery image, a step is added in evaluation to suppress the match for the same img
+
+        for id in range(len(ids)):
+            for i in range(len(ids_file_RGB[id])):
+                img_gallery.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
+                img_query.append([ids_file_RGB[id][i], ids_file_IR[id][i]])
+                label_query.append(ids[id])
+                label_gallery.append(ids[id])
+
+    elif LOO == "gallery" :
+        positions_list, _ = get_query_gallery_images(input_query_gallery_path, fold_or_trial_total_number)
+
+        for id in range(len(ids)):
+            files_ir = ids_file_IR[id]
+            files_rgb = ids_file_RGB[id]
+            # Same for RGB and IR due to preprocessed selection of positions
+            number_images_for_id_k = len(positions_list[fold_or_trial][id])
+
+            for i in range(number_images_for_id_k):
+                # Get one images as gallery
+                if i == 0:
+                    img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]],
+                                        files_ir[positions_list[fold_or_trial][id][i]]])
+                    label_gallery.append(int(ids[id]))
+                # Get the remaining as query :
+                else:
+                    img_query.append([files_rgb[positions_list[fold_or_trial][id][i]],
+                                      files_ir[positions_list[fold_or_trial][id][i]]])
+                    label_query.append(int(ids[id]))
 
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 
 # Process regDB data for test or validation
-def process_regdb(img_dir, mode, fold = 0 ):
+def process_regdb(img_dir, mode, LOO = "query", fold_or_trial=0):
     if mode == "test" :
         input_visible_data_path = img_dir + f'exp/test_visible_{1}.txt'
         input_thermal_data_path = img_dir + f'exp/test_thermal_{1}.txt'
+        input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
+        fold_or_trial_total_number = 30
     if mode == "valid" :
-        input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold}.txt"
-        input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold}.txt"
+        input_visible_data_path = img_dir + f"exp/val_id_RGB_{fold_or_trial}.txt"
+        input_thermal_data_path = img_dir + f"exp/val_id_IR_{fold_or_trial}.txt"
+        input_query_gallery_path = img_dir + f'exp/query_gallery_validation.txt'
+        fold_or_trial_total_number = 5
     if mode == "train" :
-        input_visible_data_path = img_dir + f"exp/train_id_RGB_{fold}.txt"
-        input_thermal_data_path = img_dir + f"exp/train_id_IR_{fold}.txt"
+        input_visible_data_path = img_dir + f"exp/train_id_RGB_{fold_or_trial}.txt"
+        input_thermal_data_path = img_dir + f"exp/train_id_IR_{fold_or_trial}.txt"
 
     with open(input_visible_data_path) as f:
         data_file_list = open(input_visible_data_path, 'rt').read().splitlines()
@@ -264,22 +296,40 @@ def process_regdb(img_dir, mode, fold = 0 ):
     label_gallery = []
 
     number_images_for_id_k = 10
+    if LOO == "query" :
+        # Query and gallery are the same since we want to compare query to all gallery image
+        for id in range(len(ids)):
+            files_ir = ids_file_IR[id*10:(id+1)*10]
+            files_rgb = ids_file_RGB[id*10:(id+1)*10]
+            # Here we have 10 images per id for this dataset
+            for i in range(number_images_for_id_k):
+                img_gallery.append([files_rgb[i], files_ir[i]])
+                img_query.append([files_rgb[i], files_ir[i]])
+                label_query.append(id)
+                label_gallery.append(id)
+    if LOO == "gallery" :
+        positions_list, _ = get_query_gallery_images(input_query_gallery_path, fold_or_trial_total_number)
+        for id in range(len(ids)):
+            files_ir = ids_file_IR[id*10:(id+1)*10]
+            files_rgb = ids_file_RGB[id*10:(id+1)*10]
+            # Same for RGB and IR due to preprocessed selection of positions
+            number_images_for_id_k = len(positions_list[fold_or_trial][id])
 
-    # Query and gallery are the same since we want to compare query to all gallery image
-    for id in range(len(ids)):
-        files_ir = ids_file_IR[id*10:(id+1)*10]
-        files_rgb = ids_file_RGB[id*10:(id+1)*10]
-        # Here we have 10 images per id for this dataset
-        for i in range(10):
-            img_gallery.append([files_rgb[i], files_ir[i]])
-            img_query.append([files_rgb[i], files_ir[i]])
-            label_query.append(id)
-            label_gallery.append(id)
-
+            for i in range(number_images_for_id_k):
+                # Get one images as gallery
+                if i == 0:
+                    img_gallery.append([files_rgb[positions_list[fold_or_trial][id][i]],
+                                        files_ir[positions_list[fold_or_trial][id][i]]])
+                    label_gallery.append(int(ids[id]))
+                # Get the remaining as query :
+                else:
+                    img_query.append([files_rgb[positions_list[fold_or_trial][id][i]],
+                                      files_ir[positions_list[fold_or_trial][id][i]]])
+                    label_query.append(int(ids[id]))
     return (img_query, np.array(label_query), img_gallery, np.array(label_gallery))
 
 # Process SYSU data for test or validation
-def process_sysu(data_path, method, fold = 0 ):
+def process_sysu(data_path, method, LOO = "query", fold=0):
 
     # rgb_cameras = ['cam1', 'cam2', 'cam4', 'cam5']
     # ir_cameras = ['cam3', 'cam6']
@@ -299,25 +349,9 @@ def process_sysu(data_path, method, fold = 0 ):
         ids = file.read().splitlines()
         ids = [int(y) for y in ids[0].split(',')]
         ids = ["%04d" % x for x in ids]
+
     ### Get the saved random position for query - gallery
-    positions_list_RGB = [[] for i in range(fold_or_trial_total_number)]
-    positions_list_IR = [[] for i in range(fold_or_trial_total_number)]
-    modality = 1
-    trial_number = 0
-    with open(input_query_gallery_path, 'r') as query_gallery_file:
-        for lines in query_gallery_file:
-            the_line = lines.strip()
-            positions = the_line.splitlines()
-            if positions[0] == "modality":
-                modality = 2
-            elif positions[0] == "fold_or_trial" :
-                trial_number += 1
-                modality = 1
-            if positions[0] != "fold_or_trial" and positions[0] != "modality":
-                if modality == 1:
-                    positions_list_RGB[trial_number].append([int(y) for y in positions[0].split(',')])
-                elif modality == 2:
-                    positions_list_IR[trial_number].append([int(y) for y in positions[0].split(',')])
+    positions_list_RGB, positions_list_IR  = get_query_gallery_images(input_query_gallery_path, fold_or_trial_total_number)
 
     ids_file_RGB = []
     ids_file_IR = []
@@ -339,14 +373,22 @@ def process_sysu(data_path, method, fold = 0 ):
         number_images_for_id_k = len(positions_list_RGB[fold_or_trial][id])
 
         for i in range(number_images_for_id_k):
-            # Get one images as query
+            # Get one images as query if LOO = query or as gallery if LOO = gallery
             if i == 0:
-                img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
-                label_query.append(int(ids[id]))
+                if LOO == "query" :
+                    img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                    label_query.append(int(ids[id]))
+                if LOO == "gallery" :
+                    img_gallery.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                    label_gallery.append(int(ids[id]))
             # Get the remaining as gallery :
             else:
-                img_gallery.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
-                label_gallery.append(int(ids[id]))
+                if LOO == "query" :
+                    img_gallery.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                    label_gallery.append(int(ids[id]))
+                elif LOO == "gallery":
+                    img_query.append([files_rgb[positions_list_RGB[fold_or_trial][id][i]], files_ir[positions_list_IR[fold_or_trial][id][i]]])
+                    label_query.append(int(ids[id]))
     # Just give different cam id to not have problem during SYSU evaluation
     gall_cam = [4 for i in range(len(img_gallery))]
     query_cam = [1 for i in range(len(img_query))]
@@ -375,7 +417,27 @@ def image_list_SYSU(id, data_path) :
 
     return(files_ir, files_rgb)
 
-
+def get_query_gallery_images(input_query_gallery_path, fold_or_trial_total_number) :
+    ### Get the saved random position for query - gallery
+    positions_list_RGB = [[] for i in range(fold_or_trial_total_number)]
+    positions_list_IR = [[] for i in range(fold_or_trial_total_number)]
+    modality = 1
+    trial_number = 0
+    with open(input_query_gallery_path, 'r') as query_gallery_file:
+        for lines in query_gallery_file:
+            the_line = lines.strip()
+            positions = the_line.splitlines()
+            if positions[0] == "modality":
+                modality = 2
+            elif positions[0] == "fold_or_trial" :
+                trial_number += 1
+                modality = 1
+            if positions[0] != "fold_or_trial" and positions[0] != "modality":
+                if modality == 1:
+                    positions_list_RGB[trial_number].append([int(y) for y in positions[0].split(',')])
+                elif modality == 2:
+                    positions_list_IR[trial_number].append([int(y) for y in positions[0].split(',')])
+    return(positions_list_RGB, positions_list_IR)
 
 class Prepare_set(data.Dataset):
     def __init__(self, test_img_file, test_label, transform=None, img_size = (144,288)):
