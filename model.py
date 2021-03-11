@@ -168,8 +168,6 @@ class Global_network(nn.Module):
         self.shared_resnet = shared_resnet(arch=arch, fusion_layer=fusion_layer)
 
 
-
-
         # self.bottleneck.apply(weights_init_kaiming)
         # self.classifier.apply(weights_init_classifier)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
@@ -217,8 +215,6 @@ class Global_network(nn.Module):
         if fuse == "fc_fuse" or fuse == "gmu":
             x_pool2 = self.avgpool2(x2)
             x_pool2 = x_pool.view(x_pool2.size(0), x_pool2.size(1))  # torch.Size([32, 512, 9, 5])
-
-            x_pool = torch.cat((x_pool, x_pool2), 1)
 
             if fuse == "gmu":
                 x_pool, z = self.gmu(x_pool, x_pool2)
