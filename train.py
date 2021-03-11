@@ -17,8 +17,8 @@ import argparse
 from datetime import date
 
 parser = argparse.ArgumentParser(description='PyTorch Multi-Modality Training')
-parser.add_argument('--fusion', default='gmu', help='Which layer to fuse (early, layer1, layer2 .., layer5, fc_fuse, gmu, unimodal)')
-parser.add_argument('--fuse', default='gmu', help='Fusion type (cat / cat_channel / sum / fc_fuse / gmu)')
+parser.add_argument('--fusion', default='fc_fuse', help='Which layer to fuse (early, layer1, layer2 .., layer5, fc_fuse, gmu, unimodal)')
+parser.add_argument('--fuse', default='fc_fuse', help='Fusion type (cat / cat_channel / sum / fc_fuse / gmu)')
 parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='TWorld', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / VtoV / TtoT)')
