@@ -174,9 +174,9 @@ class Global_network(nn.Module):
         # self.classifier.apply(weights_init_classifier)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.bottleneck = nn.BatchNorm1d(pool_dim)
-        self.bottleneck2 = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
         # self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
+        # self.bottleneck2 = nn.BatchNorm1d(pool_dim)
         # self.bottleneck2.bias.requires_grad_(False)  # no shift
         # self.gmu = GatedBimodal(pool_dim)
         # self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = False), nn.ReLU())
