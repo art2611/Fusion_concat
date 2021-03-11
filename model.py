@@ -196,9 +196,7 @@ class Global_network(nn.Module):
                 x = self.fusion_function_concat(x1, x2)
                 #The fc can't be used here since the dim is not already [32,1024] but [32,1024,7,2]
             elif fuse == "fc_fuse":
-                x = torch.cat((x1, x2), 1)
-
-
+                x = x1
             # elif fuse == "GBU" :
             #     x, z = self.gbu.apply(x1, x2)
         # If fuse == none : we train a unimodal model => RGB or IR ? Refer to modality
@@ -214,17 +212,20 @@ class Global_network(nn.Module):
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
         # The fc can be used here since the dim is ok but it is less working than after the batch norm
-
+        feat = self.bottleneck(x_pool)
         if fuse == "fc_fuse" :
-            feat = self.bottleneck2(x_pool)  # torch.Size([32, 512])
+            x_pool2 = self.avgpool2(x2)
+            x_pool2 = x_pool.view(x_pool2.size(0), x_pool2.size(1))  # torch.Size([32, 512, 9, 5])
+            feat2 = self.bottleneck2(x_pool2)  # torch.Size([32, 512])
+
+            feat = self.fusion_function_concat(feat, feat2)
             feat = self.fc_fuse(feat)
             # print(f"After Batch norm shape : {feat.shape}")
             # The fc is best used here, but still decrease
         elif fuse == "gmu" :
-            feat = self.gmu(x1,x2)
-
+            feat, z = self.gmu(x1,x2)
         else :
-            feat = self.bottleneck(x_pool)  # torch.Size([64, 2048])
+            feat= self.bottleneck(x_pool)  # torch.Size([64, 2048])
         # if fuse == "fc_fuse" :
         #     feat = self.fc_fuse(feat)
         if self.training:
