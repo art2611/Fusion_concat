@@ -187,7 +187,7 @@ def process_data(img_dir, mode, dataset, LOO = "query", fold=0):
 
 # Process regDB data for test or validation
 def process_tworld(img_dir, mode, LOO = "query", fold_or_trial=0):
-
+    fold_or_trial = int(fold_or_trial)
     if mode == "test" :
         input_data_path = img_dir + f'exp/testing.txt'
         input_query_gallery_path = img_dir + f'exp/query_gallery_test.txt'
@@ -262,6 +262,7 @@ def process_tworld(img_dir, mode, LOO = "query", fold_or_trial=0):
 
 # Process regDB data for test or validation
 def process_regdb(img_dir, mode, LOO = "query", fold_or_trial=0):
+    fold_or_trial = int(fold_or_trial)
     if mode == "test" :
         input_visible_data_path = img_dir + f'exp/test_visible_{1}.txt'
         input_thermal_data_path = img_dir + f'exp/test_thermal_{1}.txt'
