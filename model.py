@@ -179,7 +179,7 @@ class Global_network(nn.Module):
         self.bottleneck = nn.BatchNorm1d(pool_dim)
         self.bottleneck_fc = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
-        self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = False).zero_grad()
+        self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = False)
         # self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias=False), nn.ReLU())
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
@@ -197,6 +197,7 @@ class Global_network(nn.Module):
                 x = self.fusion_function_concat(x1, x2)
             elif fuse == "fc_fuse":
                 x = torch.cat((x1, x2), 1)
+                x = self.fc_fuse(x)
 
             # elif fuse == "GBU" :
             #     x, z = self.gbu.apply(x1, x2)
@@ -214,8 +215,7 @@ class Global_network(nn.Module):
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
 
         if fuse == "fc_fuse" :
-            feat = self.fc_fuse(x_pool)
-            feat = self.bottleneck_fc(feat)  # torch.Size([32, 512])
+            feat = self.bottleneck_fc(x_pool)  # torch.Size([32, 512])
 
         else :
             feat = self.bottleneck(x_pool)  # torch.Size([64, 2048])
