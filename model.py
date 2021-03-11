@@ -216,9 +216,12 @@ class Global_network(nn.Module):
         if fuse == "fc_fuse" :
             x_pool2 = self.avgpool2(x2)
             x_pool2 = x_pool.view(x_pool2.size(0), x_pool2.size(1))  # torch.Size([32, 512, 9, 5])
+
+            x_pool = torch.cat((x_pool, x_pool2), 1)
+
             feat2 = self.bottleneck2(x_pool2)  # torch.Size([32, 512])
 
-            feat = self.fusion_function_concat(feat, feat2)
+            feat = torch.cat((feat, feat2), 1)
             feat = self.fc_fuse(feat)
             # print(f"After Batch norm shape : {feat.shape}")
             # The fc is best used here, but still decrease
