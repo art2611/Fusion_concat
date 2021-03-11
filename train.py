@@ -350,17 +350,16 @@ def valid(epoch):
 
 print('==> Start Training...')
 #Train function
-# ignored_params = list(map(id, net.bottleneck.parameters())) \
-#                  + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters()))
 ignored_params = list(map(id, net.bottleneck.parameters())) \
-                 + list(map(id, net.fc.parameters()))
+                 + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters()))
+
 
 base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
 
 optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * lr},
     {'params': net.bottleneck.parameters(), 'lr': lr},
-    # {'params': net.fc_fuse.parameters(), 'lr': lr},
+    {'params': net.fc_fuse.parameters(), 'lr': lr},
     {'params': net.fc.parameters(), 'lr': lr}],
     weight_decay=5e-4, momentum=0.9, nesterov=True)
 
