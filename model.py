@@ -4,7 +4,7 @@ from torch.nn import init
 # from torchvision.models import resnet50
 from torchvision.models import resnet18 as resnet50
 # from torchsummary import summary
-
+import torch.nn.functional as F
 # import theano
 # from blocks import initialization
 # from blocks.bricks import (Initializable, FeedforwardSequence, LinearMaxout,
@@ -177,8 +177,6 @@ class Global_network(nn.Module):
         self.bottleneck.bias.requires_grad_(False)  # no shift
 
         self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
-        self.bottleneck2 = nn.BatchNorm1d(pool_dim)
-        self.bottleneck2.bias.requires_grad_(False)  # no shift
         self.gmu = GatedBimodal(pool_dim)
         self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = True), nn.ReLU())
 
@@ -214,7 +212,7 @@ class Global_network(nn.Module):
         x_pool = self.avgpool(x)
         x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
         # The fc can be used here since the dim is ok but it is less working than after the batch norm
-        feat = self.bottleneck(x_pool)
+
 
         if fuse == "fc_fuse" or fuse == "gmu":
             x_pool2 = self.avgpool2(x2)
@@ -222,19 +220,17 @@ class Global_network(nn.Module):
 
             x_pool = torch.cat((x_pool, x_pool2), 1)
 
-            feat2 = self.bottleneck2(x_pool2)  # torch.Size([32, 512])
-
             if fuse == "gmu":
-                feat, z = self.gmu(feat, feat2)
+                x_pool, z = self.gmu(x_pool, x_pool2)
             elif fuse == "fc_fuse" :
-                feat = torch.cat((feat, feat2), 1)
-                feat = self.fc_fuse(feat)
+                x_pool = torch.cat((x_pool, x_pool2), 1)
+                x_pool = self.fc_fuse(x_pool)
+
+        feat = self.bottleneck(x_pool)
 
         if self.training:
             return x_pool, self.fc(feat)
         else:
-            if fuse == "fc_fuse" or fuse =="gmu" :
-                return self.l2norm(feat), self.l2norm(feat), feat
             return self.l2norm(x_pool), self.l2norm(feat), feat
 
 class MLP(nn.Module):
