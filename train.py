@@ -350,8 +350,8 @@ def valid(epoch):
 
 print('==> Start Training...')
 #Train function
-ignored_params = list(map(id, net.bottleneck.parameters())) \
-                 + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters()))
+# ignored_params = list(map(id, net.bottleneck.parameters())) \
+#                  + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters()))
 ignored_params = list(map(id, net.bottleneck.parameters())) \
                  + list(map(id, net.fc.parameters()))
 
