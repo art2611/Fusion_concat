@@ -174,9 +174,9 @@ class Global_network(nn.Module):
         self.bottleneck = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
 
-        self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
-        self.gmu = GatedBimodal(pool_dim)
-        self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = True), nn.ReLU())
+        # self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
+        # self.gmu = GatedBimodal(pool_dim)
+        # self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = True), nn.ReLU())
 
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)
@@ -195,8 +195,6 @@ class Global_network(nn.Module):
                 #The fc can't be used here since the dim is not already [32,1024] but [32,1024,7,2]
             elif fuse == "fc_fuse" or fuse == "gmu":
                 x = x1
-            elif fuse == "GBU" :
-                x, z = self.gbu.apply(x1, x2)
         # If fuse == none : we train a unimodal model => RGB or IR ? Refer to modality
         else :
             if modality=="VtoV" :
