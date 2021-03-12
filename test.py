@@ -146,7 +146,8 @@ Need_two_trained_unimodals = {"early": False,"layer1":False, "layer2":False, \
 
 
 
-if args.dataset == "TWorld" or args.dataset == "RegDB" :
+# if args.dataset == "TWorld" or args.dataset == "RegDB" :
+if False :
     data_path = f'../Datasets/{args.dataset}/'
     net = []
     net2 = [[] for i in range(folds)]
@@ -252,8 +253,8 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
 
                 distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
 
-        cmc, mAP, mINP = evaluation(-distmat,query_label ,gall_label)
-        cmc_pool, mAP_pool, mINP_pool = evaluation(-distmat_pool, query_label, gall_label)
+        cmc, mAP, mINP = evaluation(-distmat, query_label, gall_label, LOO = args.LOO)
+        cmc_pool, mAP_pool, mINP_pool = evaluation(-distmat_pool, query_label, gall_label, LOO = args.LOO)
 
         if fold == 0 :
             all_cmc = cmc
@@ -281,12 +282,13 @@ if args.dataset == "TWorld" or args.dataset == "RegDB" :
             'POOL: Rank-1: {:.2%} | Rank-5: {:.2%} | Rank-10: {:.2%}| Rank-20: {:.2%}| mAP: {:.2%}| mINP: {:.2%}'.format(
                 cmc_pool[0], cmc_pool[4], cmc_pool[9], cmc_pool[19], mAP_pool, mINP_pool))
 
-# def load_saved_networks(data_path, folds, Need_two_trained_unimodals, ) :
-#     net = []
-#     net2 = [[] for i in range(folds)]
-#
-#     return(net, net2)
-if args.dataset == "SYSU" :
+
+# if args.dataset == "SYSU" or args.LOO == "gallery":
+if True:
+    if args.dataset == "SYSU" or args.LOO == "gallery":
+        trials = 30
+    else :
+        trials = 1
 
     data_path = f'../Datasets/{args.dataset}/'
     net = []
@@ -389,9 +391,12 @@ if args.dataset == "SYSU" :
                     gall_feat_fc = (gall_final_fc + gall_final_fc2) / 2
 
                     distmat = np.matmul(query_feat_fc, np.transpose(gall_feat_fc))
-
-            cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
-            cmc_pool, mAP_pool, mINP_pool = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
+            if args.dataset == "SYSU" :
+                cmc, mAP, mINP = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
+                cmc_pool, mAP_pool, mINP_pool = eval_sysu(-distmat, query_label, gall_label, query_cam, gall_cam)
+            else :
+                cmc, mAP, mINP = evaluation(-distmat, query_label, gall_label, LOO = args.LOO)
+                cmc_pool, mAP_pool, mINP_pool = evaluation(-distmat_pool, query_label, gall_label, LOO = args.LOO)
 
             if trial == 0 and fold == 0 :
                 all_cmc = cmc
@@ -407,6 +412,7 @@ if args.dataset == "SYSU" :
                 all_cmc_pool = all_cmc_pool + cmc_pool
                 all_mAP_pool = all_mAP_pool + mAP_pool
                 all_mINP_pool = all_mINP_pool + mINP_pool
+
             mAP_mINP_per_trial["mAP"][trial] += mAP
             mAP_mINP_per_trial["mINP"][trial] += mINP
             mAP_mINP_per_model["mAP"][fold] += mAP
@@ -566,20 +572,18 @@ if False :
         mINP_list.append(mINP)
 
 #Standard Deviation :
-
-# Means
-if args.dataset == "TWorld" or args.dataset == "RegDB" :
-    trials = 1
-    standard_deviation_mAP_model = np.std(mAP_mINP_per_model["mAP"])
-    standard_deviation_mINP_model = np.std(mAP_mINP_per_model["mINP"])
-    standard_deviation_mAP_trial = 0
-    standard_deviation_mINP_trial = 0
-else :
+if args.dataset == "SYSU" or args.LOO == "gallery":
     standard_deviation_mAP_model = np.std([mAP_mINP_per_model["mAP"][k] / trials for k in range(folds)])
     standard_deviation_mINP_model = np.std([mAP_mINP_per_model["mINP"][k] / trials for k in range(folds)])
     standard_deviation_mAP_trial = np.std([mAP_mINP_per_trial["mAP"][k] / folds for k in range(trials)])
     standard_deviation_mINP_trial = np.std([mAP_mINP_per_trial["mINP"][k] / folds for k in range(trials)])
+else :
+    standard_deviation_mAP_model = np.std(mAP_mINP_per_model["mAP"])
+    standard_deviation_mINP_model = np.std(mAP_mINP_per_model["mINP"])
+    standard_deviation_mAP_trial = 0
+    standard_deviation_mINP_trial = 0
 
+# Means
 cmc = all_cmc / (folds * trials)
 mAP = all_mAP / (folds * trials)
 mINP = all_mINP / (folds * trials)
