@@ -11,6 +11,8 @@ fi
 
 read -e -p "Enter the fuse type (sum/cat/cat_channel/none / ALL) of the trained model :" FUSE
 if [ "$FUSE" =  "ALL" ]
+
+
 then
   echo "DO ALL"
   # In this case do test of sum cat and cat channel at all position
