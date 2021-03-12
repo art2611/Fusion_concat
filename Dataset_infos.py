@@ -290,7 +290,7 @@ if False :
     #         f.write(f"fold_or_trial\n")
 
 # Generate query gallery random positions for SYSU (first two positions will be used as query and the remaining as gallery)
-if True :
+if False :
     # Test query gallery generation
     img_dir = '../Datasets/SYSU/'
     input_data_path = img_dir + f'exp/test_id.txt'
