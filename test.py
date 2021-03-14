@@ -603,9 +603,9 @@ else :
     f.write(' , Rank-1, Rank-5, mAP, mINP, stdmAP, stdmINP\n')
 
 if args.fusion == "score" or args.fusion == "fc" :
-    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}_{args.norm}"
+    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}_{args.norm}_{args.LOO}"
 else :
-    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}"
+    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}_{args.LOO}"
 
 f.write(f'  {data_info}, {cmc[0]:.2%}, {cmc[4]:.2%}, {mAP:.2%}±{standard_deviation_mAP_model:.2%},\
     {mINP:.2%}±{standard_deviation_mINP_model:.2%}, std_mAP_trial{standard_deviation_mAP_trial:.2%}, std_mINP_trial{standard_deviation_mINP_trial:.2%}\n')
