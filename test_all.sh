@@ -21,7 +21,7 @@ then
   do
     python test.py --fusion='unimodal' --dataset=$DATASET --reid=$reid --trained=$reid --fuse='none' --LOO=$LOO ;
   done
-    for fuse in 'sum';
+    for fuse in 'cat';
   do
     for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
     do
