@@ -201,7 +201,7 @@ if False :
 
 
 # Generate query gallery random positions for TWorld (first two positions will be used as query and the remaining as gallery)
-if False :
+if True :
     img_dir = '../Datasets/TWorld/'
     input_data_path = img_dir + f'exp/testing.txt'
     trials = 30
