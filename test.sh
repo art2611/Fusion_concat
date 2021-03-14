@@ -23,5 +23,8 @@ fi
 read -e -p "Enter the fuse type (sum/cat/cat_channel/none) of the trained model :" FUSE
 echo FUSE
 
-python test.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --trained=$TRAINED --fuse=$FUSE ;
+read -e -p "Enter the the LOO needed (Query / Gallery) :" LOO
+echo $LOO
+
+python test.py --fusion=$FUSION --dataset=$DATASET --reid=$REID --trained=$TRAINED --fuse=$FUSE --LOO=$LOO ;
 
