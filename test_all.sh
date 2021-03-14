@@ -18,7 +18,7 @@ then
   do
     python test.py --fusion='unimodal' --dataset=$DATASET --reid=$reid --trained=$reid --fuse='none' ;
   done
-    for fuse in 'sum';
+    for fuse in 'sum' 'cat' 'cat_channel';
   do
     for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
     do
