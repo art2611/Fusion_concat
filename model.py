@@ -128,13 +128,11 @@ class GatedBimodal(nn.Module):
     def forward(self, x1, x2):
 
 
-        h1 = self.activation(self.hidden1(x1))
-        h2 = self.activation(self.hidden1(x2))
+        h1 = self.activation(self.hidden1(x1)) # torch.Size([batch size , feature size])
+        h2 = self.activation(self.hidden1(x2)) # torch.Size([batch size , feature size])
         x = torch.cat((h1, h2), dim=1)
-        z = self.gate_activation(self.hidden_sigmoid(x))
-        print(h1.shape)
-        print(f" z value : {z.shape}")
-        print(((1-z).view(z.size()[0],1)*h2).shape)
+        z = self.gate_activation(self.hidden_sigmoid(x)) # torch.Size([batch size , 1])
+
         return z.view(z.size()[0],1)*h1 + (1-z).view(z.size()[0],1)*h2, z
 
         # # Prepare the cat tensor for incoming z calcul
