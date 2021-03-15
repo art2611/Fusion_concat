@@ -17,17 +17,17 @@ echo $LOO
 #echo $FUSE
 
 
-#for i in `seq 0 4`;
-#do
-#        echo "BEGINING OF THE FIRST TRAINING : Unimodal RGB - Fold = $i"
-#        python train.py --fusion="unimodal" --dataset=$DATASET --reid="VtoV" --fuse="none" --fold=$i --LOO=$LOO;
-#done
-#
-#for i in `seq 0 4`;
-#do
-#        echo "BEGINING OF THE FIRST TRAINING : Unimodal IR - Fold = $i"
-#        python train.py --fusion="unimodal" --dataset=$DATASET --reid="TtoT" --fuse="none" --fold=$i --LOO=$LOO;
-#done
+for i in `seq 0 4`;
+do
+        echo "BEGINING OF THE FIRST TRAINING : Unimodal RGB - Fold = $i"
+        python train.py --fusion="unimodal" --dataset=$DATASET --reid="VtoV" --fuse="none" --fold=$i --LOO=$LOO;
+done
+
+for i in `seq 0 4`;
+do
+        echo "BEGINING OF THE FIRST TRAINING : Unimodal IR - Fold = $i"
+        python train.py --fusion="unimodal" --dataset=$DATASET --reid="TtoT" --fuse="none" --fold=$i --LOO=$LOO;
+done
 
 
 for w in 'sum' 'cat' 'cat_channel';
@@ -41,3 +41,4 @@ do
       done
   done
 done
+
