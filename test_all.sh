@@ -28,7 +28,12 @@ then
 #      python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fuse --LOO=$LOO ;
 #    done
 #  done
-  for fusion in 'score' 'fc';
+#  for fusion in 'score' 'fc';
+#  do
+#    python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse='none' --LOO=$LOO ;
+#  done
+
+  for fusion in 'fc_fuse' 'gmu';
   do
     python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse='none' --LOO=$LOO ;
   done
