@@ -30,15 +30,24 @@ echo $LOO
 #done
 
 
-for w in 'sum' 'cat' 'cat_channel';
+#for w in 'sum' 'cat' 'cat_channel';
+#do
+#  for j in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5';
+#  do
+#    for i in `seq 0 4`;
+#      do
+#              echo "BEGINING OF THE FIRST TRAINING : $j - Fold = $i fuse = $w"
+#              python train.py --fusion=$j --dataset=$DATASET --reid="BtoB" --fuse=$w --fold=$i --LOO=$LOO;
+#      done
+#  done
+#done
+
+for fusion in 'fc_fuse' 'gmu';
 do
-  for j in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5';
-  do
-    for i in `seq 0 4`;
+      for i in `seq 0 4`;
       do
               echo "BEGINING OF THE FIRST TRAINING : $j - Fold = $i fuse = $w"
-              python train.py --fusion=$j --dataset=$DATASET --reid="BtoB" --fuse=$w --fold=$i --LOO=$LOO;
+                python train.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --fuse=$fusion --fold=$i --LOO=$LOO;
       done
-  done
-done
 
+done
