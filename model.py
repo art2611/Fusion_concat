@@ -113,40 +113,49 @@ class GatedBimodal(nn.Module):
         super(GatedBimodal, self).__init__()
 
         self.dim = dim
+
+        #Activation functions
         self.activation = nn.Tanh()
         self.gate_activation = nn.Sigmoid()
 
         # Learnable weights definition - As describe in the paper
-        self.Wz = nn.parameter.Parameter(torch.rand(2*dim, dim))
-        self.Wt = nn.parameter.Parameter(torch.rand(1, dim))
-        self.Wv = nn.parameter.Parameter(torch.rand(1, dim))
-        self.Wz.requires_grad = True
-        self.Wt.requires_grad = True
-        self.Wv.requires_grad = True
+        self.hidden1 = nn.Linear(dim, dim, bias=False)
+        self.hidden2 = nn.Linear(dim, dim, bias=False)
+        self.hidden_sigmoid = nn.Linear(dim*2, 1, bias=False)
+
 
     # x1 and x2 will respectively be RGB input and IR thermal input.
     def forward(self, x1, x2):
-        # Prepare the cat tensor for incoming z calcul
-        x = torch.cat((x1, x2), 1) # torch.Size([batch size, 2 * dim of input features])
-        # Get the batch size
-        batch_size = x.shape[0]
-        # print(self.Wz)
-        # Get vector of scalar. One scalar for each feature from the batch
-        hv = self.activation(torch.mm(self.Wv, torch.transpose(x1, 0, 1))) # torch.Size([1, batch size])
-        ht = self.activation(torch.mm(self.Wt, torch.transpose(x2, 0, 1))) # torch.Size([1, batch size])
-        # print(hv)
-        # Get the weights for weighted sum fusion of the two modalities
-        z = self.gate_activation(torch.mm(x, self.Wz)) # torch.Size([batch size, dim of input features])
 
-        # Prepare the fused feature tensor of size [batch size , dim input feature)
-        fused_feat = torch.rand(batch_size, self.dim).cuda()
 
-        # For each feature from batch, return the weighted sum
-        for k in range(batch_size) :
-            fused_feat[k] = z[k][:]*hv[0][k] + (1-z[k][:])*ht[0][k]  # torch.Size([1, dim of input feature])
+        h1 = self.tanh_f(self.hidden1(x1))
+        h2 = self.tanh_f(self.hidden1(x2))
+        x = torch.cat((h1, h2), dim=1)
+        z = self.sigmoid_f(self.hidden_sigmoid(x))
+        print(f" z value : {z}")
+        return z.view(z.size()[0],1)*h1 + (1-z).view(z.size()[0],1)*h2
 
-        # Get the fused features and the matrix of weight, in a way to see which modality contributed the most further
-        return fused_feat, z
+        # # Prepare the cat tensor for incoming z calcul
+        # x = torch.cat((x1, x2), 1) # torch.Size([batch size, 2 * dim of input features])
+        # # Get the batch size
+        # batch_size = x.shape[0]
+        # # print(self.Wz)
+        # # Get vector of scalar. One scalar for each feature from the batch
+        # hv = self.activation(torch.mm(self.Wv, torch.transpose(x1, 0, 1))) # torch.Size([1, batch size])
+        # ht = self.activation(torch.mm(self.Wt, torch.transpose(x2, 0, 1))) # torch.Size([1, batch size])
+        # # print(hv)
+        # # Get the weights for weighted sum fusion of the two modalities
+        # z = self.gate_activation(torch.mm(x, self.Wz)) # torch.Size([batch size, dim of input features])
+        #
+        # # Prepare the fused feature tensor of size [batch size , dim input feature)
+        # fused_feat = torch.rand(batch_size, self.dim).cuda()
+        #
+        # # For each feature from batch, return the weighted sum
+        # for k in range(batch_size) :
+        #     fused_feat[k] = z[k][:]*hv[0][k] + (1-z[k][:])*ht[0][k]  # torch.Size([1, dim of input feature])
+        #
+        # # Get the fused features and the matrix of weight, in a way to see which modality contributed the most further
+        # return fused_feat, z
 
 class Global_network(nn.Module):
     def __init__(self,  class_num, arch='resnet50', fusion_layer=4):
@@ -174,10 +183,10 @@ class Global_network(nn.Module):
         self.bottleneck = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
 
-        self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
-        self.gmu = GatedBimodal(pool_dim)
-        # self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = True), nn.ReLU())
-        self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = True)
+        # self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
+        # self.gmu = GatedBimodal(pool_dim)
+        # # self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = True), nn.ReLU())
+        # self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = True)
 
         self.fc = nn.Linear(pool_dim, class_num, bias=False)
         self.l2norm = Normalize(2)

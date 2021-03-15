@@ -209,7 +209,7 @@ if True :
     with open(input_data_path, 'r') as file:
         ids = file.read().splitlines()
         ids = [int(y) for y in ids[0].split(',')]
-    print(ids[5])
+    print(len(ids))
     ids_file_RGB = []
     ids_file_IR = []
     img_dir_init = img_dir
@@ -254,7 +254,8 @@ if True :
     #     with open(input_data_path, 'r') as file:
     #         ids = file.read().splitlines()
     #         ids = [int(y) for y in ids[0].split(',')]
-    #
+    # print(len(ids))
+
     #     ids_file_RGB = []
     #     ids_file_IR = []
     #     img_dir_init = img_dir
