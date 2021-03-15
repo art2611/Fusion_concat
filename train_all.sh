@@ -46,7 +46,7 @@ for fusion in 'fc_fuse' 'gmu';
 do
       for i in `seq 0 4`;
       do
-              echo "BEGINING OF THE FIRST TRAINING : $j - Fold = $i fuse = $w"
+              echo "BEGINING OF THE FIRST TRAINING : $fusion - Fold = $i fuse = $fusion"
                 python train.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --fuse=$fusion --fold=$i --LOO=$LOO;
       done
 
