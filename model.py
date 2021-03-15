@@ -183,7 +183,7 @@ class Global_network(nn.Module):
         self.bottleneck = nn.BatchNorm1d(pool_dim)
         self.bottleneck.bias.requires_grad_(False)  # no shift
 
-        # self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
+        self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
         self.gmu = GatedBimodal(pool_dim)
         self.fc_fuse = nn.Sequential(nn.Linear(2*pool_dim, pool_dim, bias = True), nn.ReLU())
         # self.fc_fuse = nn.Linear(2*pool_dim, pool_dim, bias = True)
