@@ -138,11 +138,11 @@ folds = 5
 mAP_mINP_per_trial = {"mAP" : [0 for i in range(trials)], "mINP" : [0 for i in range(trials)]}
 mAP_mINP_per_model = {"mAP" : [0 for i in range(folds)], "mINP" : [0 for i in range(folds)]}
 end = time.time()
-Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "fc_fuse": 5, "unimodal":0, "score":0, "fc":0}
+Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "fc_fuse": 5, "gmu":5, "unimodal":0, "score":0, "fc":0}
 nclass = {"RegDB" : 164, "SYSU" : 316, "TWorld" : 260}
 Need_two_trained_unimodals = {"early": False,"layer1":False, "layer2":False, \
                               "layer3":False, "layer4":False, "layer5":False, \
-                              "unimodal":False, "fc_fuse":False, "score" : True, "fc" : True}
+                              "unimodal":False, "fc_fuse":False, "gmu" : False, "score" : True, "fc" : True}
 
 
 
