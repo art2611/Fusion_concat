@@ -132,8 +132,7 @@ class GatedBimodal(nn.Module):
         h2 = self.activation(self.hidden1(x2))
         x = torch.cat((h1, h2), dim=1)
         z = self.gate_activation(self.hidden_sigmoid(x))
-        print(f" z value : {z}")
-        print(z.view(z.size()[0],1))
+        print(f" z value : {z.shape}")
         return z.view(z.size()[0],1)*h1 + (1-z).view(z.size()[0],1)*h2, z
 
         # # Prepare the cat tensor for incoming z calcul
