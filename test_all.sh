@@ -21,13 +21,18 @@ then
 #  do
 #    python test.py --fusion='unimodal' --dataset=$DATASET --reid=$reid --trained=$reid --fuse='none' --LOO=$LOO ;
 #  done
-    for fuse in 'cat';
+#  for fuse in 'sum' 'cat' 'cat_channel';
+#  do
+#    for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
+#    do
+#      python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fuse --LOO=$LOO ;
+#    done
+#  done
+  for fusion in 'score' 'fc';
   do
-    for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
-    do
-      python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fuse --LOO=$LOO ;
-    done
+    python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse='none' --LOO=$LOO ;
   done
+
 else
     echo "DO $FUSE only"
       for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
