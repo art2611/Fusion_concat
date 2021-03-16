@@ -10,8 +10,8 @@ then
   DATASET="SYSU"
 fi
 
-read -e -p "Enter the the LOO needed (Query / Gallery) :" LOO
-echo $LOO
+#read -e -p "Enter the the LOO needed (Query / Gallery) :" LOO
+#echo $LOO
 
 #read -e -p "Enter the the fuse type (sum/cat/cat_channel/none) :" FUSE
 #echo $FUSE
@@ -44,10 +44,13 @@ echo $LOO
 
 for fusion in 'fc_fuse' 'gmu';
 do
+  for LOO in 'query' 'gallery';
+  do
+      echo $LOO
       for i in `seq 0 4`;
       do
               echo "BEGINING OF THE FIRST TRAINING : $fusion - Fold = $i fuse = $fusion"
                 python train.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --fuse=$fusion --fold=$i --LOO=$LOO;
       done
-
+  done
 done
