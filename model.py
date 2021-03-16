@@ -216,15 +216,18 @@ class Global_network(nn.Module):
 
 
         x_pool = self.avgpool(x)
-        x_pool = x_pool.view(x_pool.size(0), x_pool.size(1)) # torch.Size([32, 512, 9, 5])
+        x_pool = x_pool.view(x_pool.size(0), x_pool.size(1))
         # The fc can be used here since the dim is ok but it is less working than after the batch norm
 
 
         if fuse == "fc_fuse" or fuse == "gmu":
             x_pool2 = self.avgpool2(x2)
-            x_pool2 = x_pool.view(x_pool2.size(0), x_pool2.size(1))  # torch.Size([32, 512, 9, 5])
+            x_pool2 = x_pool.view(x_pool2.size(0), x_pool2.size(1))
 
+            x_pool = self.l2norm(x_pool)
+            x_pool2 = self.l2norm(x_pool2)
             if fuse == "gmu":
+
                 x_pool, z = self.gmu(x_pool, x_pool2)
             elif fuse == "fc_fuse" :
                 x_pool = torch.cat((x_pool, x_pool2), 1)
