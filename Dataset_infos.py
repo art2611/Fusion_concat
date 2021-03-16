@@ -201,7 +201,7 @@ if False :
 
 
 # Generate query gallery random positions for TWorld (first two positions will be used as query and the remaining as gallery)
-if True :
+if False :
     img_dir = '../Datasets/TWorld/'
     input_data_path = img_dir + f'exp/testing.txt'
     trials = 30
@@ -518,7 +518,7 @@ if False :
     print(img_gallery[0])
 
 #Generate RegDB query/ gallery repartition in file for RegDB test
-if False :
+if True :
     img_dir = '../Datasets/RegDB/'
     input_data_path = img_dir + f'idx/test_visible_{1}.txt'
     trials = 30
