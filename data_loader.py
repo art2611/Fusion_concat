@@ -85,7 +85,8 @@ class TWorldDATA(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         data_dir = '../Datasets/TWorld/'
         # Load training labels
-        labels = np.load(data_dir + f'train_label_{fold}.npy')
+        # labels = np.load(data_dir + f'train_label_{fold}.npy')
+        labels = data_dir + f'train_id_{fold}.txt'
 
         ### GET ids in a list
         with open(data_dir, 'r') as file:
