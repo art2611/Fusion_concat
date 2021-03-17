@@ -11,7 +11,7 @@ from utils import IdentitySampler, AverageMeter, adjust_learning_rate
 from loss import BatchHardTripLoss
 from tensorboardX import SummaryWriter
 
-from model import Global_network, GatedBimodal
+from model import Global_network, Gated_classifier
 from evaluation import *
 import argparse
 from datetime import date
@@ -28,8 +28,11 @@ parser.add_argument('--trained', default='False', help='Use of trained unimodals
 args = parser.parse_args()
 
 # Function to extract gallery features
-def extract_gall_feat(gall_loader, ngall, net):
+def extract_gall_feat(gall_loader, ngall, net,  net_RGB = None, net_IR = None ):
     net.eval()
+    if net_RGB is not None :
+        net_RGB.eval()
+        net_IR.eval()
     print('Extracting Gallery Feature...')
     start = time.time()
     ptr = 0
@@ -47,7 +50,14 @@ def extract_gall_feat(gall_loader, ngall, net):
             input2 = Variable(input2.cuda())
 
             #Test mode 0 by default if BtoB and we need to use both inputs
-            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality=args.reid)
+            if net_RGB is None:
+                feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality=args.reid)
+            else :
+                net_RGB.eval()
+                net_IR.eval()
+                feat_pool_RGB, _, _ = net_RGB(input1, input2, fuse=args.fuse, modality="VtoV")
+                feat_pool_IR, _, _ = net_IR(input1, input2, fuse=args.fuse, modality="TtoT")
+                feat_pool, feat_fc, = net(feat_pool_RGB, feat_pool_IR)
 
             gall_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
             gall_feat_fc[ptr:ptr + batch_num, :] = feat_fc.detach().cpu().numpy()
@@ -57,8 +67,12 @@ def extract_gall_feat(gall_loader, ngall, net):
     return gall_feat_pool, gall_feat_fc
 
 #Function to extract query image features
-def extract_query_feat(query_loader, nquery, net):
+def extract_query_feat(gall_loader, nquery, net,  net_RGB = None, net_IR = None ):
     net.eval()
+    if net_RGB is not None :
+        net_RGB.eval()
+        net_IR.eval()
+
     print('Extracting Query Feature...')
     start = time.time()
     ptr = 0
@@ -77,7 +91,14 @@ def extract_query_feat(query_loader, nquery, net):
             input2 = Variable(input2.cuda())
 
             # Test mode 0 by default if BtoB and we need to use both inputs
-            feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality=args.reid)
+            if net_RGB is None:
+                feat_pool, feat_fc, _ = net(input1, input2, fuse=args.fuse, modality=args.reid)
+            else :
+                net_RGB.eval()
+                net_IR.eval()
+                feat_pool_RGB, _, _ = net_RGB(input1, input2, fuse=args.fuse, modality="VtoV")
+                feat_pool_IR, _, _ = net_IR(input1, input2, fuse=args.fuse, modality="TtoT")
+                feat_pool, feat_fc, = net(feat_pool_RGB, feat_pool_IR)
             # print(feat_pool.shape)
             # print(feat_fc.shape)
             query_feat_pool[ptr:ptr + batch_num, :] = feat_pool.detach().cpu().numpy()
@@ -253,7 +274,7 @@ if args.trained == 'False' :
     net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
 # If training from features extracted by trained unimodal models
 else :
-    net = GatedBimodal(512)
+    net = Gated_classifier(512)
     if args.LOO == "query":
         suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
         suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
@@ -275,10 +296,10 @@ else :
         net_IR = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
         net_IR.load_state_dict(RGB_checkpoint['net'])
         print(f"Fold {args.fold} IR loaded")
-
     else :
         print("models not found")
         sys.exit()
+
 ######################################### TRAIN AND VALIDATION FUNCTIONS
 
 def train(epoch):
@@ -294,7 +315,13 @@ def train(epoch):
     total = 0
 
     # switch to train mode
-    net.train()
+    if args.trained == 'False':
+        net.train()
+    else :
+        net.train()
+        net_RGB.eval()
+        net_IR.eval()
+
     end = time.time()
 
     for batch_idx, (input1, input2, label1, label2) in enumerate(trainloader):
@@ -310,8 +337,12 @@ def train(epoch):
         # If the reid is unimodal VtoV (Visible to Visible), the network use only the first input
         # If the reid is unimodal TtoT (Thermal to Thermal), the network use only the second input
         # If the reid is using both images (BtoB), the network uses the two inputs
-
-        feat, out0, = net(input1, input2, fuse = args.fuse, modality=args.reid)
+        if args.trained == 'False':
+            feat, out0, = net(input1, input2, fuse = args.fuse, modality=args.reid)
+        else :
+            feat_rgb, _, = net_RGB(input1, input2, fuse = args.fuse, modality="VtoV")
+            feat_ir, _, = net_IR(input1, input2, fuse = args.fuse, modality="TtoT")
+            feat, out0, = net(feat_rgb, feat_ir)
 
         loss_ce = criterion_id(out0, labels)
         loss_tri, batch_acc = criterion_tri(feat, labels)
@@ -352,6 +383,10 @@ def valid(epoch):
     #Get all normalized distance
     gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader, n_gall, net = net)
     query_feat_pool, query_feat_fc = extract_query_feat(query_loader, n_query, net = net)
+    # switch to train mode
+    if args.trained == 'True':
+        gall_feat_pool, gall_feat_fc = extract_gall_feat(gall_loader, n_gall, net=net, net_RGB = net_RGB, net_IR = net_IR)
+        query_feat_pool, query_feat_fc = extract_query_feat(query_loader, n_query, net=net, net_RGB = net_RGB, net_IR = net_IR)
 
     print(f"Feature extraction time : {time.time() - end}")
     start = time.time()
@@ -379,10 +414,10 @@ def valid(epoch):
 
 print('==> Start Training...')
 #Train function
-ignored_params = list(map(id, net.bottleneck.parameters())) \
-                 + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters() )) + list(map(id, net.gmu.parameters()))
 # ignored_params = list(map(id, net.bottleneck.parameters())) \
-#                  + list(map(id, net.fc.parameters()))
+#                  + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters() )) + list(map(id, net.gmu.parameters()))
+ignored_params = list(map(id, net.bottleneck.parameters())) \
+                 + list(map(id, net.fc.parameters()))
 
 
 base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
@@ -390,8 +425,8 @@ base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
 optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * lr},
     {'params': net.bottleneck.parameters(), 'lr': lr},
-    {'params': net.fc_fuse.parameters(), 'lr': lr},
-    {'params': net.gmu.parameters(), 'lr': lr},
+    # {'params': net.fc_fuse.parameters(), 'lr': lr},
+    # {'params': net.gmu.parameters(), 'lr': lr},
     {'params': net.fc.parameters(), 'lr': lr}],
     weight_decay=5e-4, momentum=0.9, nesterov=True)
 

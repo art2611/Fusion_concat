@@ -17,26 +17,10 @@ from numpy import asarray
 from sklearn.preprocessing import MinMaxScaler
 # define data
 
-#DATA NORMALISATION
-# data = np.array([[6., 2.,4.],
-# 				[4., 12.,6.]])
-# print(math.sqrt(6*6 + 2*2 + 4*4))
-# norm = np.linalg.norm(data ,ord=2, axis=1)
-# print(data[k][])
-# print(np.linalg.norm(data ,ord=2, axis=1))
-# print()
-# min = np.min(data, axis=1)
-# print(min)
-# max = np.max(data,axis=1)
-# print(data.shape)
-# for k in range(data.shape[0]) :
-#     for i in range(data.shape[1]):
-#         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
-# print(data)
-a = 0.
-while a <=1. :
-    print(a)
-    a += 0.05
+
+a = None
+print(a.eval())
+
 sys.exit()
 class GatedBimodal(nn.Module):
     u"""Gated Multimodal Unit neural network - Bimodal use"""
