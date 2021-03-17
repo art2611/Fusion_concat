@@ -25,20 +25,40 @@ class RegDBData(data.Dataset):
         data_dir = '../Datasets/RegDB/'
         #Load color and thermal images + labels
         #Initial images
-        train_color_image= np.load( data_dir + f'train_rgb_img_{fold}.npy')
-        train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
+        # train_color_image= np.load( data_dir + f'train_rgb_img_{fold}.npy')
+        # train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
 
-        # Load labels
-        # train_color_label = np.load(data_dir + f'train_label_{fold}.npy')
+        train_color_image_list= np.load( data_dir + f'exp/train_id_RGB_{fold}.txt')
+        train_thermal_image_list = np.load(data_dir + f'exp/train_id_IR_{fold}.txt')
+
+        color_img_file, _ = load_data(train_color_image_list)
+        thermal_img_file, _ = load_data(train_thermal_image_list)
+
+        train_color_image = []
+        for i in range(len(color_img_file)):
+            img = Image.open(data_dir + color_img_file[i])
+            img = img.resize((144, 288), Image.ANTIALIAS)
+            pix_array = np.array(img)
+            train_color_image.append(pix_array)
+        train_color_image = np.array(train_color_image)
+
+        train_thermal_image = []
+        for i in range(len(thermal_img_file)):
+            img = Image.open(data_dir + thermal_img_file[i])
+            img = img.resize((144, 288), Image.ANTIALIAS)
+            pix_array = np.array(img)
+            train_thermal_image.append(pix_array)
+        train_thermal_image = np.array(train_thermal_image)
+
+        # Load labels ( same labels for both images )
         train_color_label = [int(i/10) for i in range((204-40)*10)]
-        #same labels for both images
         train_thermal_label = train_color_label
 
         # Init color images / labels
         self.train_color_image = train_color_image
         self.train_color_label = train_color_label
 
-        # Init themal images / labels
+        # Init thermal images / labels
         self.train_thermal_image = train_thermal_image
         self.train_thermal_label = train_thermal_label
 
@@ -93,13 +113,48 @@ class TWorldDATA(data.Dataset):
 class SYSUData(data.Dataset):
     def __init__(self, data_dir, transform=None, colorIndex=None, thermalIndex=None, fold = 0):
         data_dir = '../Datasets/SYSU/'
+
+        input_data_path = data_dir + f"exp/train_id_{fold}.txt"
+
+        ### GET ids in a list
+        with open(input_data_path, 'r') as file:
+            ids = file.read().splitlines()
+            ids = [int(y) for y in ids[0].split(',')]
+            ids = ["%04d" % x for x in ids]
+
+        ids_file_RGB = []
+        ids_file_IR = []
+        ### Get list of list containing images per identity
+        for id in ids:
+            files_ir, files_rgb = image_list_SYSU(id, data_dir)
+            ids_file_RGB.extend(files_rgb)
+            ids_file_IR.extend(files_ir)
+
+        # relabel
+        pid_container = set()
+        for img_path in ids_file_IR:
+            pid = int(img_path[-13:-9])
+            pid_container.add(pid)
+        pid2label = {pid: label for label, pid in enumerate(pid_container)}
+
+        train_thermal_image, train_thermal_label = read_imgs(ids_file_RGB, pid2label)
+        train_color_image, train_color_label = read_imgs(ids_file_IR, pid2label)
+
         # Load training labels
-        self.train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
-        self.train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
+        self.train_color_label = train_color_label
+        self.train_thermal_label = train_thermal_label
 
         # Load training images
-        self.train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
-        self.train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
+        self.train_color_image = train_color_image
+        self.train_thermal_image = train_thermal_image
+
+        # # Load training labels
+        # self.train_color_label = np.load(data_dir + f'train_rgb_label_{fold}.npy')
+        # self.train_thermal_label = np.load(data_dir + f'train_ir_label_{fold}.npy')
+        #
+        # # Load training images
+        # self.train_color_image = np.load(data_dir + f'train_rgb_img_{fold}.npy')
+        # self.train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
 
         self.transform = transform
         self.cIndex = colorIndex
@@ -474,6 +529,24 @@ class Prepare_set(data.Dataset):
     def __len__(self):
         #Should be the same len for both image 1 and image 2
         return len(self.test_image1)
+
+
+def read_imgs(train_image, pid2label):
+    train_img = []
+    train_label = []
+    for img_path in train_image:
+        # img
+        img = Image.open(img_path)
+        img = img.resize((144, 288), Image.ANTIALIAS)
+        pix_array = np.array(img)
+
+        train_img.append(pix_array)
+
+        # label
+        pid = int(img_path[-13:-9])
+        pid = pid2label[pid]
+        train_label.append(pid)
+    return np.array(train_img), np.array(train_label)
 
 # Print some of the images :
 # print(trainset.train_color_image.shape)
