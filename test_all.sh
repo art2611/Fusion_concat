@@ -36,7 +36,7 @@ then
   do
   for fusion in 'fc_fuse' 'gmu';
   do
-    python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fusion --LOO=$LOO ;
+    python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fusion --LOO=$i ;
   done
   done
 else
