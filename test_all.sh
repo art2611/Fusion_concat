@@ -32,12 +32,13 @@ then
 #  do
 #    python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse='none' --LOO=$LOO ;
 #  done
-
+  for i in 'query' 'gallery';
+  do
   for fusion in 'fc_fuse' 'gmu';
   do
-    python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fusion --LOO=$LOO ;
+    python test.py --fusion=$fusion --dataset=$DATASET --reid="BtoB" --trained="BtoB" --fuse=$fusion --LOO=$i ;
   done
-
+  done
 else
     echo "DO $FUSE only"
       for fusion in 'early' 'layer1' 'layer2' 'layer3' 'layer4' 'layer5' ;
