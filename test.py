@@ -381,7 +381,7 @@ if True:
 
                     # distmat, distmat2 = Normalize_func(distmat, distmat2, args.norm)
                     print(f"Weight value : {args.weight}")
-                    distmat = (float(args.weight)*distmat + float(1-args.weight) * distmat2)
+                    distmat = (float(args.weight)*distmat + (1-float(args.weight)) * distmat2)
                 elif args.fusion == "fc":
                     # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                     #First do a norm :
