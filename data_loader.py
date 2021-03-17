@@ -140,8 +140,14 @@ class SYSUData(data.Dataset):
         train_thermal_image, train_thermal_label = read_imgs(ids_file_RGB, pid2label)
         train_color_image, train_color_label = read_imgs(ids_file_IR, pid2label)
 
-        print(ids_file_RGB[:25])
-        print(train_color_label[:25])
+        print(ids_file_RGB[10])
+        print(ids_file_RGB[100])
+        print(ids_file_RGB[200])
+        print(ids_file_RGB[300])
+        print(train_color_label[10])
+        print(train_color_label[100])
+        print(train_color_label[200])
+        print(train_color_label[300])
         # Load training labels
         self.train_color_label = train_color_label
         self.train_thermal_label = train_thermal_label
