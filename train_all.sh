@@ -44,7 +44,7 @@ fi
 
 for fusion in 'fc_fuse' 'gmu';
 do
-  for LOO in 'query';
+  for LOO in 'gallery';
   do
       echo $LOO
       for i in `seq 0 4`;
