@@ -28,8 +28,8 @@ class RegDBData(data.Dataset):
         # train_color_image= np.load( data_dir + f'train_rgb_img_{fold}.npy')
         # train_thermal_image = np.load(data_dir + f'train_ir_img_{fold}.npy')
 
-        train_color_image_list= np.load( data_dir + f'exp/train_id_RGB_{fold}.txt')
-        train_thermal_image_list = np.load(data_dir + f'exp/train_id_IR_{fold}.txt')
+        train_color_image_list= data_dir + f'exp/train_id_RGB_{fold}.txt'
+        train_thermal_image_list = data_dir + f'exp/train_id_IR_{fold}.txt'
 
         color_img_file, _ = load_data(train_color_image_list)
         thermal_img_file, _ = load_data(train_thermal_image_list)
