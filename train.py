@@ -249,7 +249,7 @@ print('==> Building model..')
 Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "fc_fuse":5, "gmu" : 5, "unimodal":0}
 
 #  If classic training
-if not args.trained :
+if args.trained == False :
     net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
 # If training from features extracted by trained unimodal models
 else :
