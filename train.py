@@ -11,7 +11,7 @@ from utils import IdentitySampler, AverageMeter, adjust_learning_rate
 from loss import BatchHardTripLoss
 from tensorboardX import SummaryWriter
 
-from model import Global_network
+from model import Global_network, GatedBimodal
 from evaluation import *
 import argparse
 from datetime import date
@@ -23,6 +23,7 @@ parser.add_argument('--fold', default='0', help='Fold number (0 to 4)')
 parser.add_argument('--dataset', default='TWorld', help='dataset name (RegDB / SYSU )')
 parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / VtoV / TtoT)')
 parser.add_argument('--LOO', default='query', help='Leave one out (query / gallery)')
+parser.add_argument('--trained', default='False', help='Use of trained unimodals for feature extraction')
 
 args = parser.parse_args()
 
@@ -247,9 +248,37 @@ print('==> Building model..')
 # net = Networks[args.fusion]
 Fusion_layer = {"early": 0,"layer1":1, "layer2":2, "layer3":3, "layer4":4, "layer5":5, "fc_fuse":5, "gmu" : 5, "unimodal":0}
 
-# New global model
-net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
+#  If classic training
+if not args.trained :
+    net = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
+# If training from features extracted by trained unimodal models
+else :
+    net = GatedBimodal(512)
+    if args.LOO == "query":
+        suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+        suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}'
+    else:
+        suffix = f'{args.dataset}_VtoV_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}_LOO_{args.LOO}'
+        suffix2 = f'{args.dataset}_TtoT_fuseType(none)_unimodalperson_fusion({num_of_same_id_in_batch})_same_id({batch_num_identities})_lr_{lr}_fold_{args.fold}_LOO_{args.LOO}'
+    # Load models
+    checkpoint_path = '../save_model/'
+    RGB_model_path = checkpoint_path + suffix + '_best.t'
+    IR_model_path = checkpoint_path + suffix2 + '_best.t'
 
+    if os.path.isfile(RGB_model_path) and os.path.isfile(IR_model_path):
+        print('==> loading checkpoints RGB and IR')
+        RGB_checkpoint= torch.load(RGB_model_path)
+        IR_checkpoint= torch.load(IR_model_path)
+        net_RGB = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
+        net_RGB.load_state_dict(RGB_checkpoint['net'])
+        print(f"Fold {args.fold} RGB loaded")
+        net_IR = Global_network(n_class, fusion_layer=Fusion_layer[args.fusion]).to(device)
+        net_IR.load_state_dict(RGB_checkpoint['net'])
+        print(f"Fold {args.fold} IR loaded")
+
+    else :
+        print("models not found")
+        sys.exit()
 ######################################### TRAIN AND VALIDATION FUNCTIONS
 
 def train(epoch):
@@ -350,10 +379,10 @@ def valid(epoch):
 
 print('==> Start Training...')
 #Train function
-# ignored_params = list(map(id, net.bottleneck.parameters())) \
-#                  + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters()))
 ignored_params = list(map(id, net.bottleneck.parameters())) \
-                 + list(map(id, net.fc.parameters()))
+                 + list(map(id, net.fc.parameters())) + list(map(id, net.fc_fuse.parameters() )) + list(map(id, net.gmu.parameters()))
+# ignored_params = list(map(id, net.bottleneck.parameters())) \
+#                  + list(map(id, net.fc.parameters()))
 
 
 base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
@@ -361,7 +390,8 @@ base_params = filter(lambda p: id(p) not in ignored_params, net.parameters())
 optimizer = optim.SGD([
     {'params': base_params, 'lr': 0.1 * lr},
     {'params': net.bottleneck.parameters(), 'lr': lr},
-    # {'params': net.fc_fuse.parameters(), 'lr': lr},
+    {'params': net.fc_fuse.parameters(), 'lr': lr},
+    {'params': net.gmu.parameters(), 'lr': lr},
     {'params': net.fc.parameters(), 'lr': lr}],
     weight_decay=5e-4, momentum=0.9, nesterov=True)
 

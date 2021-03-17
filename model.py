@@ -242,18 +242,27 @@ class Global_network(nn.Module):
         else:
             return self.l2norm(x_pool), self.l2norm(feat), feat
 
-class MLP(nn.Module):
-    def __init__(self):
-        super(MLP, self).__init__()
-        self.layers = nn.Sequential(
-            nn.Linear(1024, 100),
-            nn.ReLU(),
-            nn.Linear(100, 2)
-        )
+class Gated_classifier(nn.Module):
+    def __init__(self, class_num):
+        super(Gated_classifier, self).__init__()
+
+        # self.gmu = GatedBimodal(pool_dim)
+        pool_dim = 512
+        self.bottleneck = nn.BatchNorm1d(pool_dim)
+        self.bottleneck.bias.requires_grad_(False)  # no shift
+        self.fc = nn.Linear(pool_dim, class_num, bias=False)
+        self.l2norm = Normalize(2)
     def forward(self, x1, x2):
-        x = torch.cat((x1, x2), 1)
-        x = self.layers(x)
-        return x
+
+        x_pool, z = self.gmu(x1, x2)
+
+        feat = self.bottleneck(x_pool)
+
+        if self.training:
+            return x_pool, self.fc(feat)
+        else:
+            return self.l2norm(x_pool), self.l2norm(feat), feat
+
 
 # from torchsummary import summary
 # model = Global_network(250, arch='resnet50', fusion_layer=5)
