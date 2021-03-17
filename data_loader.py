@@ -86,10 +86,10 @@ class TWorldDATA(data.Dataset):
         data_dir = '../Datasets/TWorld/'
         # Load training labels
         # labels = np.load(data_dir + f'train_label_{fold}.npy')
-        labels = data_dir + f'train_id_{fold}.txt'
+        input_data_path = data_dir + f'train_id_{fold}.txt'
 
         ### GET ids in a list
-        with open(data_dir, 'r') as file:
+        with open(input_data_path, 'r') as file:
             ids = file.read().splitlines()
             ids = [int(y) for y in ids[0].split(',')]
 
