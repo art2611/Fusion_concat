@@ -224,6 +224,7 @@ class Global_network(nn.Module):
             x_pool2 = self.avgpool2(x2)
             x_pool2 = x_pool.view(x_pool2.size(0), x_pool2.size(1))
 
+            # Normalization
             x_pool = self.l2norm(x_pool)
             x_pool2 = self.l2norm(x_pool2)
             if fuse == "gmu":
