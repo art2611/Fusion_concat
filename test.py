@@ -40,6 +40,7 @@ parser.add_argument('--reid', default='BtoB', help='Type of ReID (BtoB / TtoT / 
 parser.add_argument('--trained', default='BtoB', help='Trained model (BtoB / VtoV / TtoT)')
 parser.add_argument('--norm', default='l2norm', help='Normalization for feat or score (l2norm, zscore, minmax, tanh)')
 parser.add_argument('--LOO', default='query', help='Leave one out (query / gallery)')
+parser.add_argument('--weight', default='0.5', help='Weighted summation for modalities')
 
 args = parser.parse_args()
 
@@ -380,7 +381,7 @@ if True:
 
                     # distmat, distmat2 = Normalize_func(distmat, distmat2, args.norm)
 
-                    distmat = (distmat + distmat2)/2
+                    distmat = (float(args.weight)*distmat + (1-args.weight) * distmat2)/2
                 elif args.fusion == "fc":
                     # Proceed to a simple feature aggregation, features incoming from the two distinct unimodal trained models (RGB and IR )
                     #First do a norm :
@@ -603,7 +604,7 @@ else :
     f.write(' , Rank-1, Rank-5, mAP, mINP, stdmAP, stdmINP\n')
 
 if args.fusion == "score" or args.fusion == "fc" :
-    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}_{args.norm}_{args.LOO}"
+    data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}_{args.norm}_{args.LOO}_weight({args.weight})"
 else :
     data_info = f"{args.dataset}_{args.fusion}_{args.fuse}_{args.reid}_{args.LOO}"
 

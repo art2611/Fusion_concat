@@ -33,7 +33,11 @@ from sklearn.preprocessing import MinMaxScaler
 #     for i in range(data.shape[1]):
 #         data[k][i] = (data[k][i] - min[k]) / (max[k] - min[k])
 # print(data)
-
+a = 0.
+while a <=1. :
+    print(a)
+    a += 0.05
+sys.exit()
 class GatedBimodal(nn.Module):
     u"""Gated Multimodal Unit neural network - Bimodal use"""
     def __init__(self, dim):
